@@ -4,7 +4,7 @@ import { StyledTextFieldNoBorder } from "./StyledTextField";
 
 const styles = theme => ({
   readOnlyDiv: {
-    padding: "5px"
+    padding: "4px 5px 5px 5px"
   }
 });
 

@@ -34,6 +34,7 @@ const styles = theme => ({
   },
   tableCell: {
     //cursor: "pointer",
+    letterSpacing: "0",
     fontSize: "1rem",
     width: "6rem"
   },
@@ -42,7 +43,7 @@ const styles = theme => ({
     fontWeight: "bold",
     border: "1px solid rgba(224, 224, 224, 1)",
     "&:last-child": {
-      paddingRight: "2.5px"
+      paddingRight: "4px"
     }
   },
   tableCellHeadDiv: {
