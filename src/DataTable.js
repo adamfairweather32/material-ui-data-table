@@ -41,7 +41,6 @@ const styles = theme => ({
     fontSize: "1rem",
     fontWeight: "bold",
     border: "1px solid rgba(224, 224, 224, 1)",
-    paddingRight: "2.5px",
     "&:last-child": {
       paddingRight: "2.5px"
     }
