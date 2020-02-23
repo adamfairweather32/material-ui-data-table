@@ -95,6 +95,25 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     return `field-${rowIndex}-${columnId}`;
   };
 
+  const generateRow = (columns, rowIndex) =>
+    columns.map(column => {
+      const key = getCellId(rowIndex, column);
+      return (
+        <TableCell
+          key={key}
+          padding="none"
+          className={classes.tableCell}
+          onFocus={handleCellFocus}
+        >
+          <DataTableField
+            id={key}
+            value={rows[rowIndex][column]}
+            focused={getCellId(rowIndex, column) === focus}
+          />
+        </TableCell>
+      );
+    });
+
   const generateRows = () => {
     const columns = state.columns;
     let index = state.scroll.index;
@@ -111,7 +130,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           style={{
             position: "absolute",
             top: index * rowHeight,
-            //left: 0,
             height: rowHeight,
             lineHeight: `${rowHeight}px`,
             width: "100%",
@@ -122,28 +140,12 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           }`}
           key={index}
         >
-          {columns.map((column, i) => {
-            const key = getCellId(index, column);
-            return (
-              <TableCell
-                key={key}
-                padding="none"
-                className={classes.tableCell}
-                onFocus={handleCellFocus}
-              >
-                <DataTableField
-                  id={key}
-                  value={rows[index][column]}
-                  focused={getCellId(index, column) === focus}
-                />
-              </TableCell>
-            );
-          })}
+          {generateRow(columns, index)}
         </TableRow>
       );
-      //https://www.reddit.com/r/reactjs/comments/4a7a5u/how_do_you_deal_with_scrolling_issues_jank/
       index++;
     } while (index < state.scroll.end);
+
     return items;
   };
 
