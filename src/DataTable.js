@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import _ from "lodash";
 import { withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Paper from "@material-ui/core/Paper";
@@ -46,6 +47,12 @@ const styles = theme => ({
       paddingRight: "4px"
     }
   },
+  tableCellBodyFocused: {
+    outline: theme.palette.primary.main,
+    outlineWidth: "2px",
+    outlineOffset: "-2px",
+    outlineStyle: "solid"
+  },
   tableCellHeadDiv: {
     paddingLeft: "5px"
   },
@@ -86,29 +93,51 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     });
   };
 
-  const handleCellFocus = event => {
-    //console.log("event.target = ", event.target.id);
+  const handleCellClick = event => {
+    console.log("event.target = ", event.target.id);
     setFocus(event.target.id);
   };
 
-  const getCellId = (rowIndex, columnId) => {
-    return `field-${rowIndex}-${columnId}`;
+  const getCellId = (rowId, columnId) => {
+    return `field-${rowId}-${columnId}`;
+  };
+
+  const getRowAndColumnId = cellId => {
+    if (cellId) {
+      var parts = cellId.split("-");
+      return {
+        rowId: parts[1],
+        columnId: parts[2]
+      };
+    }
+    return null;
   };
 
   const generateRow = (columns, rowIndex) =>
     columns.map(column => {
-      const key = getCellId(rowIndex, column);
+      const row = rows[rowIndex];
+      const rowId = row.id;
+
+      //get scrolled row index
+      //get focused row index
+      //if not within visible table then do not focus
+
+      const key = getCellId(rowId, column);
+      const isFocused = focus && key === focus;
       return (
         <TableCell
           key={key}
           padding="none"
-          className={classes.tableCell}
-          onFocus={handleCellFocus}
+          className={clsx(
+            classes.tableCell,
+            isFocused ? classes.tableCellBodyFocused : undefined
+          )}
+          onClick={handleCellClick}
         >
           <DataTableField
             id={key}
             value={rows[rowIndex][column]}
-            focused={getCellId(rowIndex, column) === focus}
+            focused={isFocused}
           />
         </TableCell>
       );

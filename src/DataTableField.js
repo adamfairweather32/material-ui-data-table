@@ -1,10 +1,10 @@
-import React from "react";
+import React, { memo } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import { StyledTextFieldNoBorder } from "./StyledTextField";
+import StyledInput from "./StyledInput";
 
 const styles = theme => ({
   readOnlyDiv: {
-    padding: "4px 5px 5px 5px"
+    padding: "5px"
   }
 });
 
@@ -20,14 +20,17 @@ const DataTableField = ({ classes, id, value, focused }) => {
     readOnly: true
   };
   return (
-    <StyledTextFieldNoBorder
-      InputProps={inputProps}
-      id={id}
-      variant="outlined"
-      value={value}
-      autoFocus
-    />
+    <StyledInput inputProps={inputProps} id={id} value={value} autoFocus />
   );
 };
+
+const propsAreEqual = (prev, next) => {
+  return prev.value === next.value && prev.focused === next.focused;
+};
+
+export const MemoizedDataTableField = memo(
+  withStyles(styles)(DataTableField),
+  propsAreEqual
+);
 
 export default withStyles(styles)(DataTableField);

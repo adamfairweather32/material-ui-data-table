@@ -6,7 +6,7 @@ export const StyledTextField = styled(TextField)`
     display: flex;
   }
   .MuiOutlinedInput-input {
-    padding: 4px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
   }
   .MuiOutlinedInput-root {
     border-radius: 0;
@@ -14,11 +14,8 @@ export const StyledTextField = styled(TextField)`
 `;
 
 export const StyledTextFieldNoBorder = styled(StyledTextField)`
-  /* .PrivateNotchedOutline-root-99 {
-    border-width: 0;
-  } */
   .MuiOutlinedInput-notchedOutline {
-    border-width: 0;
+    border-width: 0px;
   }
   .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
     border-width: 1px;
