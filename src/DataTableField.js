@@ -20,7 +20,12 @@ const DataTableField = ({ classes, id, value, focused }) => {
     readOnly: true
   };
   return (
-    <StyledInput inputProps={inputProps} id={id} value={value} autoFocus />
+    <StyledInput
+      inputProps={inputProps}
+      id={id}
+      value={value}
+      //autoFocus
+    />
   );
 };
 

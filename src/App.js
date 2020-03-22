@@ -18,7 +18,7 @@ export default function App() {
   return (
     <div>
       {/* <h1>Records: {people.length}</h1> */}
-      <DataTable rows={people} rowHeight={30} tableHeight={110} />
+      <DataTable rows={people} rowHeight={30} tableHeight={200} />
       {/* <div style={{ height: "25px" }} />
       <DataTable rows={people} rowHeight={30} tableHeight={110} />
       <div style={{ height: "25px" }} />

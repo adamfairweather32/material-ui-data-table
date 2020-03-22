@@ -6,7 +6,7 @@ export const StyledTextField = styled(TextField)`
     display: flex;
   }
   .MuiOutlinedInput-input {
-    padding: 5px 5px 5px 5px;
+    padding: 5px;
   }
   .MuiOutlinedInput-root {
     border-radius: 0;
