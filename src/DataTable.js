@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import _ from "lodash";
 import { withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Paper from "@material-ui/core/Paper";
@@ -94,6 +93,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   useEffect(() => {
     //calculateTableHeight();
     onScroll({ target: { scrollTop: 0}})
+    // eslint-disable-next-line
   }, []);
 
   //if user presses the down/up arrow key and cell is not visible then
@@ -167,6 +167,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
 
       return (
         <TableCell
+          component="div"
           key={key}
           padding="none"
           style={{
@@ -234,6 +235,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
+            component="div"
               className={clsx(classes.tableCell, classes.tableCellHead)}
               key={i}
               padding="none"
@@ -259,6 +261,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
+              //component="div"
               className={clsx(classes.tableCell, classes.tableCellHead)}
               style={{
                 top: rowHeight
@@ -286,6 +289,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
+            //component="div"
               className={clsx(classes.tableCell, classes.tableCellFoot)}
               key={i}
               padding="none"
