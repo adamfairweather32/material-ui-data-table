@@ -65,6 +65,9 @@ const styles = theme => ({
   tableCellHeadDiv: {
     paddingLeft: "5px"
   },
+  tableRow: {
+    display: "table-row"
+  },
   tableRowOdd: {
     backgroundColor: "#EBEAF6"
   },
@@ -105,7 +108,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   //continue to work with making the cell look active
 
   //TODO: on reize -> re-render body after 150ms
-  //TODO: on initial render -> re-render body
 
   const onScroll = ({ target }) => {
     const numberOfRows = rows.length; // returned from server
@@ -156,7 +158,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       const { focused, id } = focus;
       const isFocused = id && key === id && focused;
 
-      const cols = document.querySelectorAll("table thead tr th");
+      const cols = document.querySelectorAll("div.MuiTableCell-head");
 
       const currentColWidth = cols[i]
         ? cols[i].getBoundingClientRect().width
@@ -193,13 +195,14 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const columns = state.columns;
     let index = state.scroll.index;
     const items = [];
+
     do {
       if (index >= rows.length) {
         index = rows.length;
         break;
       }
       items.push(
-        <tr
+        <div
           style={{
             top: index * rowHeight,
             height: rowHeight,
@@ -209,13 +212,11 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
               : 0, // TODO calculate actual width
             position: "absolute"
           }}
-          className={`${
-            index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven
-          }`}
+          className={clsx(classes.tableRow, index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}
           key={index}
         >
           {generateRow(columns, index)}
-        </tr>
+        </div>
       );
       index++;
     } while (index < state.scroll.end);
@@ -226,7 +227,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   const renderParentHeader = () => {
     return (
       <>
-        <TableRow
+        <div
           className={classes.tableRow}
           style={{
             height: rowHeight,
@@ -235,7 +236,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
-            component="div"
+              component="div"
               className={clsx(classes.tableCell, classes.tableCellHead)}
               key={i}
               padding="none"
@@ -243,7 +244,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
               <div className={classes.tableCellHeadDiv}>{name}</div>
             </TableCell>
           ))}
-        </TableRow>
+        </div>
       </>
     );
   };
@@ -252,7 +253,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     return (
       <>
         {renderParentHeader()}
-        <TableRow
+        <div
           className={classes.tableRow}
           style={{
             height: rowHeight,
@@ -261,7 +262,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
-              //component="div"
+              component="div"
               className={clsx(classes.tableCell, classes.tableCellHead)}
               style={{
                 top: rowHeight
@@ -272,15 +273,14 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
               <div className={classes.tableCellHeadDiv}>{name}</div>
             </TableCell>
           ))}
-        </TableRow>
+        </div>
       </>
     );
   };
 
   const renderFooter = () => {
     return (
-      <>
-        <TableRow
+        <div
           className={classes.tableRow}
           style={{
             height: rowHeight,
@@ -289,7 +289,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
-            //component="div"
+              component="div"
               className={clsx(classes.tableCell, classes.tableCellFoot)}
               key={i}
               padding="none"
@@ -297,8 +297,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
               <div className={classes.tableCellHeadDiv}>{name}</div>
             </TableCell>
           ))}
-        </TableRow>
-      </>
+        </div>
+      
     );
   };
 
