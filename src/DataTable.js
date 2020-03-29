@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import { withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
@@ -91,6 +91,11 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     scrolling: false
   });
 
+  useEffect(() => {
+    //calculateTableHeight();
+    onScroll({ target: { scrollTop: 0}})
+  }, []);
+
   //if user presses the down/up arrow key and cell is not visible then
   //set focused cell at top/bottom of grid
   //if user starts typing then scroll back to the cell
@@ -101,17 +106,13 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
 
   //TODO: on reize -> re-render body after 150ms
   //TODO: on initial render -> re-render body
+
   const onScroll = ({ target }) => {
     const numberOfRows = rows.length; // returned from server
-
-    // 50000[px] high table
     const tableHeight = numberOfRows * rowHeight;
-
-    // e.g. scrolled 4000px down the table
-    const positionInTable = target.scrollTop;
-
     const tableBody = document.querySelector(".tbody");
-
+    const positionInTable = target.scrollTop;
+        
     const visibleTableHeight =
       document
         .querySelectorAll(".MuiTableContainer-root")[0]
@@ -156,6 +157,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       const isFocused = id && key === id && focused;
 
       const cols = document.querySelectorAll("table thead tr th");
+
       const currentColWidth = cols[i]
         ? cols[i].getBoundingClientRect().width
         : 0;
@@ -190,7 +192,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const columns = state.columns;
     let index = state.scroll.index;
     const items = [];
-
     do {
       if (index >= rows.length) {
         index = rows.length;
@@ -304,11 +305,12 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         onScroll={onScroll}
         component={Paper}
         style={{
-          maxHeight: tableHeight
+          maxHeight: tableHeight,
+          minHeight: "200px"
         }}
       >
         <Table className={classes.tableWrapper}>
-          <div className="height" />
+          {/* <div className="height" /> */}
           <TableHead className={classes.tableHead}>{renderHeader()}</TableHead>
           <div
             className="tbody"
