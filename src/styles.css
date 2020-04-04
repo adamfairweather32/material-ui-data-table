@@ -6,10 +6,6 @@ select:focus {
   outline: none;
 }
 
-table-row { 
-  display: table-row; 
-}
-
 html {
   scroll-behavior: smooth;
 }

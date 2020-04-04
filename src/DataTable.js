@@ -4,16 +4,19 @@ import clsx from "clsx";
 import Paper from "@material-ui/core/Paper";
 import TableCell from "@material-ui/core/TableCell";
 import Table from "@material-ui/core/Table";
-import TableRow from "@material-ui/core/TableRow";
-import TableHead from "@material-ui/core/TableHead";
-import TableFooter from "@material-ui/core/TableFooter";
 import TableContainer from "@material-ui/core/TableContainer";
 import DataTableField from "./DataTableField";
 
 const styles = theme => ({
   root: {},
-  tableWrapper: {
-    borderCollapse: "separate"
+  tableHeadComponent: {
+    width: "100%",
+    display: "table-header-group",
+    borderSpacing: 0,
+    borderCollapse: "collapse"
+  },
+  tableFooterComponent: {
+    display: "table-footer-group"
   },
   tableHead: {
     backgroundColor: "#fafafa",
@@ -115,12 +118,11 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const tableBody = document.querySelector(".tbody");
     const positionInTable = target.scrollTop;
         
-    const visibleTableHeight =
-      document
-        .querySelectorAll(".MuiTableContainer-root")[0]
-        .getBoundingClientRect().height -
-      document.querySelectorAll("thead")[0].getBoundingClientRect().height -
-      document.querySelectorAll("tfoot")[0].getBoundingClientRect().height;
+    const tableHeadHeight = document.getElementById("thead").getBoundingClientRect().height;
+    const tableFooterHeight = document.getElementById("tfoot").getBoundingClientRect().height;
+    const tableContainerHeight = document.getElementById("tcontainer").getBoundingClientRect().height;
+
+    const visibleTableHeight = tableContainerHeight - tableHeadHeight - tableFooterHeight;
 
     const topRowIndex = Math.floor(positionInTable / rowHeight);
     const endRow = topRowIndex + visibleTableHeight / rowHeight;
@@ -162,14 +164,12 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
 
       const currentColWidth = cols[i]
         ? cols[i].getBoundingClientRect().width
-        : 0;
-
-      // Get the width of the column at index i.
-      // Then set width of tableCell to that column
+        : 0;      
 
       return (
         <TableCell
           component="div"
+          variant="body"
           key={key}
           padding="none"
           style={{
@@ -237,6 +237,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           {state.columns.map((name, i) => (
             <TableCell
               component="div"
+              variant="head"
               className={clsx(classes.tableCell, classes.tableCellHead)}
               key={i}
               padding="none"
@@ -262,6 +263,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         >
           {state.columns.map((name, i) => (
             <TableCell
+              variant="head"
               component="div"
               className={clsx(classes.tableCell, classes.tableCellHead)}
               style={{
@@ -290,6 +292,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           {state.columns.map((name, i) => (
             <TableCell
               component="div"
+              variant="footer"
               className={clsx(classes.tableCell, classes.tableCellFoot)}
               key={i}
               padding="none"
@@ -306,6 +309,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     <>
       <div>{JSON.stringify(state.scroll)}</div>
       <TableContainer
+        id = "tcontainer"
         onScroll={onScroll}
         component={Paper}
         style={{
@@ -313,9 +317,9 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           minHeight: "200px"
         }}
       >
-        <Table className={classes.tableWrapper}>
+        <Table id="table" className={classes.tableWrapper}>
           {/* <div className="height" /> */}
-          <TableHead className={classes.tableHead}>{renderHeader()}</TableHead>
+          <div id="thead" className={clsx(classes.tableHeadComponent, classes.tableHead)}>{renderHeader()}</div>
           <div
             className="tbody"
             style={{
@@ -324,7 +328,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           >
             {renderBody()}
           </div>
-          <TableFooter>{renderFooter()}</TableFooter>
+          <div id="tfoot" className={classes.tableFooterComponent}>{renderFooter()}</div>
         </Table>
       </TableContainer>
     </>
