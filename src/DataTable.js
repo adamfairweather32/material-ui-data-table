@@ -15,6 +15,12 @@ const styles = theme => ({
     borderSpacing: 0,
     borderCollapse: "collapse"
   },
+  tableComponent: {
+    width: "100%",
+    display: "table",
+    borderSpacing: 0,
+    borderCollapse: "collapse"
+  },
   tableFooterComponent: {
     display: "table-footer-group"
   },
@@ -195,6 +201,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const columns = state.columns;
     let index = state.scroll.index;
     const items = [];
+    const tableElement = document.getElementById("table");
+    const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
 
     do {
       if (index >= rows.length) {
@@ -207,9 +215,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
             top: index * rowHeight,
             height: rowHeight,
             lineHeight: `${rowHeight}px`,
-            width: document.querySelector("table")
-              ? document.querySelector("table").getBoundingClientRect().width
-              : 0, // TODO calculate actual width
+            width: tableWidth,
             position: "absolute"
           }}
           className={clsx(classes.tableRow, index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}
@@ -317,7 +323,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           minHeight: "200px"
         }}
       >
-        <Table id="table" className={classes.tableWrapper}>
+        <div id="table" className={classes.tableComponent}>
           {/* <div className="height" /> */}
           <div id="thead" className={clsx(classes.tableHeadComponent, classes.tableHead)}>{renderHeader()}</div>
           <div
@@ -329,7 +335,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
             {renderBody()}
           </div>
           <div id="tfoot" className={classes.tableFooterComponent}>{renderFooter()}</div>
-        </Table>
+        </div>
       </TableContainer>
     </>
   );
