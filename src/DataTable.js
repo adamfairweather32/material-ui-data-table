@@ -3,7 +3,6 @@ import { withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Paper from "@material-ui/core/Paper";
 import TableCell from "@material-ui/core/TableCell";
-import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
 import DataTableField from "./DataTableField";
 
@@ -62,7 +61,6 @@ const styles = theme => ({
   tableCellBodyFocused: {
     outline: theme.palette.primary.main,
     outlineWidth: "2px",
-    outlineOffset: "-2px",
     outlineStyle: "solid"
     // "&:focus": {
     //   outline: theme.palette.primary.main,
@@ -85,6 +83,9 @@ const styles = theme => ({
   }
 });
 
+let timer = null;
+const FOCUS_TIMEOUT_MS = 150;
+
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   const [state, setState] = useState({
     columns: Object.keys(rows[0]),
@@ -103,7 +104,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   });
 
   useEffect(() => {
-    //calculateTableHeight();
     onScroll({ target: { scrollTop: 0}})
     // eslint-disable-next-line
   }, []);
@@ -117,6 +117,10 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   //continue to work with making the cell look active
 
   //TODO: on reize -> re-render body after 150ms
+
+  const focusPreviousCell = () => {
+    console.log("Focus")
+  };
 
   const onScroll = ({ target }) => {
     const numberOfRows = rows.length; // returned from server
@@ -143,6 +147,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         top: topRowIndex * rowHeight
       }
     });
+    clearTimeout(timer);
+    timer = setTimeout(() => focusPreviousCell(), FOCUS_TIMEOUT_MS)
   };
 
   const handleCellClick = event => {
@@ -152,6 +158,10 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       focused: true,
       scrolling: false
     });
+    const element = document.getElementById(event.target.id);
+    if(element) { 
+      element.focus();
+    }
   };
 
   const getCellId = (rowId, columnId) => {
@@ -183,8 +193,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
             display: "inline-block"
           }}
           className={clsx(
-            classes.tableCell,
-            isFocused ? classes.tableCellBodyFocused : undefined
+            classes.tableCell
           )}
           onClick={handleCellClick}
         >
@@ -324,7 +333,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         }}
       >
         <div id="table" className={classes.tableComponent}>
-          {/* <div className="height" /> */}
           <div id="thead" className={clsx(classes.tableHeadComponent, classes.tableHead)}>{renderHeader()}</div>
           <div
             className="tbody"

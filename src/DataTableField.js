@@ -1,30 +1,19 @@
 import React, { memo } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import StyledInput from "./StyledInput";
+import StyledOutlinedInput from "./StyledOutlinedInput";
 
-const styles = theme => ({
-  readOnlyDiv: {
-    padding: "5px"
-  }
+const styles = () => ({
 });
 
 const DataTableField = ({ classes, id, value, focused }) => {
-  if (!focused) {
-    return (
-      <div id={id} tabIndex={-1} className={classes.readOnlyDiv}>
-        {value}
-      </div>
-    );
-  }
   const inputProps = {
     readOnly: true
   };
   return (
-    <StyledInput
+    <StyledOutlinedInput
       inputProps={inputProps}
       id={id}
       value={value}
-      //autoFocus
     />
   );
 };
