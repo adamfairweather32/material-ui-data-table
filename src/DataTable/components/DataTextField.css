@@ -1,0 +1,40 @@
+.blink-red {
+  background-color: initial;
+  animation-name: blinkRed;
+  animation-duration: 0.5s;
+  animation-iteration-count: 1;
+}
+.blink-blue {
+  background-color: initial;
+  animation-name: blinkBlue;
+  animation-duration: 0.5s;
+  animation-iteration-count: 1;
+}
+input[readonly]::selection {
+  color: inherit;
+  background: transparent;
+}
+
+@keyframes blinkRed {
+  0% {
+    background-color: initial;
+  }
+  50% {
+    background-color: #ff4500;
+  }
+  100% {
+    background-color: initial;
+  }
+}
+
+@keyframes blinkBlue {
+  0% {
+    background-color: initial;
+  }
+  50% {
+    background-color: #6495ed;
+  }
+  100% {
+    background-color: initial;
+  }
+}

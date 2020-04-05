@@ -125,8 +125,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const { id } = focus;
     if(id) {
       const element = document.getElementById(id);
-      if(element)
-      {
+      if(element) {
         element.focus();
       }
     }
