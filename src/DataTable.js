@@ -84,9 +84,12 @@ const styles = theme => ({
 });
 
 let timer = null;
-const FOCUS_TIMEOUT_MS = 150;
+const FOCUS_TIMEOUT_MS = 50;
 
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
+  const  [, setForce] = useState();
+
+  //TODO: merge these states
   const [state, setState] = useState({
     columns: Object.keys(rows[0]),
     tableHeight: rowHeight * rows.length,
@@ -108,18 +111,25 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     // eslint-disable-next-line
   }, []);
 
+  function reportWindowSize() {
+    setForce({});
+  }
+  
+  window.onresize = reportWindowSize;
+
   //if user presses the down/up arrow key and cell is not visible then
   //set focused cell at top/bottom of grid
   //if user starts typing then scroll back to the cell
-  //lets start  a timer that will invoke a callback after 150ms to manually
-  //focus the cell if it is visible within the table. This timer and callback
-  //should be setup during a scroll, click or key navigation event. Everything can
-  //continue to work with making the cell look active
-
-  //TODO: on reize -> re-render body after 150ms
-
+  
   const focusPreviousCell = () => {
-    console.log("Focus")
+    const { id } = focus;
+    if(id) {
+      const element = document.getElementById(id);
+      if(element)
+      {
+        element.focus();
+      }
+    }
   };
 
   const onScroll = ({ target }) => {
