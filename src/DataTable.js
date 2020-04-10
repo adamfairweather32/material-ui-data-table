@@ -7,7 +7,6 @@ import TableContainer from "@material-ui/core/TableContainer";
 import DataTableField from "./DataTableField";
 
 const styles = theme => ({
-  root: {},
   tableHeadComponent: {
     width: "100%",
     display: "table-header-group",
@@ -58,17 +57,6 @@ const styles = theme => ({
       paddingRight: "4px"
     }
   },
-  tableCellBodyFocused: {
-    outline: theme.palette.primary.main,
-    outlineWidth: "2px",
-    outlineStyle: "solid"
-    // "&:focus": {
-    //   outline: theme.palette.primary.main,
-    //   outlineWidth: "2px",
-    //   outlineOffset: "-2px",
-    //   outlineStyle: "solid"
-    // }
-  },
   tableCellHeadDiv: {
     paddingLeft: "5px"
   },
@@ -89,7 +77,6 @@ const FOCUS_TIMEOUT_MS = 50;
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   const  [, setForce] = useState();
 
-  //TODO: merge these states
   const [state, setState] = useState({
     columns: Object.keys(rows[0]),
     tableHeight: rowHeight * rows.length,
@@ -97,13 +84,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       top: 0,
       index: 0,
       end: Math.ceil((tableHeight * 2) / rowHeight)
-    }
-  });
-
-  const [focus, setFocus] = useState({
-    id: null,
-    clicked: false,
-    scrolling: false
+    },
+    focusedId: null
   });
 
   useEffect(() => {
@@ -122,9 +104,9 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   //if user starts typing then scroll back to the cell
   
   const focusPreviousCell = () => {
-    const { id } = focus;
-    if(id) {
-      const element = document.getElementById(id);
+    const { focusedId } = state;
+    if(focusedId) {
+      const element = document.getElementById(focusedId);
       if(element) {
         element.focus();
       }
@@ -132,7 +114,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   };
 
   const onScroll = ({ target }) => {
-    const numberOfRows = rows.length; // returned from server
+    const numberOfRows = rows.length;
     const tableHeight = numberOfRows * rowHeight;
     const tableBody = document.querySelector(".tbody");
     const positionInTable = target.scrollTop;
@@ -161,11 +143,9 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   };
 
   const handleCellClick = event => {
-    setFocus({
-      ...focus,
-      id: event.target.id,
-      focused: true,
-      scrolling: false
+    setState({
+      ...state,
+      focusedId: event.target.id
     });
     const element = document.getElementById(event.target.id);
     if(element) { 
@@ -182,8 +162,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       const row = rows[rowIndex];
       const rowId = row.id;
       const key = getCellId(rowId, column);
-      const { focused, id } = focus;
-      const isFocused = id && key === id && focused;
 
       const cols = document.querySelectorAll("div.MuiTableCell-head");
 
@@ -209,7 +187,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           <DataTableField
             id={key}
             value={rows[rowIndex][column]}
-            focused={isFocused}
           />
         </TableCell>
       );
