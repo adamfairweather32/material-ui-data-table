@@ -136,10 +136,9 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       const row = rows[rowIndex];
       const rowId = row.id;
       const key = createCellId(tableId.current, rowId, column);
-
       const value = rows[rowIndex][column];
-      //TODO: this needs to be more selective on table id
-      const cols = document.querySelectorAll("div.MuiTableCell-head");
+      const container = document.getElementById(`${tableId.current}-table`);
+      const cols = container ? container.querySelectorAll("div.MuiTableCell-head") : [];
 
       const currentColWidth = cols[i]
         ? cols[i].getBoundingClientRect().width
