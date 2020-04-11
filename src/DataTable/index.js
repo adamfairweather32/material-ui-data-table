@@ -115,11 +115,11 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     // eslint-disable-next-line
   }, []);
 
-  function reportWindowSize() {
+  function handleWindowResize() {
     onScroll({ target: { scrollTop: 0 } });
   }
 
-  window.onresize = reportWindowSize;
+  window.onresize = handleWindowResize;
 
   const handleCellClick = (event) => {
     setState({
@@ -131,37 +131,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       element.focus();
     }
   };
-  
-  const renderRow = (columns, rowIndex) =>
-    columns.map((column, i) => {
-      const row = rows[rowIndex];
-      const rowId = row.id;
-      const key = createCellId(tableId.current, rowId, column);
-      const value = rows[rowIndex][column];
-      const container = document.getElementById(`${tableId.current}-table`);
-      const cols = container ? container.querySelectorAll("div.MuiTableCell-head") : [];
-
-      const currentColWidth = cols[i]
-        ? cols[i].getBoundingClientRect().width
-        : 0;
-
-      return (
-        <TableCell
-          component="div"
-          variant="body"
-          key={key}
-          padding="none"
-          style={{
-            width: `${currentColWidth}px`,
-            display: "inline-block",
-          }}
-          className={clsx(classes.tableCell)}
-          onClick={handleCellClick}
-        >
-          <DataTableField id={key} value={value} />
-        </TableCell>
-      );
-    });
 
   const renderBody = () => {
     let { scroll: { index } } = state;
