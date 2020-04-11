@@ -6,6 +6,9 @@ import Paper from "@material-ui/core/Paper";
 import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import DataTableField from "./DataTableField";
+import DataTableHeader from "./DataTableHeader";
+import DataTableFooter from "./DataTableFooter";
+import { createCellId } from "./helpers/helpers";
 
 const styles = () => ({
   tableHeadComponent: {
@@ -32,35 +35,6 @@ const styles = () => ({
     fontSize: "1rem",
     width: "6rem",
   },
-  tableCellHead: {
-    fontSize: "1rem",
-    fontWeight: "bold",
-    border: "1px solid rgba(224, 224, 224, 1)",
-    position: "sticky",
-    zIndex: 4,
-    backgroundColor: "blue",
-    color: "white",
-    top: 0,
-    "&:last-child": {
-      paddingRight: "4px",
-    },
-  },
-  tableCellFoot: {
-    fontSize: "1rem",
-    fontWeight: "bold",
-    border: "1px solid rgba(224, 224, 224, 1)",
-    position: "sticky",
-    zIndex: 4,
-    backgroundColor: "blue",
-    color: "white",
-    bottom: 0,
-    "&:last-child": {
-      paddingRight: "4px",
-    },
-  },
-  tableCellHeadDiv: {
-    paddingLeft: "5px",
-  },
   tableRow: {
     display: "table-row",
   },
@@ -74,6 +48,7 @@ const styles = () => ({
 
 let timer = null;
 const FOCUS_TIMEOUT_MS = 50;
+
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   const tableId = useRef(uuidv4().toString().replace(/-/g, ""));
 
@@ -97,6 +72,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       }
     }
   };
+
   const onScroll = ({ target }) => {
     const numberOfRows = rows.length;
     const calculatedTableHeight = numberOfRows * rowHeight;
@@ -154,18 +130,15 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       element.focus();
     }
   };
-
-  const getCellId = (rowId, columnId) => {
-    return `${tableId.current}-field-${rowId}-${columnId}`;
-  };
-
-  const generateRow = (columns, rowIndex) =>
+  
+  const renderRow = (columns, rowIndex) =>
     columns.map((column, i) => {
       const row = rows[rowIndex];
       const rowId = row.id;
-      const key = getCellId(rowId, column);
+      const key = createCellId(tableId.current, rowId, column);
 
       const value = rows[rowIndex][column];
+      //TODO: this needs to be more selective on table id
       const cols = document.querySelectorAll("div.MuiTableCell-head");
 
       const currentColWidth = cols[i]
@@ -219,93 +192,13 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           )}
           key={index}
         >
-          {generateRow(columns, index)}
+          {renderRow(columns, index)}
         </div>
       );
       index++;
     } while (index < state.scroll.end);
 
     return items;
-  };
-
-  const renderParentHeader = () => {
-    return (
-      <>
-        <div
-          className={classes.tableRow}
-          style={{
-            height: rowHeight,
-            lineHeight: `${rowHeight}px`,
-          }}
-        >
-          {state.columns.map((name, i) => (
-            <TableCell
-              component="div"
-              variant="head"
-              className={clsx(classes.tableCell, classes.tableCellHead)}
-              key={i}
-              padding="none"
-            >
-              <div className={classes.tableCellHeadDiv}>{name}</div>
-            </TableCell>
-          ))}
-        </div>
-      </>
-    );
-  };
-
-  const renderHeader = () => {
-    return (
-      <>
-        {renderParentHeader()}
-        <div
-          className={classes.tableRow}
-          style={{
-            height: rowHeight,
-            lineHeight: `${rowHeight}px`,
-          }}
-        >
-          {state.columns.map((name, i) => (
-            <TableCell
-              variant="head"
-              component="div"
-              className={clsx(classes.tableCell, classes.tableCellHead)}
-              style={{
-                top: rowHeight,
-              }}
-              key={i}
-              padding="none"
-            >
-              <div className={classes.tableCellHeadDiv}>{name}</div>
-            </TableCell>
-          ))}
-        </div>
-      </>
-    );
-  };
-
-  const renderFooter = () => {
-    return (
-      <div
-        className={classes.tableRow}
-        style={{
-          height: rowHeight,
-          lineHeight: `${rowHeight}px`,
-        }}
-      >
-        {state.columns.map((name, i) => (
-          <TableCell
-            component="div"
-            variant="footer"
-            className={clsx(classes.tableCell, classes.tableCellFoot)}
-            key={i}
-            padding="none"
-          >
-            <div className={classes.tableCellHeadDiv}>{name}</div>
-          </TableCell>
-        ))}
-      </div>
-    );
   };
 
   return (
@@ -324,7 +217,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
             id={`${tableId.current}-thead`}
             className={clsx(classes.tableHeadComponent, classes.tableHead)}
           >
-            {renderHeader()}
+            <DataTableHeader columns={state.columns} rowHeight={rowHeight}/>
           </div>
           <div
             id={`${tableId.current}-tbody`}
@@ -339,7 +232,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
             id={`${tableId.current}-tfoot`}
             className={classes.tableFooterComponent}
           >
-            {renderFooter()}
+            <DataTableFooter columns={state.columns} rowHeight={rowHeight}/>
           </div>
         </div>
       </TableContainer>
