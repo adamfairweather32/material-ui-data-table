@@ -178,10 +178,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       const value = rows[rowIndex][column]
       const cols = document.querySelectorAll("div.MuiTableCell-head");
 
-      console.log("key = ", key);
-      console.log("value = ", value);
-      console.log("cols = ", cols);
-
       const currentColWidth = cols[i]
         ? cols[i].getBoundingClientRect().width
         : 0;
@@ -208,7 +204,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const columns = state.columns;
     let index = state.scroll.index;
     const items = [];
-    const tableElement = document.getElementById(`${tableId}-tbody`);
+    const tableElement = document.getElementById(`${tableId}-table`);
     const tableWidth = tableElement
       ? tableElement.getBoundingClientRect().width
       : 0;
