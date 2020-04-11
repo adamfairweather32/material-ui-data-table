@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import { v4 as uuidv4 } from "uuid";
@@ -74,10 +74,9 @@ const styles = (theme) => ({
 
 let timer = null;
 const FOCUS_TIMEOUT_MS = 50;
-const tableId = uuidv4();
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
-  
   const [, setForce] = useState();
+  const tableId = useRef(uuidv4());
 
   const [state, setState] = useState({
     columns: Object.keys(rows[0]),
@@ -121,17 +120,17 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   const onScroll = ({ target }) => {
     const numberOfRows = rows.length;
     const tableHeight = numberOfRows * rowHeight;
-    const tableBody = document.getElementById(`${tableId}-tbody`);
+    const tableBody = document.getElementById(`${tableId.current}-tbody`);
     const positionInTable = target.scrollTop;
 
     const tableHeadHeight = document
-      .getElementById(`${tableId}-thead`)
+      .getElementById(`${tableId.current}-thead`)
       .getBoundingClientRect().height;
     const tableFooterHeight = document
-      .getElementById(`${tableId}-tfoot`)
+      .getElementById(`${tableId.current}-tfoot`)
       .getBoundingClientRect().height;
     const tableContainerHeight = document
-      .getElementById(`${tableId}-tcontainer`)
+      .getElementById(`${tableId.current}-tcontainer`)
       .getBoundingClientRect().height;
 
     const visibleTableHeight =
@@ -166,7 +165,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   };
 
   const getCellId = (rowId, columnId) => {
-    return `${tableId}-field-${rowId}-${columnId}`;
+    return `${tableId.current}-field-${rowId}-${columnId}`;
   };
 
   const generateRow = (columns, rowIndex) =>
@@ -175,7 +174,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       const rowId = row.id;
       const key = getCellId(rowId, column);
 
-      const value = rows[rowIndex][column]
+      const value = rows[rowIndex][column];
       const cols = document.querySelectorAll("div.MuiTableCell-head");
 
       const currentColWidth = cols[i]
@@ -204,7 +203,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     const columns = state.columns;
     let index = state.scroll.index;
     const items = [];
-    const tableElement = document.getElementById(`${tableId}-table`);
+    const tableElement = document.getElementById(`${tableId.current}-table`);
     const tableWidth = tableElement
       ? tableElement.getBoundingClientRect().width
       : 0;
@@ -321,7 +320,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   return (
     <>
       <TableContainer
-        id={`${tableId}-tcontainer`}
+        id={`${tableId.current}-tcontainer`}
         onScroll={onScroll}
         component={Paper}
         style={{
@@ -329,15 +328,15 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           minHeight: "200px",
         }}
       >
-        <div id={`${tableId}-table`} className={classes.tableComponent}>
+        <div id={`${tableId.current}-table`} className={classes.tableComponent}>
           <div
-            id={`${tableId}-thead`}
+            id={`${tableId.current}-thead`}
             className={clsx(classes.tableHeadComponent, classes.tableHead)}
           >
             {renderHeader()}
           </div>
           <div
-            id={`${tableId}-tbody`}
+            id={`${tableId.current}-tbody`}
             className="tbody"
             style={{
               position: "relative",
@@ -345,7 +344,10 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           >
             {renderBody()}
           </div>
-          <div id={`${tableId}-tfoot`} className={classes.tableFooterComponent}>
+          <div
+            id={`${tableId.current}-tfoot`}
+            className={classes.tableFooterComponent}
+          >
             {renderFooter()}
           </div>
         </div>
