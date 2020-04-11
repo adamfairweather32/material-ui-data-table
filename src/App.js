@@ -1,5 +1,5 @@
 import React from "react";
-import DataTable from "./DataTable"
+import DataTable from "./DataTable/index"
 import "./styles.css";
 
 export default function App() {
