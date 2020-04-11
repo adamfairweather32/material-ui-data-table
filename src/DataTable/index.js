@@ -5,10 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 import Paper from "@material-ui/core/Paper";
 import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
-import DataTableField from "./DataTableField";
-import DataTableHeader from "./DataTableHeader";
-import DataTableFooter from "./DataTableFooter";
-import DataTableRow from "./DataTableRow";
+import DataTableField from "./components/DataTableField";
+import DataTableHeader from "./components/DataTableHeader";
+import DataTableFooter from "./components/DataTableFooter";
+import DataTableRow from "./components/DataTableRow";
 import { createCellId } from "./helpers/helpers";
 
 const styles = () => ({

@@ -4,7 +4,7 @@ import TableCell from "@material-ui/core/TableCell";
 import clsx from "clsx";
 
 import DataTableField from './DataTableField';
-import { createCellId } from "./helpers/helpers";
+import { createCellId } from "../helpers/helpers";
 
 const styles = () => ({
     tableCell: {

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import StyledOutlinedInput from "./StyledOutlinedInput";
+import StyledOutlinedInput from "../styled/StyledOutlinedInput";
 
 const styles = () => ({
 });
