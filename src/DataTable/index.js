@@ -1,331 +1,361 @@
-import React, { useEffect, useState, useRef } from "react";
-import _ from "lodash";
-import { makeStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
+import React, { useState, useEffect } from "react";
+import { withStyles } from "@material-ui/core/styles";
+import clsx from "clsx";
+import { v4 as uuidv4 } from "uuid";
 import Paper from "@material-ui/core/Paper";
+import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
-import TableBody from "@material-ui/core/TableBody";
-import DataTableTotals from "./components/DataTableTotals";
-import DataTableHead from "./components/DataTableHead";
-import DataTableTopPanel from "./components/DataTableTopPanel";
-import { MemoizedDataTableRow } from "./components/DataTableRow";
-import { MemoizedAddDeletePanel } from "./components/AddDeletePanel";
+import DataTableField from "./DataTableField";
 
-import {
-  ENTER,
-  LEFT,
-  RIGHT,
-  DOWN,
-  UP,
-  LEFT_DIR,
-  RIGHT_DIR,
-  UP_DIR,
-  DOWN_DIR
-} from "./constants";
-
-import {
-  getCellIdFromTarget,
-  getSorting,
-  stableSort,
-  filterRow,
-  focus,
-  validateColumns,
-  clearBlinkers,
-  getPreparedColumns
-} from "./helpers/helpers";
-import {
-  getGridNavigationMap,
-  moveVertical,
-  moveHorizontal
-} from "./helpers/gridNavigation";
-import getValidatedRows from "./helpers/validation";
-import "./styles.css";
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    display: "grid",
-    gridTemplateRows: "80fr auto",
-    gridRowGap: "5px"
+const styles = (theme) => ({
+  tableHeadComponent: {
+    width: "100%",
+    display: "table-header-group",
+    borderSpacing: 0,
+    borderCollapse: "collapse",
   },
-  paper: {
-    marginTop: theme.spacing(3),
-    overflowX: "auto",
-    marginBottom: theme.spacing(2)
+  tableComponent: {
+    width: "100%",
+    display: "table",
+    borderSpacing: 0,
+    borderCollapse: "collapse",
   },
-  table: {
-    border: "1px solid rgba(224, 224, 224, 1)"
-  },
-  tableContainer: {
-    height: "250px"
+  tableFooterComponent: {
+    display: "table-footer-group",
   },
   tableHead: {
-    backgroundColor: "#f5f7f7"
+    backgroundColor: "#fafafa",
+    color: "#fcfcfc",
   },
-  tableCellSizeSmall: {
-    padding: "2.5px 0 0 2.5px"
+  tableCell: {
+    letterSpacing: "0",
+    fontSize: "1rem",
+    width: "6rem",
   },
   tableCellHead: {
     fontSize: "1rem",
     fontWeight: "bold",
     border: "1px solid rgba(224, 224, 224, 1)",
-    paddingRight: "2.5px",
+    position: "sticky",
+    zIndex: 4,
+    backgroundColor: "blue",
+    color: "white",
+    top: 0,
     "&:last-child": {
-      paddingRight: "2.5px"
-    }
-  }
-}));
+      paddingRight: "4px",
+    },
+  },
+  tableCellFoot: {
+    fontSize: "1rem",
+    fontWeight: "bold",
+    border: "1px solid rgba(224, 224, 224, 1)",
+    position: "sticky",
+    zIndex: 4,
+    backgroundColor: "blue",
+    color: "white",
+    bottom: 0,
+    "&:last-child": {
+      paddingRight: "4px",
+    },
+  },
+  tableCellHeadDiv: {
+    paddingLeft: "5px",
+  },
+  tableRow: {
+    display: "table-row",
+  },
+  tableRowOdd: {
+    backgroundColor: "#EBEAF6",
+  },
+  tableRowEven: {
+    backgroundColor: "#fcfcfc",
+  },
+});
 
-const DataTable = ({
-  rows,
-  columns,
-  onEdit,
-  onAdd,
-  onDelete,
-  showFilter = false,
-  showErrors = false,
-  rules = []
-}) => {
-  const activeReference = useRef({});
+let timer = null;
+const FOCUS_TIMEOUT_MS = 50;
+const tableId = uuidv4();
+const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
+  
+  const [, setForce] = useState();
 
-  const [draftValue, setDraftValue] = useState(null);
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState(null);
-  const [selected, setSelected] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [visibilities, setVisibilities] = useState(
-    columns
-      .filter(c => c.headerName)
-      .map(({ headerName, field, hidden }) => ({
-        headerName,
-        field,
-        visible: !hidden
-      }))
-  );
-
-  const classes = useStyles();
+  const [state, setState] = useState({
+    columns: Object.keys(rows[0]),
+    tableHeight: rowHeight * rows.length,
+    scroll: {
+      top: 0,
+      index: 0,
+      end: Math.ceil((tableHeight * 2) / rowHeight),
+    },
+    focusedId: null,
+  });
 
   useEffect(() => {
-    if (activeReference && activeReference.current) {
-      focus(activeReference.current);
-    }
-  }, [order, orderBy]);
+    onScroll({ target: { scrollTop: 0 } });
+    // eslint-disable-next-line
+  }, []);
 
-  validateColumns(columns, ["validations"]);
-
-  const preparedColumns = getPreparedColumns(columns, visibilities);
-
-  const getFilteredAndSortedRows = () => {
-    return stableSort(
-      getValidatedRows(rows, rules).filter(
-        r => !showFilter || filterRow(r, preparedColumns, searchText)
-      ),
-      preparedColumns,
-      getSorting(order, orderBy)
-    );
-  };
-
-  const filteredRows = getFilteredAndSortedRows();
-
-  const errorCount = _.sum(
-    _.flatMap(filteredRows, row => (!_.isEmpty(row.validations.errors) ? 1 : 0))
-  );
-
-  const gridNavigationMap = getGridNavigationMap(filteredRows, preparedColumns);
-
-  const isIndeterminate = () =>
-    selected.length > 0 && selected.length < rows.length;
-
-  const isChecked = () => selected.length === rows.length;
-
-  const handleDelete = () => {
-    onDelete(selected);
-  };
-
-  const handleAdd = () => {
-    //add new row
-    //send row to output event handler
-    const row = {};
-    onAdd(row);
-  };
-
-  const handleCellChange = (value, row, column, commit = false) => {
-    if (commit) {
-      onEdit(value, row, column);
-      setDraftValue(null);
-    } else {
-      setDraftValue({ value, row, column });
-    }
-  };
-
-  const handleCommit = () => {
-    if (draftValue) {
-      const { value, row, column } = draftValue;
-      onEdit(value, row, column);
-      setDraftValue(null);
-    }
-  };
-
-  const handleCancel = () => {
-    setDraftValue(null);
-  };
-
-  const handleFocus = e => {
-    if (e.target) {
-      const id = getCellIdFromTarget(e.target);
-      activeReference.current = id || activeReference.current;
-    }
-  };
-
-  const handleKeyDown = e => {
-    if (e.ctrlKey || e.shiftKey) {
-      return;
-    }
-    if (e.keyCode === LEFT) {
-      moveHorizontal(LEFT_DIR, activeReference.current, gridNavigationMap);
-    } else if (e.keyCode === RIGHT) {
-      moveHorizontal(RIGHT_DIR, activeReference.current, gridNavigationMap);
-    } else if (e.keyCode === UP) {
-      moveVertical(UP_DIR, activeReference.current, gridNavigationMap);
-    } else if (e.keyCode === DOWN || e.keyCode === ENTER) {
-      moveVertical(DOWN_DIR, activeReference.current, gridNavigationMap);
-    }
-  };
-
-  const handleRequestSort = (event, property) => {
-    clearBlinkers();
-    const isDesc = orderBy === property && order === "desc";
-    setOrder(isDesc ? "asc" : "desc");
-    setOrderBy(property);
-  };
-
-  const handleSelectedChanged = (rowId, isSelected) => {
-    if (isSelected) {
-      setSelected([...selected, rowId]);
-    } else {
-      selected.splice(selected.indexOf(rowId), 1);
-      setSelected([...selected]);
-    }
-  };
-
-  const handleSelectAllClick = () => {
-    if (isIndeterminate()) {
-      setSelected([...rows.map(row => row.id)]);
-    } else if (isChecked()) {
-      setSelected([]);
-    } else {
-      setSelected([...rows.map(row => row.id)]);
-    }
-  };
-
-  const handleColumnVisibilityChanged = visibilities => {
-    setVisibilities(visibilities);
-  };
-
-  const handleSearchTextChanged = searchText => {
-    setSearchText(searchText);
-  };
-
-  const canAdd = !!onAdd && !!onEdit;
-  const canEdit = canAdd;
-  const canDelete = !!onDelete && selected.length > 0;
-  const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
-
-  if (!canEdit) {
-    preparedColumns
-      .filter(c => c.rich)
-      .forEach(c => {
-        c.rich.editable = false;
-      });
+  function reportWindowSize() {
+    setForce({});
   }
 
-  const renderTotals = () => {
-    return (
-      <DataTableTotals
-        rows={rows}
-        columns={preparedColumns}
-        readonlyMode={!canEdit}
-      />
-    );
-  };
+  window.onresize = reportWindowSize;
 
-  const getOriginalOrDraft = row => {
-    if (draftValue && !_.isEmpty(draftValue) && row.id === draftValue.row.id) {
-      return {
-        ...row,
-        [draftValue.column]: draftValue.value
-      };
+  //if user presses the down/up arrow key and cell is not visible then
+  //set focused cell at top/bottom of grid
+  //if user starts typing then scroll back to the cell
+
+  //how do we handle when we have multiple tables? -> possibly need to append
+  //an additional id
+
+  const focusPreviousCell = () => {
+    const { focusedId } = state;
+    if (focusedId) {
+      const element = document.getElementById(focusedId);
+      if (element) {
+        element.focus();
+      }
     }
-    return row;
   };
 
-  const getErrors = ({ validations: { errors } } = {}) => errors;
-  const getWarnings = ({ validations: { warnings } } = {}) => warnings;
+  const onScroll = ({ target }) => {
+    const numberOfRows = rows.length;
+    const tableHeight = numberOfRows * rowHeight;
+    const tableBody = document.getElementById(`${tableId}-tbody`);
+    const positionInTable = target.scrollTop;
 
-  const renderTableBody = () => {
-    const tableRows = filteredRows.map((row, index) => (
-      <MemoizedDataTableRow
-        key={row.id}
-        index={index}
-        row={getOriginalOrDraft(row)}
-        errors={getErrors(row)}
-        warnings={getWarnings(row)}
-        columns={preparedColumns}
-        rowId={row.id}
-        onFocus={handleFocus}
-        onCellChange={handleCellChange}
-        onCommit={handleCommit}
-        onCancel={handleCancel}
-        editable={canEdit}
-        selected={selected.includes(row.id)}
-        onSelectedChanged={handleSelectedChanged}
-      />
-    ));
+    const tableHeadHeight = document
+      .getElementById(`${tableId}-thead`)
+      .getBoundingClientRect().height;
+    const tableFooterHeight = document
+      .getElementById(`${tableId}-tfoot`)
+      .getBoundingClientRect().height;
+    const tableContainerHeight = document
+      .getElementById(`${tableId}-tcontainer`)
+      .getBoundingClientRect().height;
+
+    const visibleTableHeight =
+      tableContainerHeight - tableHeadHeight - tableFooterHeight;
+
+    const topRowIndex = Math.floor(positionInTable / rowHeight);
+    const endRow = topRowIndex + visibleTableHeight / rowHeight;
+    tableBody.style.height = tableHeight + "px";
+
+    setState({
+      ...state,
+      scroll: {
+        ...state.scroll,
+        index: topRowIndex,
+        end: Math.ceil(endRow),
+        top: topRowIndex * rowHeight,
+      },
+    });
+    clearTimeout(timer);
+    timer = setTimeout(() => focusPreviousCell(), FOCUS_TIMEOUT_MS);
+  };
+
+  const handleCellClick = (event) => {
+    setState({
+      ...state,
+      focusedId: event.target.id,
+    });
+    const element = document.getElementById(event.target.id);
+    if (element) {
+      element.focus();
+    }
+  };
+
+  const getCellId = (rowId, columnId) => {
+    return `${tableId}-field-${rowId}-${columnId}`;
+  };
+
+  const generateRow = (columns, rowIndex) =>
+    columns.map((column, i) => {
+      const row = rows[rowIndex];
+      const rowId = row.id;
+      const key = getCellId(rowId, column);
+
+      const value = rows[rowIndex][column]
+      const cols = document.querySelectorAll("div.MuiTableCell-head");
+
+      console.log("key = ", key);
+      console.log("value = ", value);
+      console.log("cols = ", cols);
+
+      const currentColWidth = cols[i]
+        ? cols[i].getBoundingClientRect().width
+        : 0;
+
+      return (
+        <TableCell
+          component="div"
+          variant="body"
+          key={key}
+          padding="none"
+          style={{
+            width: `${currentColWidth}px`,
+            display: "inline-block",
+          }}
+          className={clsx(classes.tableCell)}
+          onClick={handleCellClick}
+        >
+          <DataTableField id={key} value={value} />
+        </TableCell>
+      );
+    });
+
+  const renderBody = () => {
+    const columns = state.columns;
+    let index = state.scroll.index;
+    const items = [];
+    const tableElement = document.getElementById(`${tableId}-tbody`);
+    const tableWidth = tableElement
+      ? tableElement.getBoundingClientRect().width
+      : 0;
+
+    do {
+      if (index >= rows.length) {
+        index = rows.length;
+        break;
+      }
+      items.push(
+        <div
+          style={{
+            top: index * rowHeight,
+            height: rowHeight,
+            lineHeight: `${rowHeight}px`,
+            width: tableWidth,
+            position: "absolute",
+          }}
+          className={clsx(
+            classes.tableRow,
+            index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven
+          )}
+          key={index}
+        >
+          {generateRow(columns, index)}
+        </div>
+      );
+      index++;
+    } while (index < state.scroll.end);
+
+    return items;
+  };
+
+  const renderParentHeader = () => {
     return (
       <>
-        {tableRows}
-        {shouldCalculateTotals && renderTotals()}
+        <div
+          className={classes.tableRow}
+          style={{
+            height: rowHeight,
+            lineHeight: `${rowHeight}px`,
+          }}
+        >
+          {state.columns.map((name, i) => (
+            <TableCell
+              component="div"
+              variant="head"
+              className={clsx(classes.tableCell, classes.tableCellHead)}
+              key={i}
+              padding="none"
+            >
+              <div className={classes.tableCellHeadDiv}>{name}</div>
+            </TableCell>
+          ))}
+        </div>
       </>
     );
   };
 
-  const checked = isChecked();
-  const indeterminate = isIndeterminate();
+  const renderHeader = () => {
+    return (
+      <>
+        {renderParentHeader()}
+        <div
+          className={classes.tableRow}
+          style={{
+            height: rowHeight,
+            lineHeight: `${rowHeight}px`,
+          }}
+        >
+          {state.columns.map((name, i) => (
+            <TableCell
+              variant="head"
+              component="div"
+              className={clsx(classes.tableCell, classes.tableCellHead)}
+              style={{
+                top: rowHeight,
+              }}
+              key={i}
+              padding="none"
+            >
+              <div className={classes.tableCellHeadDiv}>{name}</div>
+            </TableCell>
+          ))}
+        </div>
+      </>
+    );
+  };
+
+  const renderFooter = () => {
+    return (
+      <div
+        className={classes.tableRow}
+        style={{
+          height: rowHeight,
+          lineHeight: `${rowHeight}px`,
+        }}
+      >
+        {state.columns.map((name, i) => (
+          <TableCell
+            component="div"
+            variant="footer"
+            className={clsx(classes.tableCell, classes.tableCellFoot)}
+            key={i}
+            padding="none"
+          >
+            <div className={classes.tableCellHeadDiv}>{name}</div>
+          </TableCell>
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className={classes.root}>
-      <DataTableTopPanel
-        showErrors={showErrors}
-        showFilter={showFilter}
-        errorCount={errorCount}
-        onSearchTextChanged={handleSearchTextChanged}
-      />
-      <TableContainer component={Paper} className={classes.tableContainer}>
-        <Table stickyHeader className={classes.table} size="small">
-          <DataTableHead
-            columns={preparedColumns}
-            onRequestSort={handleRequestSort}
-            onSelectAllClick={handleSelectAllClick}
-            onColumnVisibilityChanged={handleColumnVisibilityChanged}
-            visibilities={visibilities}
-            order={order}
-            orderBy={orderBy}
-            editable={canEdit}
-            checked={checked}
-            indeterminate={indeterminate}
-          />
-          <TableBody onKeyDown={handleKeyDown}>{renderTableBody()}</TableBody>
-        </Table>
+    <>
+      <TableContainer
+        id={`${tableId}-tcontainer`}
+        onScroll={onScroll}
+        component={Paper}
+        style={{
+          maxHeight: tableHeight,
+          minHeight: "200px",
+        }}
+      >
+        <div id={`${tableId}-table`} className={classes.tableComponent}>
+          <div
+            id={`${tableId}-thead`}
+            className={clsx(classes.tableHeadComponent, classes.tableHead)}
+          >
+            {renderHeader()}
+          </div>
+          <div
+            id={`${tableId}-tbody`}
+            className="tbody"
+            style={{
+              position: "relative",
+            }}
+          >
+            {renderBody()}
+          </div>
+          <div id={`${tableId}-tfoot`} className={classes.tableFooterComponent}>
+            {renderFooter()}
+          </div>
+        </div>
       </TableContainer>
-      {canEdit && (
-        <MemoizedAddDeletePanel
-          canAdd={canAdd}
-          onAddRequested={handleAdd}
-          onDeleteRequested={handleDelete}
-          canDelete={canDelete}
-        />
-      )}
-    </div>
+    </>
   );
 };
 
-export default DataTable;
+export default withStyles(styles)(DataTable);

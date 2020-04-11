@@ -1,5 +1,5 @@
 import React from "react";
-import DataTable from "./DataTable";
+import DataTable from "./DataTable"
 import "./styles.css";
 
 export default function App() {
@@ -20,9 +20,9 @@ export default function App() {
       {/* <h1>Records: {people.length}</h1> */}
       <DataTable rows={people} rowHeight={30} tableHeight={200} />
       {/* <div style={{ height: "25px" }} />
-      <DataTable rows={people} rowHeight={30} tableHeight={110} />
-      <div style={{ height: "25px" }} />
-      <DataTable rows={people} rowHeight={30} tableHeight={110} /> */}
+      <DataTable rows={people} rowHeight={30} tableHeight={200} /> */}
+      {/* <div style={{ height: "25px" }} />
+      <DataTable rows={people} rowHeight={30} tableHeight={200} /> */}
     </div>
   );
 }
