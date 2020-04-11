@@ -75,7 +75,6 @@ const styles = (theme) => ({
 let timer = null;
 const FOCUS_TIMEOUT_MS = 50;
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
-  const [, setForce] = useState();
   const tableId = useRef(uuidv4());
 
   const [state, setState] = useState({
@@ -95,7 +94,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   }, []);
 
   function reportWindowSize() {
-    setForce({});
+    onScroll({ target: { scrollTop: 0 } });
   }
 
   window.onresize = reportWindowSize;
@@ -103,9 +102,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
   //if user presses the down/up arrow key and cell is not visible then
   //set focused cell at top/bottom of grid
   //if user starts typing then scroll back to the cell
-
-  //how do we handle when we have multiple tables? -> possibly need to append
-  //an additional id
 
   const focusPreviousCell = () => {
     const { focusedId } = state;
