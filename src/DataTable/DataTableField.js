@@ -5,7 +5,7 @@ import StyledOutlinedInput from "./StyledOutlinedInput";
 const styles = () => ({
 });
 
-const DataTableField = ({ classes, id, value, focused }) => {
+const DataTableField = ({ classes, id, value }) => {
   const inputProps = {
     readOnly: true
   };
