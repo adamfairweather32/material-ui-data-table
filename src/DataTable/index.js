@@ -8,6 +8,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import DataTableField from "./DataTableField";
 import DataTableHeader from "./DataTableHeader";
 import DataTableFooter from "./DataTableFooter";
+import DataTableRow from "./DataTableRow";
 import { createCellId } from "./helpers/helpers";
 
 const styles = () => ({
@@ -163,7 +164,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     });
 
   const renderBody = () => {
-    const { columns } = state;
     let { scroll: { index } } = state;
     const items = [];
     const tableElement = document.getElementById(`${tableId.current}-table`);
@@ -177,7 +177,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         break;
       }
       items.push(
-        <div
+        <div 
           style={{
             top: index * rowHeight,
             height: rowHeight,
@@ -188,10 +188,9 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           className={clsx(
             classes.tableRow,
             index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven
-          )}
-          key={index}
-        >
-          {renderRow(columns, index)}
+          )} 
+          key={index}>
+          <DataTableRow tableId={tableId.current} columns={state.columns} rows={rows} rowIndex={index} handleCellClick={handleCellClick}/>
         </div>
       );
       index++;
@@ -227,10 +226,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
           >
             {renderBody()}
           </div>
-          <div
-            id={`${tableId.current}-tfoot`}
-            className={classes.tableFooterComponent}
-          >
+          <div id={`${tableId.current}-tfoot`} className={classes.tableFooterComponent}>
             <DataTableFooter columns={state.columns} rowHeight={rowHeight}/>
           </div>
         </div>

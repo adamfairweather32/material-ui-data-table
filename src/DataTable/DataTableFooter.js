@@ -30,7 +30,7 @@ const styles = () => ({
   }
 });
 
-const DataTableHeader = ({ classes, columns, rowHeight }) => {
+const DataTableFooter = ({ classes, columns, rowHeight }) => {
   return <div className={classes.tableRow} 
         style={{
         height: rowHeight,
@@ -50,4 +50,4 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
   </div>;
 };
 
-export default withStyles(styles)(DataTableHeader);
+export default withStyles(styles)(DataTableFooter);
