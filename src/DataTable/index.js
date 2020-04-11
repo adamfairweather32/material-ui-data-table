@@ -7,7 +7,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import DataTableField from "./DataTableField";
 
-const styles = (theme) => ({
+const styles = () => ({
   tableHeadComponent: {
     width: "100%",
     display: "table-header-group",
@@ -75,7 +75,7 @@ const styles = (theme) => ({
 let timer = null;
 const FOCUS_TIMEOUT_MS = 50;
 const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
-  const tableId = useRef(uuidv4());
+  const tableId = useRef(uuidv4().toString().replace(/-/g, ""));
 
   const [state, setState] = useState({
     columns: Object.keys(rows[0]),
@@ -88,21 +88,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     focusedId: null,
   });
 
-  useEffect(() => {
-    onScroll({ target: { scrollTop: 0 } });
-    // eslint-disable-next-line
-  }, []);
-
-  function reportWindowSize() {
-    onScroll({ target: { scrollTop: 0 } });
-  }
-
-  window.onresize = reportWindowSize;
-
-  //if user presses the down/up arrow key and cell is not visible then
-  //set focused cell at top/bottom of grid
-  //if user starts typing then scroll back to the cell
-
   const focusPreviousCell = () => {
     const { focusedId } = state;
     if (focusedId) {
@@ -112,10 +97,9 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
       }
     }
   };
-
   const onScroll = ({ target }) => {
     const numberOfRows = rows.length;
-    const tableHeight = numberOfRows * rowHeight;
+    const calculatedTableHeight = numberOfRows * rowHeight;
     const tableBody = document.getElementById(`${tableId.current}-tbody`);
     const positionInTable = target.scrollTop;
 
@@ -134,7 +118,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
 
     const topRowIndex = Math.floor(positionInTable / rowHeight);
     const endRow = topRowIndex + visibleTableHeight / rowHeight;
-    tableBody.style.height = tableHeight + "px";
+    tableBody.style.height = `${calculatedTableHeight}px`;
 
     setState({
       ...state,
@@ -148,6 +132,17 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     clearTimeout(timer);
     timer = setTimeout(() => focusPreviousCell(), FOCUS_TIMEOUT_MS);
   };
+
+  useEffect(() => {
+    onScroll({ target: { scrollTop: 0 } });
+    // eslint-disable-next-line
+  }, []);
+
+  function reportWindowSize() {
+    onScroll({ target: { scrollTop: 0 } });
+  }
+
+  window.onresize = reportWindowSize;
 
   const handleCellClick = (event) => {
     setState({
@@ -196,8 +191,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     });
 
   const renderBody = () => {
-    const columns = state.columns;
-    let index = state.scroll.index;
+    const { columns } = state;
+    let { scroll: { index } } = state;
     const items = [];
     const tableElement = document.getElementById(`${tableId.current}-table`);
     const tableWidth = tableElement

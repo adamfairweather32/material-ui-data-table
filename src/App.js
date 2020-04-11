@@ -19,10 +19,10 @@ export default function App() {
     <div>
       {/* <h1>Records: {people.length}</h1> */}
       <DataTable rows={people} rowHeight={30} tableHeight={200} />
-       <div style={{ height: "25px" }} />
+       {/* <div style={{ height: "25px" }} />
       <DataTable rows={people} rowHeight={30} tableHeight={200} /> 
        <div style={{ height: "25px" }} />
-      <DataTable rows={people} rowHeight={30} tableHeight={200} /> 
+      <DataTable rows={people} rowHeight={30} tableHeight={200} />  */}
     </div>
   );
 }
