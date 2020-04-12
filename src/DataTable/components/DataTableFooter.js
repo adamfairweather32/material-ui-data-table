@@ -38,14 +38,14 @@ const DataTableFooter = ({ classes, columns, rowHeight }) => {
                 height: rowHeight,
                 lineHeight: `${rowHeight}px`
             }}>
-            {columns.map(name => (
+            {columns.map(({ field, headerName }) => (
                 <TableCell
                     component="div"
                     variant="footer"
                     className={clsx(classes.tableCell, classes.tableCellFoot)}
-                    key={name}
+                    key={field}
                     padding="none">
-                    <div className={classes.tableCellHeadDiv}>{name}</div>
+                    <div className={classes.tableCellHeadDiv}>{headerName}</div>
                 </TableCell>
             ))}
         </div>

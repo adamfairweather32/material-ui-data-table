@@ -48,7 +48,8 @@ const styles = () => ({
 let timer = null;
 const FOCUS_TIMEOUT_MS = 50;
 
-const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
+const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEdit, onDelete }) => {
+    const focusedId = useRef(null);
     const tableId = useRef(
         uuidv4()
             .toString()
@@ -56,7 +57,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     );
 
     const [state, setState] = useState({
-        columns: Object.keys(rows[0]),
         tableHeight: rowHeight * rows.length,
         scroll: {
             top: 0,
@@ -67,9 +67,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     });
 
     const focusPreviousCell = () => {
-        const { focusedId } = state;
-        if (focusedId) {
-            const element = document.getElementById(focusedId);
+        if (focusedId.current) {
+            const element = document.getElementById(focusedId.current);
             if (element) {
                 element.focus();
             }
@@ -118,11 +117,8 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
     window.onresize = handleWindowResize;
 
     const handleCellClick = event => {
-        setState({
-            ...state,
-            focusedId: event.target.id
-        });
-        const element = document.getElementById(event.target.id);
+        focusedId.current = event.target.id;
+        const element = document.getElementById(focusedId.current);
         if (element) {
             element.focus();
         }
@@ -135,7 +131,6 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
         const items = [];
         const tableElement = document.getElementById(`${tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
-
         do {
             if (index >= rows.length) {
                 index = rows.length;
@@ -155,7 +150,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
                     key={index}>
                     <DataTableRow
                         tableId={tableId.current}
-                        columns={state.columns}
+                        columns={columns}
                         rows={rows}
                         rowIndex={index}
                         handleCellClick={handleCellClick}
@@ -176,7 +171,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
                     <div
                         id={`${tableId.current}-thead`}
                         className={clsx(classes.tableHeadComponent, classes.tableHead)}>
-                        <DataTableHeader columns={state.columns} rowHeight={rowHeight} />
+                        <DataTableHeader columns={columns} rowHeight={rowHeight} />
                     </div>
                     <div
                         id={`${tableId.current}-tbody`}
@@ -187,7 +182,7 @@ const DataTable = ({ classes, rows, rowHeight, tableHeight }) => {
                         {renderBody()}
                     </div>
                     <div id={`${tableId.current}-tfoot`} className={classes.tableFooterComponent}>
-                        <DataTableFooter columns={state.columns} rowHeight={rowHeight} />
+                        <DataTableFooter columns={columns} rowHeight={rowHeight} />
                     </div>
                 </div>
             </TableContainer>

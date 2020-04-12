@@ -77,18 +77,18 @@ const App = ({ classes }) => {
     // we can either provide rules to the data grid or we can provide
     // the rows with the validation rules already applied from Redux
     // and then just let the data grid render them
-    const rules = [
-        {
-            field: 'cost',
-            getMessage: value => (value > 60 ? 'This number cannot be greater than 60' : null),
-            level: 'warn'
-        },
-        {
-            field: 'cost',
-            getMessage: value => (value < 0 ? 'Should be >= £0' : null),
-            level: 'error'
-        }
-    ];
+    // const rules = [
+    //     {
+    //         field: 'cost',
+    //         getMessage: value => (value > 60 ? 'This number cannot be greater than 60' : null),
+    //         level: 'warn'
+    //     },
+    //     {
+    //         field: 'cost',
+    //         getMessage: value => (value < 0 ? 'Should be >= £0' : null),
+    //         level: 'error'
+    //     }
+    // ];
 
     const columns = [
         {
@@ -230,23 +230,21 @@ const App = ({ classes }) => {
         setRows(generateRows(SAMPLE_SIZE_MULTIPLIER));
     };
 
-    const people = new Array(50000).fill(true).map((val, id) => ({
-        id,
-        firstName: Math.random()
-            .toString(20)
-            .substring(8),
-        lastName: Math.random()
-            .toString(20)
-            .substring(8),
-        age: Math.ceil(Math.random() * 80)
-    }));
     // works ok with 20 but 30 screws up scroll so have to add 10
     // to table height (was originally 20 and 100)
     return (
         <div className="App">
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <Paper className={classes.paper} square>
-                    <DataTable rows={people} rowHeight={30} tableHeight={200} />
+                    <DataTable
+                        rows={rows}
+                        columns={columns}
+                        rowHeight={30}
+                        tableHeight={200}
+                        onAdd={handleAdd}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
                 </Paper>
                 <div>
                     <Button variant="contained" color="primary" onClick={handleClick}>

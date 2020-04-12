@@ -14,13 +14,14 @@ const styles = () => ({
     }
 });
 
-const DataTableRow = ({ classes, tableId, columns, rows, rowIndex, handleCellClick }) => {
+const DataTableRow = ({ classes, tableId, columns, rows, rowIndex, focusedId, handleCellClick }) => {
     const renderRow = () =>
         columns.map((column, i) => {
             const row = rows[rowIndex];
             const rowId = row.id;
-            const key = createCellId(tableId, rowId, column);
-            const value = rows[rowIndex][column];
+            const { field } = column;
+            const key = createCellId(tableId, rowId, field);
+            const value = rows[rowIndex][field];
             const container = document.getElementById(`${tableId}-table`);
             const cols = container ? container.querySelectorAll('div.MuiTableCell-head') : [];
 
@@ -38,7 +39,7 @@ const DataTableRow = ({ classes, tableId, columns, rows, rowIndex, handleCellCli
                     }}
                     className={clsx(classes.tableCell)}
                     onClick={handleCellClick}>
-                    <DataTableField id={key} value={value} />
+                    <DataTableField id={key} value={value} focusedId={focusedId} />
                 </TableCell>
             );
         });

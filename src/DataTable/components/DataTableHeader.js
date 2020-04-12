@@ -40,14 +40,14 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {columns.map(name => (
+                    {columns.map(({ field, headerName }) => (
                         <TableCell
                             component="div"
                             variant="head"
                             className={clsx(classes.tableCell, classes.tableCellHead)}
-                            key={name}
+                            key={field}
                             padding="none">
-                            <div className={classes.tableCellHeadDiv}>{name}</div>
+                            <div className={classes.tableCellHeadDiv}>{headerName}</div>
                         </TableCell>
                     ))}
                 </div>
@@ -65,7 +65,7 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {columns.map(name => (
+                    {columns.map(({ field, headerName }) => (
                         <TableCell
                             variant="head"
                             component="div"
@@ -73,9 +73,9 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
                             style={{
                                 top: rowHeight
                             }}
-                            key={name}
+                            key={field}
                             padding="none">
-                            <div className={classes.tableCellHeadDiv}>{name}</div>
+                            <div className={classes.tableCellHeadDiv}>{headerName}</div>
                         </TableCell>
                     ))}
                 </div>
