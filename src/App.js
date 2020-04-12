@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
+import { withStyles } from '@material-ui/core/styles';
+import { Paper } from '@material-ui/core';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
+import Button from '@material-ui/core/Button';
 import DataTable from './DataTable/index';
 import './styles.css';
 import { getUpdatedRows } from './DataTable/helpers/helpers';
@@ -54,7 +59,19 @@ const generateRows = (sampleSize = 1) => {
 
 const initialRows = generateRows(SAMPLE_SIZE_MULTIPLIER);
 
-const App = () => {
+const styles = theme => ({
+    paper: {
+        marginTop: theme.spacing(3),
+        padding: '5px',
+        overflowX: 'auto',
+        marginBottom: theme.spacing(2)
+    },
+    table: {
+        minWidth: 650
+    }
+});
+
+const App = ({ classes }) => {
     const [rows, setRows] = useState(initialRows);
 
     // we can either provide rules to the data grid or we can provide
@@ -183,6 +200,7 @@ const App = () => {
 
     // HIGH
     // Get resize working
+    // convert project to use same runtime framework as budget-weapon-ui project
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components
@@ -225,15 +243,19 @@ const App = () => {
     // works ok with 20 but 30 screws up scroll so have to add 10
     // to table height (was originally 20 and 100)
     return (
-        <div>
-            {/* <h1>Records: {people.length}</h1> */}
-            <DataTable rows={people} rowHeight={30} tableHeight={200} />
-            {/* <div style={{ height: "25px" }} />
-            <DataTable rows={people} rowHeight={30} tableHeight={200} />
-            <div style={{ height: "25px" }} />
-            <DataTable rows={people} rowHeight={30} tableHeight={200} />  */}
+        <div className="App">
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <Paper className={classes.paper} square>
+                    <DataTable rows={people} rowHeight={30} tableHeight={200} />
+                </Paper>
+                <div>
+                    <Button variant="contained" color="primary" onClick={handleClick}>
+                        Regenerate
+                    </Button>
+                </div>
+            </MuiPickersUtilsProvider>
         </div>
     );
 };
 
-export default App;
+export default withStyles(styles)(App);
