@@ -1,0 +1,23 @@
+{
+  "extends": ["airbnb", "prettier"],
+  "plugins": ["prettier"],
+  "rules": {
+    "strict": 0, // Allows use of optional chaining, can be removed when eslint supports it.
+    "prettier/prettier": ["warn"],
+    "react/prop-types": ["off"], // We don't currently use prop type validation
+    "react/jsx-indent": ["warn", 4], // We use 4 spaces instead of 2
+    "react/jsx-indent-props": ["warn", 4], // We use 4 spaces instead of 2
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }], // We use js files instead of jsx
+    "react/jsx-closing-bracket-location": [0, "line-aligned"],
+    "react/jsx-curly-newline": "off",
+    "no-restricted-syntax": "off",
+    "react/state-in-constructor": "off",
+    "react/static-property-placement": "off",
+    "react/jsx-props-no-spreading": "off"
+  },
+  "env": {
+    "jest": true,
+    "node": true,
+    "browser": true
+  }
+}
