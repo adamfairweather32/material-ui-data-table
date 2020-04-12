@@ -11,6 +11,8 @@
     "react/jsx-closing-bracket-location": [0, "line-aligned"],
     "react/jsx-curly-newline": "off",
     "no-restricted-syntax": "off",
+    "no-unused-vars": "warn",
+    "no-undef": "warn",
     "react/state-in-constructor": "off",
     "react/static-property-placement": "off",
     "react/jsx-props-no-spreading": "off"
