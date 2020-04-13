@@ -24,7 +24,11 @@ const styles = () => ({
         }
     },
     tableCellHeadDiv: {
-        paddingLeft: '5px'
+        '&:first-child': {
+            paddingLeft: '5px',
+            paddingRight: '5px',
+            borderLeft: '1px solid rgba(224, 224, 224, 1)'
+        }
     },
     tableRow: {
         display: 'table-row'
@@ -41,16 +45,20 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
 
     const hasParentHeader = columns.filter(c => c.parentHeaderName).length > 0;
 
+    const getAlignmentForColumn = column => {
+        const {
+            rich: { numeric = false }
+        } = column || { rich: {} };
+
+        return numeric ? 'right' : 'left';
+    };
+
     const getAlignment = (parentHeader, allColumns) => {
         const matchingColumns = allColumns.filter(c => c.parentHeaderName && c.parentHeaderName === parentHeader);
         if (matchingColumns.length > 1) {
             return 'left';
         }
-        const {
-            rich: { numeric = false }
-        } = (matchingColumns && matchingColumns[0]) || { rich: {} };
-
-        return numeric ? 'right' : 'left';
+        return getAlignmentForColumn(matchingColumns && matchingColumns[0]);
     };
 
     const shouldShowField = (parentHeader, index, allColumns) => {
@@ -103,17 +111,18 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {columns.map(({ field, headerName }) => (
+                    {columns.map(c => (
                         <TableCell
                             variant="head"
                             component="div"
+                            align={getAlignmentForColumn(c)}
                             className={clsx(classes.tableCell, classes.tableCellHead)}
                             style={{
                                 top: rowHeight
                             }}
-                            key={field}
+                            key={c.field}
                             padding="none">
-                            <div className={classes.tableCellHeadDiv}>{headerName}</div>
+                            <div className={classes.tableCellHeadDiv}>{c.headerName}</div>
                         </TableCell>
                     ))}
                 </div>

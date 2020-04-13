@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const StyledOutlinedInput = styled(OutlinedInput)`
     &.MuiInputBase-root {
-        padding-left: 5px;
+        padding-left: 0px;
         display: flex;
     }
     .MuiInputBase-input {

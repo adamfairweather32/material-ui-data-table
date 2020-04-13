@@ -23,8 +23,9 @@ const styles = () => ({
         backgroundColor: '#fcfcfc',
         color: 'black',
         bottom: 0,
+        paddingRight: '5px',
         '&:last-child': {
-            paddingRight: '4px'
+            paddingRight: '5px'
         }
     },
     tableCellDiv: {
@@ -60,7 +61,6 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
     };
 
     const getTotal = column => {
-        console.log('column = ', column);
         const {
             field,
             rich,
@@ -94,10 +94,13 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
 
         const { total, filtered } = getTotal(column);
         const cellStyle = {
-            color: total && total.includes('(') && warnNegative ? 'red' : 'inherit'
+            color: total && total.includes('(') && warnNegative ? 'red' : 'inherit',
+            textOverflow: 'ellipsis'
         };
 
         const title = filtered ? `Filter applied` : undefined;
+
+        const displayTotal = `Total = ${total}`;
 
         return (
             <TableCell
@@ -110,10 +113,10 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
                 padding="none">
                 {filtered && (
                     <Badge color="primary" title={title} variant="dot">
-                        {total}
+                        {displayTotal}
                     </Badge>
                 )}
-                {!filtered && total}
+                {!filtered && displayTotal}
             </TableCell>
         );
     };

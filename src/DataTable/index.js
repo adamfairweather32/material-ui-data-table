@@ -172,7 +172,7 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
         return items;
     };
 
-    const style = { maxHeight: tableHeight, minHeight: '200px' };
+    const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
     return (
         <>
             <TableContainer id={`${tableId.current}-tcontainer`} onScroll={onScroll} component={Paper} style={style}>

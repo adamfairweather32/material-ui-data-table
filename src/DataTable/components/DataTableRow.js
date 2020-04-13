@@ -39,7 +39,7 @@ const DataTableRow = ({ classes, tableId, columns, rows, rowIndex, focusedId, ha
                     }}
                     className={clsx(classes.tableCell)}
                     onClick={handleCellClick}>
-                    <DataTableField id={key} value={value} focusedId={focusedId} />
+                    <DataTableField id={key} column={column} value={value} focusedId={focusedId} />
                 </TableCell>
             );
         });
