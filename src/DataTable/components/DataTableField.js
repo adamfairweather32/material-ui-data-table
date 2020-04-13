@@ -13,7 +13,12 @@ const DataTableField = ({ id, value, column }) => {
         }
     };
 
-    return <StyledOutlinedInput variant="outlined" inputProps={inputProps} id={id} value={value} />;
+    return (
+        <div tabIndex={-1} contentEditable id={id} style={{ border: '1px', borderStyle: 'solid', borderColor: 'grey' }}>
+            {value}
+        </div>
+    );
+    // return <StyledOutlinedInput variant="outlined" inputProps={inputProps} id={id} value={value} />;
 };
 
 const propsAreEqual = (prev, next) => {
