@@ -8,6 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import DataTableHeader from './components/DataTableHeader';
 import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
+import { getPreparedColumns } from './helpers/helpers';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -19,8 +20,7 @@ const styles = () => ({
     tableComponent: {
         width: '100%',
         display: 'table',
-        borderSpacing: 0,
-        borderCollapse: 'collapse'
+        borderSpacing: 0
     },
     tableFooterComponent: {
         display: 'table-footer-group'
@@ -46,7 +46,7 @@ const styles = () => ({
 });
 
 let timer = null;
-const FOCUS_TIMEOUT_MS = 50;
+const FOCUS_TIMEOUT_MS = 10;
 
 const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEdit, onDelete }) => {
     const focusedId = useRef(null);
@@ -63,8 +63,17 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
             index: 0,
             end: Math.ceil((tableHeight * 2) / rowHeight)
         },
-        focusedId: null
+        focusedId: null,
+        visibilities: columns
+            .filter(c => c.headerName)
+            .map(({ headerName, field, hidden }) => ({
+                headerName,
+                field,
+                visible: !hidden
+            }))
     });
+
+    const preparedColumns = getPreparedColumns(columns, state.visibilities);
 
     const focusPreviousCell = () => {
         if (focusedId.current) {
@@ -150,7 +159,7 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                     key={index}>
                     <DataTableRow
                         tableId={tableId.current}
-                        columns={columns}
+                        columns={preparedColumns}
                         rows={rows}
                         rowIndex={index}
                         handleCellClick={handleCellClick}
@@ -171,7 +180,7 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                     <div
                         id={`${tableId.current}-thead`}
                         className={clsx(classes.tableHeadComponent, classes.tableHead)}>
-                        <DataTableHeader columns={columns} rowHeight={rowHeight} />
+                        <DataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
                     </div>
                     <div
                         id={`${tableId.current}-tbody`}
@@ -182,7 +191,7 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                         {renderBody()}
                     </div>
                     <div id={`${tableId.current}-tfoot`} className={classes.tableFooterComponent}>
-                        <DataTableFooter columns={columns} rowHeight={rowHeight} />
+                        <DataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
                     </div>
                 </div>
             </TableContainer>

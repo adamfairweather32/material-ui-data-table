@@ -1,7 +1,11 @@
 import React from 'react';
+import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import clsx from 'clsx';
+import { Badge } from '@material-ui/core';
+import { DEFAULT_AGG_TYPE } from '../constants';
+import { getFormattedCurrencyValue } from '../helpers/helpers';
 
 const styles = () => ({
     tableCell: {
@@ -12,17 +16,18 @@ const styles = () => ({
     tableCellFoot: {
         fontSize: '1rem',
         fontWeight: 'bold',
-        border: '1px solid rgba(224, 224, 224, 1)',
+        verticalAlign: 'bottom',
         position: 'sticky',
+        paddingLeft: '5px',
         zIndex: 4,
-        backgroundColor: 'blue',
-        color: 'white',
+        backgroundColor: '#fcfcfc',
+        color: 'black',
         bottom: 0,
         '&:last-child': {
             paddingRight: '4px'
         }
     },
-    tableCellHeadDiv: {
+    tableCellDiv: {
         paddingLeft: '5px'
     },
     tableRow: {
@@ -30,7 +35,89 @@ const styles = () => ({
     }
 });
 
-const DataTableFooter = ({ classes, columns, rowHeight }) => {
+const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
+    if (!columns.filter(c => c.total).length) {
+        return null;
+    }
+
+    const formatTotal = (total, options) => {
+        if (_.isEmpty(options)) {
+            return total;
+        }
+        const { currency } = options;
+        if (currency) {
+            const { showCurrencySymbol } = currency;
+            return getFormattedCurrencyValue(total, showCurrencySymbol);
+        }
+        return total;
+    };
+
+    const parseValue = value => {
+        if (!Number.isNaN(value)) {
+            return parseFloat(value);
+        }
+        return NaN;
+    };
+
+    const getTotal = column => {
+        console.log('column = ', column);
+        const {
+            field,
+            rich,
+            total: { type = DEFAULT_AGG_TYPE, predicate = null }
+        } = column;
+
+        const filter = predicate || (() => true);
+        switch (type) {
+            default: {
+                return {
+                    total: formatTotal(_.sum(rows.filter(filter).map(row => parseValue(row[field]))), { ...rich }),
+                    filtered: !!predicate
+                };
+            }
+        }
+    };
+
+    const renderTotal = column => {
+        if (!column.total) {
+            return (
+                <TableCell
+                    component="div"
+                    variant="footer"
+                    className={clsx(classes.tableCell, classes.tableCellFoot)}
+                    key={column.field}
+                    padding="none"
+                />
+            );
+        }
+        const { warnNegative } = column;
+
+        const { total, filtered } = getTotal(column);
+        const cellStyle = {
+            color: total && total.includes('(') && warnNegative ? 'red' : 'inherit'
+        };
+
+        const title = filtered ? `Filter applied` : undefined;
+
+        return (
+            <TableCell
+                component="div"
+                variant="footer"
+                align="right"
+                style={cellStyle}
+                className={clsx(classes.tableCell, classes.tableCellFoot)}
+                key={column.field}
+                padding="none">
+                {filtered && (
+                    <Badge color="primary" title={title} variant="dot">
+                        {total}
+                    </Badge>
+                )}
+                {!filtered && total}
+            </TableCell>
+        );
+    };
+
     return (
         <div
             className={classes.tableRow}
@@ -38,16 +125,7 @@ const DataTableFooter = ({ classes, columns, rowHeight }) => {
                 height: rowHeight,
                 lineHeight: `${rowHeight}px`
             }}>
-            {columns.map(({ field, headerName }) => (
-                <TableCell
-                    component="div"
-                    variant="footer"
-                    className={clsx(classes.tableCell, classes.tableCellFoot)}
-                    key={field}
-                    padding="none">
-                    <div className={classes.tableCellHeadDiv}>{headerName}</div>
-                </TableCell>
-            ))}
+            {columns.map(c => renderTotal(c))}
         </div>
     );
 };

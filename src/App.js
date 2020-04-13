@@ -10,7 +10,7 @@ import './styles.css';
 import { getUpdatedRows } from './DataTable/helpers/helpers';
 import { DATE_FORMAT } from './DataTable/constants';
 
-const SAMPLE_SIZE_MULTIPLIER = 10;
+const SAMPLE_SIZE_MULTIPLIER = 50;
 
 const createData = (id, name, calories, fat, cost, protein, currency, effective) => {
     return {

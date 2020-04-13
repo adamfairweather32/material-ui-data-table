@@ -42,15 +42,15 @@ const DataTableCell = ({
         if (column.rich) {
             return (
                 <DataTableField
-                        value={value}
+                    value={value}
                     column={column}
                     row={row}
                     error={error}
-                        warning={warning}
+                    warning={warning}
                     id={createCellId(tableId, row.id, column.field)}
-                        reference={reference}
+                    reference={reference}
                     onCellChange={onCellChange}
-                        onCommit={onCommit}
+                    onCommit={onCommit}
                     onCancel={onCancel}
                 />
             );
@@ -61,15 +61,15 @@ const DataTableCell = ({
     const attributes = isHeader ? { component: 'th', scope: 'row' } : {};
     return (
         <TableCell
-                classes={{
+            classes={{
                 root: classes.tableCellRoot,
                 sizeSmall: classes.tableCellSizeSmall
             }}
             className={classes.formControlRoot}
             onFocus={onFocus}
-            {...attributes}
-                {renderDataField()}
-          </TableCell>
+            {...attributes}>
+            {renderDataField()}
+        </TableCell>
     );
 };
 
