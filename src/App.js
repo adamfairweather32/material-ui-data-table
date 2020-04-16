@@ -201,6 +201,7 @@ const App = ({ classes }) => {
     // HIGH
     // Get resize working
     // convert project to use same runtime framework as budget-weapon-ui project
+    // use Pure Components
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components

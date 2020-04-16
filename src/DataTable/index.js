@@ -1,13 +1,13 @@
-// eslint-disable-next-line
 import React, { useState, useEffect, useRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
 import Paper from '@material-ui/core/Paper';
 import TableContainer from '@material-ui/core/TableContainer';
-import DataTableHeader from './components/DataTableHeader';
-import DataTableFooter from './components/DataTableFooter';
+import { MemoizedDataTableHeader } from './components/DataTableHeader';
+import { MemoizedDataTableFooter } from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
+import StyledOutlinedInput from './styled/StyledOutlinedInput';
 import { getPreparedColumns } from './helpers/helpers';
 
 const styles = () => ({
@@ -45,11 +45,7 @@ const styles = () => ({
     }
 });
 
-let timer = null;
-const FOCUS_TIMEOUT_MS = 10;
-
 const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEdit, onDelete }) => {
-    const focusedId = useRef(null);
     const tableId = useRef(
         uuidv4()
             .toString()
@@ -63,7 +59,7 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
             index: 0,
             end: Math.ceil((tableHeight * 2) / rowHeight)
         },
-        focusedId: null,
+        editor: { active: false },
         visibilities: columns
             .filter(c => c.headerName)
             .map(({ headerName, field, hidden }) => ({
@@ -74,15 +70,6 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
     });
 
     const preparedColumns = getPreparedColumns(columns, state.visibilities);
-
-    const focusPreviousCell = () => {
-        if (focusedId.current) {
-            const element = document.getElementById(focusedId.current);
-            if (element) {
-                element.focus();
-            }
-        }
-    };
 
     const onScroll = ({ target }) => {
         const numberOfRows = rows.length;
@@ -110,8 +97,6 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                 top: topRowIndex * rowHeight
             }
         });
-        clearTimeout(timer);
-        timer = setTimeout(() => focusPreviousCell(), FOCUS_TIMEOUT_MS);
     };
 
     useEffect(() => {
@@ -125,11 +110,52 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
 
     window.onresize = handleWindowResize;
 
-    const handleCellClick = event => {
-        focusedId.current = event.target.id;
-        const element = document.getElementById(focusedId.current);
-        if (element) {
-            element.focus();
+    const showEditor = id => {
+        const focusedElement = document.getElementById(id);
+        const { width, height, top, left } = focusedElement.getBoundingClientRect();
+        setState({
+            ...state,
+            editor: {
+                ...state.editor,
+                type: 'autocomplete',
+                active: true,
+                position: {
+                    width,
+                    height,
+                    top,
+                    left
+                }
+            }
+        });
+        focusedElement.parentElement.style.setProperty('opacity', 0);
+        const editor = document.getElementById('editor');
+        editor.setAttribute('editing-id', id);
+        editor.focus();
+    };
+
+    const handleCellDoubleClick = id => {
+        showEditor(id);
+    };
+
+    const handleCellKeyDown = id => {
+        showEditor(id);
+    };
+
+    const handleEditorBlur = () => {
+        setState({
+            ...state,
+            editor: {
+                ...state.editor,
+                active: false
+            }
+        });
+        const editor = document.getElementById('editor');
+        const id = editor.getAttribute('editing-id');
+        const overlayedElement = document.getElementById(id);
+        if (overlayedElement) {
+            overlayedElement.parentElement.style.setProperty('opacity', 1);
+        } else {
+            console.warn(`element with id ${id} that was under editing no longer exists`);
         }
     };
 
@@ -140,6 +166,8 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
         const items = [];
         const tableElement = document.getElementById(`${tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
+        const columnElements = tableElement ? tableElement.querySelectorAll('div.MuiTableCell-head') : [];
+
         do {
             if (index >= rows.length) {
                 index = rows.length;
@@ -160,9 +188,10 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                     <DataTableRow
                         tableId={tableId.current}
                         columns={preparedColumns}
-                        rows={rows}
-                        rowIndex={index}
-                        handleCellClick={handleCellClick}
+                        columnElements={columnElements}
+                        row={rows[index]}
+                        onCellDoubleClick={handleCellDoubleClick}
+                        onCellKeyDown={handleCellKeyDown}
                     />
                 </div>
             );
@@ -175,26 +204,45 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
     const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
     return (
         <>
-            <TableContainer id={`${tableId.current}-tcontainer`} onScroll={onScroll} component={Paper} style={style}>
-                <div id={`${tableId.current}-table`} className={classes.tableComponent}>
-                    <div
-                        id={`${tableId.current}-thead`}
-                        className={clsx(classes.tableHeadComponent, classes.tableHead)}>
-                        <DataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
+            <div>
+                <TableContainer
+                    id={`${tableId.current}-tcontainer`}
+                    onScroll={onScroll}
+                    component={Paper}
+                    style={style}>
+                    <div id={`${tableId.current}-table`} className={classes.tableComponent}>
+                        <div
+                            id={`${tableId.current}-thead`}
+                            className={clsx(classes.tableHeadComponent, classes.tableHead)}>
+                            <MemoizedDataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
+                        </div>
+                        <div
+                            id={`${tableId.current}-tbody`}
+                            className="tbody"
+                            style={{
+                                position: 'relative'
+                            }}>
+                            {renderBody()}
+                        </div>
+                        <div id={`${tableId.current}-tfoot`} className={classes.tableFooterComponent}>
+                            <MemoizedDataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
+                        </div>
                     </div>
-                    <div
-                        id={`${tableId.current}-tbody`}
-                        className="tbody"
+                </TableContainer>
+                <div>
+                    <StyledOutlinedInput
                         style={{
-                            position: 'relative'
-                        }}>
-                        {renderBody()}
-                    </div>
-                    <div id={`${tableId.current}-tfoot`} className={classes.tableFooterComponent}>
-                        <DataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
-                    </div>
+                            zIndex: state.editor.active ? 100 : -1,
+                            opacity: state.editor.active ? 1 : 0,
+                            position: 'absolute',
+                            ...state.editor.position
+                        }}
+                        id="editor"
+                        onBlur={handleEditorBlur}
+                        variant="outlined"
+                    />
                 </div>
-            </TableContainer>
+            </div>
         </>
     );
 };

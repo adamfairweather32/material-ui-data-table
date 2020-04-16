@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
@@ -95,7 +95,9 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
         const { total, filtered } = getTotal(column);
         const cellStyle = {
             color: total && total.includes('(') && warnNegative ? 'red' : 'inherit',
-            textOverflow: 'ellipsis'
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden'
         };
 
         const title = filtered ? `Filter applied` : undefined;
@@ -132,5 +134,11 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
         </div>
     );
 };
+
+const propsAreEqual = (prev, next) => {
+    return _.isEqual(prev.columns, next.columns);
+};
+
+export const MemoizedDataTableFooter = memo(withStyles(styles)(DataTableFooter), propsAreEqual);
 
 export default withStyles(styles)(DataTableFooter);

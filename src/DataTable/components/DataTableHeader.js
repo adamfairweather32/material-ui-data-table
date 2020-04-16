@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
@@ -132,5 +132,11 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
 
     return renderHeader();
 };
+
+const propsAreEqual = (prev, next) => {
+    return _.isEqual(prev.columns, next.columns);
+};
+
+export const MemoizedDataTableHeader = memo(withStyles(styles)(DataTableHeader), propsAreEqual);
 
 export default withStyles(styles)(DataTableHeader);
