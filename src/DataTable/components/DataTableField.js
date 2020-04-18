@@ -1,40 +1,34 @@
 import React, { memo } from 'react';
+import { withStyles } from '@material-ui/core/styles';
 
-const DataTableField = ({ id, value, column, onDoubleClick, onKeyDown }) => {
+const styles = () => ({
+    mainDiv: {
+        border: '1px',
+        borderStyle: 'solid',
+        borderColor: 'grey',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+    }
+});
+
+const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, onMouseDown, onBlur }) => {
     const {
         rich: { numeric = false }
     } = column || { rich: {} };
 
-    const handleMouseDown = event => {
-        const element = document.getElementById(event.target.id);
-        if (element) {
-            element.classList.add('cell-selected');
-            element.focus();
-        }
-        event.preventDefault();
-    };
-    const handleBlur = event => {
-        const element = document.getElementById(event.target.id);
-        if (element) {
-            element.classList.remove('cell-selected');
-        }
-    };
-
-    // only when the element is double clicked, typed into then we fire an event to say we need
-    // to show the specific editor for this field
     return (
         <div
             tabIndex={-1}
             id={id}
             role="textbox"
-            onMouseDown={handleMouseDown}
-            onBlur={handleBlur}
+            title={value}
+            onMouseDown={onMouseDown}
+            onBlur={onBlur}
             onDoubleClick={() => onDoubleClick(id)}
             onKeyDown={() => onKeyDown(id)}
+            className={classes.mainDiv}
             style={{
-                border: '1px',
-                borderStyle: 'solid',
-                borderColor: 'grey',
                 textAlign: numeric ? 'right' : undefined
             }}>
             {value}
@@ -43,10 +37,11 @@ const DataTableField = ({ id, value, column, onDoubleClick, onKeyDown }) => {
 };
 
 const propsAreEqual = (prev, next) => {
+    // TODO: there is a problem with this
+    return false;
     // return prev.value === next.value;
-    return false; // TODO: there is a problem with this
 };
 
-export const MemoizedDataTableField = memo(DataTableField, propsAreEqual);
+export const MemoizedDataTableField = memo(withStyles(styles)(DataTableField), propsAreEqual);
 
-export default DataTableField;
+export default withStyles(styles)(DataTableField);

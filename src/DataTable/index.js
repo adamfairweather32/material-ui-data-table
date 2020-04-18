@@ -42,10 +42,22 @@ const styles = () => ({
     },
     tableRowEven: {
         backgroundColor: '#fcfcfc'
+    },
+    autoCompleteEditor: {
+        position: 'absolute'
     }
 });
 
+let timer = null;
+
+const FOCUS_TIMEOUT_MS = 10;
+const EDITOR_ID = 'editor';
+const EDITING_ID_ATTRIBUTE = 'editing-id';
+const SELECTED_CLASS_NAME = 'cell-selected';
+const AUTOCOMPLETE_TYPE = 'autocomplete';
+
 const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEdit, onDelete }) => {
+    const activeId = useRef(null);
     const tableId = useRef(
         uuidv4()
             .toString()
@@ -59,7 +71,7 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
             index: 0,
             end: Math.ceil((tableHeight * 2) / rowHeight)
         },
-        editor: { active: false },
+        editor: { active: false, position: {} },
         visibilities: columns
             .filter(c => c.headerName)
             .map(({ headerName, field, hidden }) => ({
@@ -70,6 +82,15 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
     });
 
     const preparedColumns = getPreparedColumns(columns, state.visibilities);
+
+    const activatePreviousCell = () => {
+        if (activeId.current) {
+            const element = document.getElementById(activeId.current);
+            if (element) {
+                element.classList.add(SELECTED_CLASS_NAME);
+            }
+        }
+    };
 
     const onScroll = ({ target }) => {
         const numberOfRows = rows.length;
@@ -97,6 +118,8 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                 top: topRowIndex * rowHeight
             }
         });
+        clearTimeout(timer);
+        timer = setTimeout(() => activatePreviousCell(), FOCUS_TIMEOUT_MS);
     };
 
     useEffect(() => {
@@ -112,24 +135,22 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
 
     const showEditor = id => {
         const focusedElement = document.getElementById(id);
-        const { width, height, top, left } = focusedElement.getBoundingClientRect();
+        if (!focusedElement) {
+            console.warn(`element with id: ${id} could not be found`);
+            return;
+        }
         setState({
             ...state,
             editor: {
                 ...state.editor,
-                type: 'autocomplete',
+                type: AUTOCOMPLETE_TYPE,
                 active: true,
-                position: {
-                    width,
-                    height,
-                    top,
-                    left
-                }
+                editing: id
             }
         });
         focusedElement.parentElement.style.setProperty('opacity', 0);
-        const editor = document.getElementById('editor');
-        editor.setAttribute('editing-id', id);
+        const editor = document.getElementById(EDITOR_ID);
+        editor.setAttribute(EDITING_ID_ATTRIBUTE, id);
         editor.focus();
     };
 
@@ -142,21 +163,62 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
     };
 
     const handleEditorBlur = () => {
+        console.log('blur editor');
         setState({
             ...state,
             editor: {
                 ...state.editor,
-                active: false
+                active: false,
+                editing: null
             }
         });
-        const editor = document.getElementById('editor');
-        const id = editor.getAttribute('editing-id');
+        const editor = document.getElementById(EDITOR_ID);
+        const id = editor.getAttribute(EDITING_ID_ATTRIBUTE);
         const overlayedElement = document.getElementById(id);
         if (overlayedElement) {
             overlayedElement.parentElement.style.setProperty('opacity', 1);
         } else {
             console.warn(`element with id ${id} that was under editing no longer exists`);
         }
+    };
+
+    const handleMouseDown = event => {
+        if (activeId.current) {
+            const previousElement = document.getElementById(activeId.current);
+            if (previousElement) {
+                previousElement.classList.remove(SELECTED_CLASS_NAME);
+            }
+        }
+        const element = document.getElementById(event.target.id);
+        if (element) {
+            activeId.current = event.target.id;
+
+            element.classList.add(SELECTED_CLASS_NAME);
+            element.focus();
+        }
+        event.preventDefault();
+    };
+
+    const handleBlur = event => {
+        const element = document.getElementById(event.target.id);
+        if (element) {
+            element.classList.remove(SELECTED_CLASS_NAME);
+        }
+    };
+
+    const getEditorPosition = () => {
+        const {
+            editor: { editing }
+        } = state;
+        const { position } = state.editor;
+        if (editing) {
+            const editingElement = document.getElementById(editing);
+            if (editingElement) {
+                const { width, height, top, left } = editingElement.getBoundingClientRect();
+                return { width, height, top, left };
+            }
+        }
+        return position;
     };
 
     const renderBody = () => {
@@ -190,6 +252,8 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                         columns={preparedColumns}
                         columnElements={columnElements}
                         row={rows[index]}
+                        onMouseDown={handleMouseDown}
+                        onBlur={handleBlur}
                         onCellDoubleClick={handleCellDoubleClick}
                         onCellKeyDown={handleCellKeyDown}
                     />
@@ -202,9 +266,26 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
     };
 
     const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
+
+    const editorStyle = {
+        zIndex: state.editor.active ? 100 : -1,
+        opacity: state.editor.active ? 1 : 0,
+        ...getEditorPosition()
+    };
+
     return (
         <>
             <div>
+                {JSON.stringify(state.scroll)}
+                <div>
+                    <StyledOutlinedInput
+                        className={classes.autoCompleteEditor}
+                        style={editorStyle}
+                        id={EDITOR_ID}
+                        onBlur={handleEditorBlur}
+                        variant="outlined"
+                    />
+                </div>
                 <TableContainer
                     id={`${tableId.current}-tcontainer`}
                     onScroll={onScroll}
@@ -229,19 +310,6 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                         </div>
                     </div>
                 </TableContainer>
-                <div>
-                    <StyledOutlinedInput
-                        style={{
-                            zIndex: state.editor.active ? 100 : -1,
-                            opacity: state.editor.active ? 1 : 0,
-                            position: 'absolute',
-                            ...state.editor.position
-                        }}
-                        id="editor"
-                        onBlur={handleEditorBlur}
-                        variant="outlined"
-                    />
-                </div>
             </div>
         </>
     );

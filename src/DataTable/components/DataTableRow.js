@@ -7,13 +7,24 @@ import { createCellId } from '../helpers/helpers';
 
 const styles = () => ({
     tableCell: {
+        display: 'inline-block',
         letterSpacing: '0',
         fontSize: '1rem',
         width: '6rem'
     }
 });
 
-const DataTableRow = ({ classes, tableId, columns, columnElements, row, onCellDoubleClick, onCellKeyDown }) => {
+const DataTableRow = ({
+    classes,
+    tableId,
+    columns,
+    columnElements,
+    row,
+    onCellDoubleClick,
+    onCellKeyDown,
+    onMouseDown,
+    onBlur
+}) => {
     const rowId = row.id;
 
     const renderRow = () =>
@@ -29,15 +40,16 @@ const DataTableRow = ({ classes, tableId, columns, columnElements, row, onCellDo
                     variant="body"
                     key={key}
                     padding="none"
+                    className={classes.tableCell}
                     style={{
-                        width: `${currentColWidth}px`,
-                        display: 'inline-block'
-                    }}
-                    className={classes.tableCell}>
+                        width: `${currentColWidth}px`
+                    }}>
                     <MemoizedDataTableField
                         id={key}
                         column={column}
                         value={value}
+                        onMouseDown={onMouseDown}
+                        onBlur={onBlur}
                         onDoubleClick={onCellDoubleClick}
                         onKeyDown={onCellKeyDown}
                     />

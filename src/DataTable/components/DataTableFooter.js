@@ -11,7 +11,10 @@ const styles = () => ({
     tableCell: {
         letterSpacing: '0',
         fontSize: '1rem',
-        width: '6rem'
+        width: '6rem',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden'
     },
     tableCellFoot: {
         fontSize: '1rem',
@@ -94,10 +97,7 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
 
         const { total, filtered } = getTotal(column);
         const cellStyle = {
-            color: total && total.includes('(') && warnNegative ? 'red' : 'inherit',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
+            color: total && total.includes('(') && warnNegative ? 'red' : 'inherit'
         };
 
         const title = filtered ? `Filter applied` : undefined;
