@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Component, createRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,7 +48,7 @@ const styles = () => ({
     }
 });
 
-let timer = null;
+const timer = null;
 
 const FOCUS_TIMEOUT_MS = 10;
 const EDITOR_ID = 'editor';
@@ -56,161 +56,47 @@ const EDITING_ID_ATTRIBUTE = 'editing-id';
 const SELECTED_CLASS_NAME = 'cell-selected';
 const AUTOCOMPLETE_TYPE = 'autocomplete';
 
-const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEdit, onDelete }) => {
-    const activeId = useRef(null);
-    const tableId = useRef(
-        uuidv4()
+export class DataTable extends Component {
+    constructor(props) {
+        super(props);
+        const { rowHeight, tableHeight, columns } = this.props;
+        this.activeId = createRef();
+        this.tableId = createRef();
+        this.tableId.current = uuidv4()
             .toString()
-            .replace(/-/g, '')
-    );
-
-    const [state, setState] = useState({
-        tableHeight: rowHeight * rows.length,
-        scroll: {
-            top: 0,
-            index: 0,
-            end: Math.ceil((tableHeight * 2) / rowHeight)
-        },
-        editor: { active: false, position: {} },
-        visibilities: columns
-            .filter(c => c.headerName)
-            .map(({ headerName, field, hidden }) => ({
-                headerName,
-                field,
-                visible: !hidden
-            }))
-    });
-
-    const preparedColumns = getPreparedColumns(columns, state.visibilities);
-
-    const activatePreviousCell = () => {
-        if (activeId.current) {
-            const element = document.getElementById(activeId.current);
-            if (element) {
-                element.classList.add(SELECTED_CLASS_NAME);
-            }
-        }
-    };
-
-    const onScroll = ({ target }) => {
-        const numberOfRows = rows.length;
-        const calculatedTableHeight = numberOfRows * rowHeight;
-        const tableBody = document.getElementById(`${tableId.current}-tbody`);
-        const positionInTable = target.scrollTop;
-
-        const tableHeadHeight = document.getElementById(`${tableId.current}-thead`).getBoundingClientRect().height;
-        const tableFooterHeight = document.getElementById(`${tableId.current}-tfoot`).getBoundingClientRect().height;
-        const tableContainerHeight = document.getElementById(`${tableId.current}-tcontainer`).getBoundingClientRect()
-            .height;
-
-        const visibleTableHeight = tableContainerHeight - tableHeadHeight - tableFooterHeight;
-
-        const topRowIndex = Math.floor(positionInTable / rowHeight);
-        const endRow = topRowIndex + visibleTableHeight / rowHeight;
-        tableBody.style.height = `${calculatedTableHeight}px`;
-
-        setState({
-            ...state,
+            .replace(/-/g, '');
+        this.state = {
             scroll: {
-                ...state.scroll,
-                index: topRowIndex,
-                end: Math.ceil(endRow),
-                top: topRowIndex * rowHeight
-            }
-        });
-        clearTimeout(timer);
-        timer = setTimeout(() => activatePreviousCell(), FOCUS_TIMEOUT_MS);
-    };
+                top: 0,
+                index: 0,
+                end: Math.ceil((tableHeight * 2) / rowHeight)
+            },
+            editor: { active: false, position: {} },
+            visibilities: columns
+                .filter(c => c.headerName)
+                .map(({ headerName, field, hidden }) => ({
+                    headerName,
+                    field,
+                    visible: !hidden
+                }))
+        };
 
-    useEffect(() => {
-        onScroll({ target: { scrollTop: 0 } });
-        // eslint-disable-next-line
-    }, []);
-
-    function handleWindowResize() {
-        onScroll({ target: { scrollTop: 0 } });
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleCellDoubleClick = this.handleCellDoubleClick.bind(this);
+        this.handleCellKeyDown = this.handleCellKeyDown.bind(this);
+        this.handleEditorBlur = this.handleEditorBlur.bind(this);
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
     }
 
-    window.onresize = handleWindowResize;
+    componentDidMount() {
+        this.handleScroll({ target: { scrollTop: 0 } });
+    }
 
-    const showEditor = id => {
-        const focusedElement = document.getElementById(id);
-        if (!focusedElement) {
-            console.warn(`element with id: ${id} could not be found`);
-            return;
-        }
-        setState({
-            ...state,
-            editor: {
-                ...state.editor,
-                type: AUTOCOMPLETE_TYPE,
-                active: true,
-                editing: id
-            }
-        });
-        focusedElement.parentElement.style.setProperty('opacity', 0);
-        const editor = document.getElementById(EDITOR_ID);
-        editor.setAttribute(EDITING_ID_ATTRIBUTE, id);
-        editor.focus();
-    };
-
-    const handleCellDoubleClick = id => {
-        showEditor(id);
-    };
-
-    const handleCellKeyDown = id => {
-        showEditor(id);
-    };
-
-    const handleEditorBlur = () => {
-        console.log('blur editor');
-        setState({
-            ...state,
-            editor: {
-                ...state.editor,
-                active: false,
-                editing: null
-            }
-        });
-        const editor = document.getElementById(EDITOR_ID);
-        const id = editor.getAttribute(EDITING_ID_ATTRIBUTE);
-        const overlayedElement = document.getElementById(id);
-        if (overlayedElement) {
-            overlayedElement.parentElement.style.setProperty('opacity', 1);
-        } else {
-            console.warn(`element with id ${id} that was under editing no longer exists`);
-        }
-    };
-
-    const handleMouseDown = event => {
-        if (activeId.current) {
-            const previousElement = document.getElementById(activeId.current);
-            if (previousElement) {
-                previousElement.classList.remove(SELECTED_CLASS_NAME);
-            }
-        }
-        const element = document.getElementById(event.target.id);
-        if (element) {
-            activeId.current = event.target.id;
-
-            element.classList.add(SELECTED_CLASS_NAME);
-            element.focus();
-        }
-        event.preventDefault();
-    };
-
-    const handleBlur = event => {
-        const element = document.getElementById(event.target.id);
-        if (element) {
-            element.classList.remove(SELECTED_CLASS_NAME);
-        }
-    };
-
-    const getEditorPosition = () => {
+    getEditorPosition() {
         const {
-            editor: { editing }
-        } = state;
-        const { position } = state.editor;
+            editor: { position, editing }
+        } = this.state;
         if (editing) {
             const editingElement = document.getElementById(editing);
             if (editingElement) {
@@ -219,17 +105,134 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
             }
         }
         return position;
-    };
+    }
 
-    const renderBody = () => {
+    handleScroll({ target }) {
+        const { rows, rowHeight } = this.props;
+        const numberOfRows = rows.length;
+        const calculatedTableHeight = numberOfRows * rowHeight;
+        const tableBody = document.getElementById(`${this.tableId.current}-tbody`);
+        const positionInTable = target.scrollTop;
+
+        const tableHeadHeight = document.getElementById(`${this.tableId.current}-thead`).getBoundingClientRect().height;
+        const tableFooterHeight = document.getElementById(`${this.tableId.current}-tfoot`).getBoundingClientRect()
+            .height;
+        const tableContainerHeight = document
+            .getElementById(`${this.tableId.current}-tcontainer`)
+            .getBoundingClientRect().height;
+
+        const visibleTableHeight = tableContainerHeight - tableHeadHeight - tableFooterHeight;
+
+        const topRowIndex = Math.floor(positionInTable / rowHeight);
+        const endRow = topRowIndex + visibleTableHeight / rowHeight;
+        tableBody.style.height = `${calculatedTableHeight}px`;
+
+        this.setState(prevState => ({
+            scroll: {
+                ...prevState.scroll,
+                index: topRowIndex,
+                end: Math.ceil(endRow),
+                top: topRowIndex * rowHeight
+            }
+        }));
+        clearTimeout(timer);
+        this.timer = setTimeout(() => this.activatePreviousCell(), FOCUS_TIMEOUT_MS);
+    }
+
+    activatePreviousCell() {
+        if (this.activeId.current) {
+            const element = document.getElementById(this.activeId.current);
+            if (element) {
+                element.classList.add(SELECTED_CLASS_NAME);
+            }
+        }
+    }
+
+    showEditor(id) {
+        const focusedElement = document.getElementById(id);
+        if (!focusedElement) {
+            console.warn(`element with id: ${id} could not be found`);
+            return;
+        }
+        this.setState(prevState => ({
+            editor: {
+                ...prevState.editor,
+                type: AUTOCOMPLETE_TYPE,
+                active: true,
+                editing: id
+            }
+        }));
+        focusedElement.parentElement.style.setProperty('opacity', 0);
+        const editor = document.getElementById(EDITOR_ID);
+        editor.setAttribute(EDITING_ID_ATTRIBUTE, id);
+        editor.focus();
+    }
+
+    handleCellDoubleClick(id) {
+        this.showEditor(id);
+    }
+
+    handleCellKeyDown(id) {
+        this.showEditor(id);
+    }
+
+    handleEditorBlur() {
+        this.setState(prevState => ({
+            editor: {
+                ...prevState.editor,
+                active: false,
+                editing: null
+            }
+        }));
+        const editor = document.getElementById(EDITOR_ID);
+        const id = editor.getAttribute(EDITING_ID_ATTRIBUTE);
+        const overlayedElement = document.getElementById(id);
+        if (overlayedElement) {
+            overlayedElement.parentElement.style.setProperty('opacity', 1);
+        } else {
+            console.warn(`element with id ${id} that was under editing no longer exists`);
+        }
+    }
+
+    handleMouseDown(event) {
+        if (this.activeId.current) {
+            const previousElement = document.getElementById(this.activeId.current);
+            if (previousElement) {
+                previousElement.classList.remove(SELECTED_CLASS_NAME);
+            }
+        }
+        const element = document.getElementById(event.target.id);
+        if (element) {
+            this.activeId.current = event.target.id;
+
+            element.classList.add(SELECTED_CLASS_NAME);
+            element.focus();
+        }
+        event.preventDefault();
+    }
+
+    // eslint-disable-next-line
+    handleBlur(event) {
+        const element = document.getElementById(event.target.id);
+        if (element) {
+            element.classList.remove(SELECTED_CLASS_NAME);
+        }
+    }
+
+    renderBody() {
         let {
             scroll: { index }
-        } = state;
+        } = this.state;
+        const {
+            scroll: { end }
+        } = this.state;
+        const { visibilities } = this.state;
+        const { classes, rowHeight, rows, columns } = this.props;
+        const preparedColumns = getPreparedColumns(columns, visibilities);
         const items = [];
-        const tableElement = document.getElementById(`${tableId.current}-table`);
+        const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
         const columnElements = tableElement ? tableElement.querySelectorAll('div.MuiTableCell-head') : [];
-
         do {
             if (index >= rows.length) {
                 index = rows.length;
@@ -248,71 +251,75 @@ const DataTable = ({ classes, rows, columns, rowHeight, tableHeight, onAdd, onEd
                     className={clsx(classes.tableRow, index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}
                     key={index}>
                     <DataTableRow
-                        tableId={tableId.current}
+                        tableId={this.tableId.current}
                         columns={preparedColumns}
                         columnElements={columnElements}
                         row={rows[index]}
-                        onMouseDown={handleMouseDown}
-                        onBlur={handleBlur}
-                        onCellDoubleClick={handleCellDoubleClick}
-                        onCellKeyDown={handleCellKeyDown}
+                        onMouseDown={this.handleMouseDown}
+                        onBlur={this.handleBlur}
+                        onCellDoubleClick={this.handleCellDoubleClick}
+                        onCellKeyDown={this.handleCellKeyDown}
                     />
                 </div>
             );
             index += 1;
-        } while (index < state.scroll.end);
+        } while (index < end);
 
         return items;
-    };
+    }
 
-    const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
+    render() {
+        const { classes, tableHeight, rowHeight, columns, rows } = this.props;
+        const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
+        const { visibilities, scroll, editor } = this.state;
+        const preparedColumns = getPreparedColumns(columns, visibilities);
 
-    const editorStyle = {
-        zIndex: state.editor.active ? 100 : -1,
-        opacity: state.editor.active ? 1 : 0,
-        ...getEditorPosition()
-    };
-
-    return (
-        <>
-            <div>
-                {JSON.stringify(state.scroll)}
+        const editorStyle = {
+            zIndex: editor.active ? 100 : -1,
+            opacity: editor.active ? 1 : 0,
+            ...this.getEditorPosition()
+        };
+        return (
+            <>
                 <div>
-                    <StyledOutlinedInput
-                        className={classes.autoCompleteEditor}
-                        style={editorStyle}
-                        id={EDITOR_ID}
-                        onBlur={handleEditorBlur}
-                        variant="outlined"
-                    />
-                </div>
-                <TableContainer
-                    id={`${tableId.current}-tcontainer`}
-                    onScroll={onScroll}
-                    component={Paper}
-                    style={style}>
-                    <div id={`${tableId.current}-table`} className={classes.tableComponent}>
-                        <div
-                            id={`${tableId.current}-thead`}
-                            className={clsx(classes.tableHeadComponent, classes.tableHead)}>
-                            <MemoizedDataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
-                        </div>
-                        <div
-                            id={`${tableId.current}-tbody`}
-                            className="tbody"
-                            style={{
-                                position: 'relative'
-                            }}>
-                            {renderBody()}
-                        </div>
-                        <div id={`${tableId.current}-tfoot`} className={classes.tableFooterComponent}>
-                            <MemoizedDataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
-                        </div>
+                    {JSON.stringify(scroll)}
+                    <div>
+                        <StyledOutlinedInput
+                            className={classes.autoCompleteEditor}
+                            style={editorStyle}
+                            id={EDITOR_ID}
+                            onBlur={this.handleEditorBlur}
+                            variant="outlined"
+                        />
                     </div>
-                </TableContainer>
-            </div>
-        </>
-    );
-};
+                    <TableContainer
+                        id={`${this.tableId.current}-tcontainer`}
+                        onScroll={this.handleScroll}
+                        component={Paper}
+                        style={style}>
+                        <div id={`${this.tableId.current}-table`} className={classes.tableComponent}>
+                            <div
+                                id={`${this.tableId.current}-thead`}
+                                className={clsx(classes.tableHeadComponent, classes.tableHead)}>
+                                <MemoizedDataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
+                            </div>
+                            <div
+                                id={`${this.tableId.current}-tbody`}
+                                className="tbody"
+                                style={{
+                                    position: 'relative'
+                                }}>
+                                {this.renderBody()}
+                            </div>
+                            <div id={`${this.tableId.current}-tfoot`} className={classes.tableFooterComponent}>
+                                <MemoizedDataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
+                            </div>
+                        </div>
+                    </TableContainer>
+                </div>
+            </>
+        );
+    }
+}
 
 export default withStyles(styles)(DataTable);
