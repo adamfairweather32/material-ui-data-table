@@ -13,11 +13,14 @@
     "no-restricted-syntax": "off",
     "no-unused-vars": "warn",
     "no-undef": "warn",
+    "no-shadow": "off",
+    "no-console": "off",
     "react/state-in-constructor": "off",
     "react/static-property-placement": "off",
     "react/jsx-props-no-spreading": "off"
   },
   "env": {
+    "es6": true,
     "jest": true,
     "node": true,
     "browser": true
