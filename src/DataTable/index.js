@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react';
+import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -52,6 +53,7 @@ const timer = null;
 
 const FOCUS_TIMEOUT_MS = 10;
 const EDITOR_ID = 'editor';
+const EDITOR_INPUT_ID = 'editor-input';
 const EDITING_ID_ATTRIBUTE = 'editing-id';
 const SELECTED_CLASS_NAME = 'cell-selected';
 const AUTOCOMPLETE_TYPE = 'autocomplete';
@@ -84,6 +86,24 @@ export class DataTable extends Component {
 
     componentDidMount() {
         this.handleScroll({ target: { scrollTop: 0 } });
+    }
+
+    componentDidUpdate() {
+        const { editor } = this.state;
+        if (editor) {
+            const editorElement = document.getElementById(EDITOR_ID);
+            const editorPosition = this.getEditorPosition();
+            if (editorElement && !_.isEmpty(editorPosition)) {
+                editorElement.style.zIndex = editor.active ? 100 : -1;
+                editorElement.style.opacity = editor.active ? 1 : 0;
+                editorElement.style.top = `${editorPosition.top}px`;
+                editorElement.style.left = `${editorPosition.left}px`;
+                editorElement.style.height = `${editorPosition.height}px`;
+                editorElement.style.width = `${editorPosition.width}px`;
+                const editorInput = document.getElementById(EDITOR_INPUT_ID);
+                editorInput.focus();
+            }
+        }
     }
 
     getEditorPosition = () => {
@@ -158,7 +178,8 @@ export class DataTable extends Component {
         focusedElement.parentElement.style.setProperty('opacity', 0);
         const editor = document.getElementById(EDITOR_ID);
         editor.setAttribute(EDITING_ID_ATTRIBUTE, id);
-        editor.focus();
+        const editorInput = document.getElementById(EDITOR_INPUT_ID);
+        editorInput.focus();
     };
 
     handleCellDoubleClick = id => {
@@ -276,14 +297,8 @@ export class DataTable extends Component {
             <>
                 <div>
                     {JSON.stringify(scroll)}
-                    <div>
-                        <StyledOutlinedInput
-                            className={classes.autoCompleteEditor}
-                            style={editorStyle}
-                            id={EDITOR_ID}
-                            onBlur={this.handleEditorBlur}
-                            variant="outlined"
-                        />
+                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={editorStyle}>
+                        <StyledOutlinedInput id={EDITOR_INPUT_ID} onBlur={this.handleEditorBlur} variant="outlined" />
                     </div>
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
