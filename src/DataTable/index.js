@@ -73,7 +73,7 @@ export class DataTable extends Component {
                 index: 0,
                 end: Math.ceil((tableHeight * 2) / rowHeight)
             },
-            editor: { active: false, position: {} },
+            editor: { active: false },
             visibilities: columns
                 .filter(c => c.headerName)
                 .map(({ headerName, field, hidden }) => ({
@@ -88,12 +88,13 @@ export class DataTable extends Component {
         this.handleScroll({ target: { scrollTop: 0 } });
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevState) {
         const { editor } = this.state;
         if (editor) {
             const editorElement = document.getElementById(EDITOR_ID);
             const editorPosition = this.getEditorPosition();
-            if (editorElement && !_.isEmpty(editorPosition)) {
+            if (editorPosition) {
+                // TODO: can we make this more succint?
                 editorElement.style.zIndex = editor.active ? 100 : -1;
                 editorElement.style.opacity = editor.active ? 1 : 0;
                 editorElement.style.top = `${editorPosition.top}px`;
@@ -102,13 +103,16 @@ export class DataTable extends Component {
                 editorElement.style.width = `${editorPosition.width}px`;
                 const editorInput = document.getElementById(EDITOR_INPUT_ID);
                 editorInput.focus();
+            } else {
+                editorElement.style.zIndex = -100;
+                editorElement.style.opacity = 0;
             }
         }
     }
 
     getEditorPosition = () => {
         const {
-            editor: { position, editing }
+            editor: { editing }
         } = this.state;
         if (editing) {
             const editingElement = document.getElementById(editing);
@@ -117,7 +121,75 @@ export class DataTable extends Component {
                 return { width, height, top, left };
             }
         }
-        return position;
+        return null;
+    };
+
+    activatePreviousCell = () => {
+        if (this.activeId.current) {
+            const element = document.getElementById(this.activeId.current);
+            if (element) {
+                element.classList.add(SELECTED_CLASS_NAME);
+            }
+        }
+    };
+
+    restoreOverlayedElementByEditor = () => {
+        const editor = document.getElementById(EDITOR_ID);
+        const id = editor.getAttribute(EDITING_ID_ATTRIBUTE);
+        const activeCell = document.getElementById(id);
+        if (activeCell) {
+            activeCell.parentElement.style.setProperty('opacity', 1);
+        }
+    };
+
+    overlayEditorAndHideOverlayedElement = () => {
+        const {
+            editor: { editing }
+        } = this.state;
+        if (editing) {
+            const activeCell = document.getElementById(editing);
+            if (activeCell) {
+                activeCell.parentElement.style.setProperty('opacity', 0);
+                const editor = document.getElementById(EDITOR_ID);
+                editor.setAttribute(EDITING_ID_ATTRIBUTE, editing);
+                const editorInput = document.getElementById(EDITOR_INPUT_ID);
+                editorInput.focus();
+            }
+        }
+    };
+
+    activateCell = id => {
+        const element = document.getElementById(id);
+        if (element) {
+            this.activeId.current = id;
+            element.classList.add(SELECTED_CLASS_NAME);
+            element.focus();
+        }
+    };
+
+    deactivateCell = id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.remove(SELECTED_CLASS_NAME);
+        }
+    };
+
+    showEditor = id => {
+        const focusedElement = document.getElementById(id);
+        if (!focusedElement) {
+            console.warn(`element with id: ${id} could not be found`);
+            return;
+        }
+        this.setState(prevState => ({
+            editor: {
+                ...prevState.editor,
+                type: AUTOCOMPLETE_TYPE,
+                active: true,
+                editing: id
+            }
+        }));
+        // TODO: move this code into after update
+        this.overlayEditorAndHideOverlayedElement();
     };
 
     handleScroll = ({ target }) => {
@@ -152,36 +224,6 @@ export class DataTable extends Component {
         this.timer = setTimeout(() => this.activatePreviousCell(), FOCUS_TIMEOUT_MS);
     };
 
-    activatePreviousCell = () => {
-        if (this.activeId.current) {
-            const element = document.getElementById(this.activeId.current);
-            if (element) {
-                element.classList.add(SELECTED_CLASS_NAME);
-            }
-        }
-    };
-
-    showEditor = id => {
-        const focusedElement = document.getElementById(id);
-        if (!focusedElement) {
-            console.warn(`element with id: ${id} could not be found`);
-            return;
-        }
-        this.setState(prevState => ({
-            editor: {
-                ...prevState.editor,
-                type: AUTOCOMPLETE_TYPE,
-                active: true,
-                editing: id
-            }
-        }));
-        focusedElement.parentElement.style.setProperty('opacity', 0);
-        const editor = document.getElementById(EDITOR_ID);
-        editor.setAttribute(EDITING_ID_ATTRIBUTE, id);
-        const editorInput = document.getElementById(EDITOR_INPUT_ID);
-        editorInput.focus();
-    };
-
     handleCellDoubleClick = id => {
         this.showEditor(id);
     };
@@ -198,39 +240,23 @@ export class DataTable extends Component {
                 editing: null
             }
         }));
-        const editor = document.getElementById(EDITOR_ID);
-        const id = editor.getAttribute(EDITING_ID_ATTRIBUTE);
-        const overlayedElement = document.getElementById(id);
-        if (overlayedElement) {
-            overlayedElement.parentElement.style.setProperty('opacity', 1);
-        } else {
-            console.warn(`element with id ${id} that was under editing no longer exists`);
-        }
+        // TODO: move this code into after update
+        this.restoreOverlayedElementByEditor();
     };
 
-    handleMouseDown = event => {
+    handleCellMouseDown = event => {
         if (this.activeId.current) {
             const previousElement = document.getElementById(this.activeId.current);
             if (previousElement) {
                 previousElement.classList.remove(SELECTED_CLASS_NAME);
             }
         }
-        const element = document.getElementById(event.target.id);
-        if (element) {
-            this.activeId.current = event.target.id;
-
-            element.classList.add(SELECTED_CLASS_NAME);
-            element.focus();
-        }
+        this.activateCell(event.target.id);
         event.preventDefault();
     };
 
-    // eslint-disable-next-line
-    handleBlur = (event) => {
-        const element = document.getElementById(event.target.id);
-        if (element) {
-            element.classList.remove(SELECTED_CLASS_NAME);
-        }
+    handleCellBlur = event => {
+        this.deactivateCell(event.target.id);
     };
 
     renderBody = () => {
@@ -269,8 +295,8 @@ export class DataTable extends Component {
                         columns={preparedColumns}
                         columnElements={columnElements}
                         row={rows[index]}
-                        onMouseDown={this.handleMouseDown}
-                        onBlur={this.handleBlur}
+                        onMouseDown={this.handleCellMouseDown}
+                        onBlur={this.handleCellBlur}
                         onCellDoubleClick={this.handleCellDoubleClick}
                         onCellKeyDown={this.handleCellKeyDown}
                     />
@@ -297,9 +323,7 @@ export class DataTable extends Component {
             <>
                 <div>
                     {JSON.stringify(scroll)}
-                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={editorStyle}>
-                        <StyledOutlinedInput id={EDITOR_INPUT_ID} onBlur={this.handleEditorBlur} variant="outlined" />
-                    </div>
+                    {JSON.stringify(editor)}
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
                         onScroll={this.handleScroll}
@@ -324,6 +348,9 @@ export class DataTable extends Component {
                             </div>
                         </div>
                     </TableContainer>
+                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={editorStyle}>
+                        <StyledOutlinedInput id={EDITOR_INPUT_ID} onBlur={this.handleEditorBlur} variant="outlined" />
+                    </div>
                 </div>
             </>
         );
