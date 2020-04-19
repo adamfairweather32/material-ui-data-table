@@ -4,10 +4,10 @@ import getValidatedRows from './validation';
 describe('getValidatedRows', () => {
     it('should return original rows when no rules defined', () => {
         const rows = ['foo'];
-        expect(getValidatedRows(rows)).toEqual(rows);
-        expect(getValidatedRows(rows, null)).toEqual(rows);
-        expect(getValidatedRows(rows, undefined)).toEqual(rows);
-        expect(getValidatedRows(rows, [])).toEqual(rows);
+        expect(getValidatedRows(rows)).to.equal(rows);
+        expect(getValidatedRows(rows, null)).to.equal(rows);
+        expect(getValidatedRows(rows, undefined)).to.equal(rows);
+        expect(getValidatedRows(rows, [])).to.equal(rows);
     });
 
     it('should throw error when more than one warning rule defined for same field', () => {
@@ -30,7 +30,7 @@ describe('getValidatedRows', () => {
                 level: 'warn'
             }
         ];
-        expect(() => getValidatedRows(rows, rules)).toThrow('Duplicate warning rules detected');
+        expect(() => getValidatedRows(rows, rules)).to.throw('Duplicate warning rules detected');
     });
 
     it('should throw error when more than one error rule defined for same field', () => {
@@ -53,7 +53,7 @@ describe('getValidatedRows', () => {
                 level: 'warn'
             }
         ];
-        expect(() => getValidatedRows(rows, rules)).toThrow('Duplicate error rules detected');
+        expect(() => getValidatedRows(rows, rules)).to.throw('Duplicate error rules detected');
     });
 
     it('should report no rule violations when all rules are valid', () => {
@@ -79,7 +79,7 @@ describe('getValidatedRows', () => {
                 level: 'error'
             }
         ];
-        expect(getValidatedRows(rows, rules)).toEqual(
+        expect(getValidatedRows(rows, rules)).to.deep.equal(
             rows.map(r => ({
                 ...r,
                 validations: {
@@ -113,7 +113,7 @@ describe('getValidatedRows', () => {
                 level: 'error'
             }
         ];
-        expect(getValidatedRows(rows, rules)).toEqual([
+        expect(getValidatedRows(rows, rules)).to.deep.equal([
             {
                 bar: 10,
                 foo: 11,
@@ -151,7 +151,7 @@ describe('getValidatedRows', () => {
                 level: 'error'
             }
         ];
-        expect(getValidatedRows(rows, rules)).toEqual([
+        expect(getValidatedRows(rows, rules)).to.deep.equal([
             {
                 bar: 10,
                 foo: 11,
@@ -193,7 +193,7 @@ describe('getValidatedRows', () => {
                 level: 'error'
             }
         ];
-        expect(getValidatedRows(rows, rules)).toEqual([
+        expect(getValidatedRows(rows, rules)).to.deep.equal([
             {
                 foo: 11,
                 bar: 10,

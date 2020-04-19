@@ -5,6 +5,7 @@ import { Paper } from '@material-ui/core';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import Button from '@material-ui/core/Button';
+// eslint-disable-next-line
 import DataTable from './DataTable/index';
 import './styles.css';
 import { getUpdatedRows } from './DataTable/helpers/helpers';
@@ -201,6 +202,7 @@ const App = ({ classes }) => {
     // HIGH
     // Get resize working
     // convert project to use same runtime framework as budget-weapon-ui project
+    // use Pure Components
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components

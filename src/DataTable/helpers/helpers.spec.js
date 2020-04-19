@@ -30,7 +30,7 @@ describe('getPreparedColumns', () => {
                 field: 'bar'
             }
         ];
-        expect(getPreparedColumns(columns)).toEqual([{ field: 'bar', index: 0 }]);
+        expect(getPreparedColumns(columns)).to.deep.equal([{ field: 'bar', index: 0 }]);
     });
     it('should filter out columns that are included in visibility list and set to not visible', () => {
         const columns = [
@@ -42,7 +42,7 @@ describe('getPreparedColumns', () => {
             }
         ];
         const visibilities = [{ field: 'foo', headerName: 'Foo Name', visible: false }];
-        expect(getPreparedColumns(columns, visibilities)).toEqual([{ field: 'bar', index: 0 }]);
+        expect(getPreparedColumns(columns, visibilities)).to.deep.equal([{ field: 'bar', index: 0 }]);
     });
     it('should prepare basic column collection', () => {
         const columns = [
@@ -53,7 +53,7 @@ describe('getPreparedColumns', () => {
                 field: 'bar'
             }
         ];
-        expect(getPreparedColumns(columns)).toEqual([
+        expect(getPreparedColumns(columns)).to.deep.equal([
             { field: 'foo', index: 0 },
             { field: 'bar', index: 1 }
         ]);
@@ -73,7 +73,7 @@ describe('getPreparedColumns', () => {
             }
         ];
         const prepared = getPreparedColumns(columns)[0];
-        expect(prepared.rich.autoComplete.options.bar).toEqual({
+        expect(prepared.rich.autoComplete.options.bar).to.deep.equal({
             label: 'Bar Label',
             value: 'bar'
         });
@@ -82,29 +82,29 @@ describe('getPreparedColumns', () => {
 
 describe('getReadonlyDisplayValue', () => {
     it('should throw if no column provided', () => {
-        expect(() => getReadonlyDisplayValue('foo')).toThrow('column parameter not provided');
-        expect(() => getReadonlyDisplayValue('foo', null)).toThrow('column parameter not provided');
-        expect(() => getReadonlyDisplayValue('foo', undefined)).toThrow('column parameter not provided');
+        expect(() => getReadonlyDisplayValue('foo')).to.throw('column parameter not provided');
+        expect(() => getReadonlyDisplayValue('foo', null)).to.throw('column parameter not provided');
+        expect(() => getReadonlyDisplayValue('foo', undefined)).to.throw('column parameter not provided');
     });
     it('should return value if not autocomplete or date column', () => {
-        expect(getReadonlyDisplayValue('foo', {})).toEqual('foo');
-        expect(getReadonlyDisplayValue('foo', { rich: {} })).toEqual('foo');
-        expect(getReadonlyDisplayValue('foo', { rich: { autoComplete: {} } })).toEqual('foo');
+        expect(getReadonlyDisplayValue('foo', {})).to.equal('foo');
+        expect(getReadonlyDisplayValue('foo', { rich: {} })).to.equal('foo');
+        expect(getReadonlyDisplayValue('foo', { rich: { autoComplete: {} } })).to.equal('foo');
         expect(
             getReadonlyDisplayValue('foo', {
                 rich: { autoComplete: { options: [] } }
             })
-        ).toEqual('foo');
+        ).to.equal('foo');
         expect(
             getReadonlyDisplayValue('foo', {
                 rich: { date: {} }
             })
-        ).toEqual('foo');
+        ).to.equal('foo');
         expect(
             getReadonlyDisplayValue('foo', {
                 rich: { date: { format: '' } }
             })
-        ).toEqual('foo');
+        ).to.equal('foo');
     });
     it('should return autocomplete label', () => {
         const column = {
@@ -120,7 +120,7 @@ describe('getReadonlyDisplayValue', () => {
             }
         };
         const preparedColumns = getPreparedColumns([column]);
-        expect(getReadonlyDisplayValue('foo', preparedColumns[0])).toEqual('foo display value');
+        expect(getReadonlyDisplayValue('foo', preparedColumns[0])).to.equal('foo display value');
     });
     it('should return original value if no matching autocomplete option', () => {
         expect(
@@ -136,7 +136,7 @@ describe('getReadonlyDisplayValue', () => {
                     }
                 }
             })
-        ).toEqual('bar');
+        ).to.equal('bar');
     });
     it('should return formatted date if format string provided', () => {
         expect(
@@ -147,7 +147,7 @@ describe('getReadonlyDisplayValue', () => {
                     }
                 }
             })
-        ).toEqual('2019-12-10');
+        ).to.equal('2019-12-10');
     });
     it('should return original value when not a date or date format string is invalid', () => {
         expect(
@@ -158,7 +158,7 @@ describe('getReadonlyDisplayValue', () => {
                     }
                 }
             })
-        ).toEqual('foobar');
+        ).to.equal('foobar');
         expect(
             getReadonlyDisplayValue('12/10/2019', {
                 rich: {
@@ -167,7 +167,7 @@ describe('getReadonlyDisplayValue', () => {
                     }
                 }
             })
-        ).toEqual('12/10/2019');
+        ).to.equal('12/10/2019');
     });
 });
 
@@ -177,7 +177,7 @@ describe('getCellIdFromTarget', () => {
         const htmlElement = {
             getAttribute: () => id
         };
-        expect(getCellIdFromTarget(htmlElement)).toEqual(id);
+        expect(getCellIdFromTarget(htmlElement)).to.equal(id);
     });
     it('should get cell id from children', () => {
         const id = `${ID_FIELD_PREFIX}-1-foo`;
@@ -189,7 +189,7 @@ describe('getCellIdFromTarget', () => {
                 }
             ]
         };
-        expect(getCellIdFromTarget(htmlElement)).toEqual(id);
+        expect(getCellIdFromTarget(htmlElement)).to.equal(id);
     });
     it("should get cell id from children's children", () => {
         const id = `${ID_FIELD_PREFIX}-1-foo`;
@@ -206,7 +206,7 @@ describe('getCellIdFromTarget', () => {
                 }
             ]
         };
-        expect(getCellIdFromTarget(htmlElement)).toEqual(id);
+        expect(getCellIdFromTarget(htmlElement)).to.equal(id);
     });
     it('should return null when depth is exhausted', () => {
         const id = `${ID_FIELD_PREFIX}-1-foo`;
@@ -228,7 +228,7 @@ describe('getCellIdFromTarget', () => {
                 }
             ]
         };
-        expect(getCellIdFromTarget(htmlElement, 1)).toEqual(null);
+        expect(getCellIdFromTarget(htmlElement, 1)).to.equal(null);
     });
     it('should get cell id from parent', () => {
         const id = `${ID_FIELD_PREFIX}-1-foo`;
@@ -238,7 +238,7 @@ describe('getCellIdFromTarget', () => {
                 getAttribute: () => id
             }
         };
-        expect(getCellIdFromTarget(htmlElement)).toEqual(id);
+        expect(getCellIdFromTarget(htmlElement)).to.equal(id);
     });
     it("should get cell id from parent's child", () => {
         const id = `${ID_FIELD_PREFIX}-1-foo`;
@@ -253,7 +253,7 @@ describe('getCellIdFromTarget', () => {
                 ]
             }
         };
-        expect(getCellIdFromTarget(htmlElement)).toEqual(id);
+        expect(getCellIdFromTarget(htmlElement)).to.equal(id);
     });
 });
 
@@ -271,7 +271,7 @@ describe('sorting', () => {
             }
         ];
         const columns = [{ field: 'firstName' }];
-        expect(stableSort(rows, columns, getSorting('desc', 'firstName'))).toEqual([
+        expect(stableSort(rows, columns, getSorting('desc', 'firstName'))).to.deep.equal([
             { firstName: 'Maynard' },
             { firstName: 'Danny' },
             { firstName: 'Adam' }
@@ -290,7 +290,7 @@ describe('sorting', () => {
             }
         ];
         const columns = [{ field: 'firstName' }];
-        expect(stableSort(rows, columns, getSorting('asc', 'firstName'))).toEqual([
+        expect(stableSort(rows, columns, getSorting('asc', 'firstName'))).to.deep.equal([
             { firstName: 'Adam' },
             { firstName: 'Danny' },
             { firstName: 'Maynard' }
@@ -309,7 +309,7 @@ describe('sorting', () => {
             }
         ];
         const columns = [{ field: 'cost' }];
-        expect(stableSort(rows, columns, getSorting('asc', 'cost'))).toEqual([
+        expect(stableSort(rows, columns, getSorting('asc', 'cost'))).to.deep.equal([
             { cost: 10 },
             { cost: 20 },
             { cost: 30 }
@@ -328,7 +328,7 @@ describe('sorting', () => {
             }
         ];
         const columns = [{ field: 'cost' }];
-        expect(stableSort(rows, columns, getSorting('desc', 'cost'))).toEqual([
+        expect(stableSort(rows, columns, getSorting('desc', 'cost'))).to.deep.equal([
             { cost: 30 },
             { cost: 20 },
             { cost: 10 }
@@ -347,7 +347,7 @@ describe('sorting', () => {
             }
         ];
         const columns = [{ field: 'date' }];
-        expect(stableSort(rows, columns, getSorting('asc', 'date'))).toEqual([
+        expect(stableSort(rows, columns, getSorting('asc', 'date'))).to.deep.equal([
             {
                 date: '2019-10-10'
             },
@@ -372,7 +372,7 @@ describe('sorting', () => {
             }
         ];
         const columns = [{ field: 'date' }];
-        expect(stableSort(rows, columns, getSorting('desc', 'date'))).toEqual([
+        expect(stableSort(rows, columns, getSorting('desc', 'date'))).to.deep.equal([
             {
                 date: '2019-10-12'
             },
@@ -388,9 +388,9 @@ describe('sorting', () => {
 
 describe('getUpdatedRows', () => {
     it('should return empty row set if no rows defined', () => {
-        expect(getUpdatedRows('bar', { foo: 'fee' }, 'foo')).toEqual(undefined);
-        expect(getUpdatedRows('bar', { foo: 'fee' }, 'foo', null)).toEqual(null);
-        expect(getUpdatedRows('bar', { foo: 'fee' }, 'foo', [])).toEqual([]);
+        expect(getUpdatedRows('bar', { foo: 'fee' }, 'foo')).to.equal(undefined);
+        expect(getUpdatedRows('bar', { foo: 'fee' }, 'foo', null)).to.equal(null);
+        expect(getUpdatedRows('bar', { foo: 'fee' }, 'foo', [])).to.deep.equal([]);
     });
     // this should never happen because there are validators that stop us getting
     // this far. I don't want a check to ensure that every row has an id field
@@ -398,7 +398,7 @@ describe('getUpdatedRows', () => {
     it('should throw if no id field available', () => {
         const originalRows = [{ foo: 'fee', doh: 'ray' }];
         const newRow = { foo: 'bar', doh: 'ray' };
-        expect(() => getUpdatedRows('ray', newRow, 'foo', originalRows)).toThrow(
+        expect(() => getUpdatedRows('ray', newRow, 'foo', originalRows)).to.throw(
             'index of changed row could not be located in collection'
         );
     });
@@ -408,7 +408,7 @@ describe('getUpdatedRows', () => {
             { id: 2, foo: 'bar' }
         ];
         const newRow = { id: 3, foo: 'ray' };
-        expect(() => getUpdatedRows('ray', newRow, 'foo', originalRows)).toThrow(
+        expect(() => getUpdatedRows('ray', newRow, 'foo', originalRows)).to.throw(
             'index of changed row could not be located in collection'
         );
     });
@@ -416,7 +416,7 @@ describe('getUpdatedRows', () => {
         const originalRows = [{ id: 1, foo: 'fee', doh: 'ray' }];
         const newRow = { id: 1, foo: 'bar', doh: 'ray' };
         const updatedRows = [{ id: 1, foo: 'bar', doh: 'ray' }];
-        expect(getUpdatedRows('bar', newRow, 'foo', originalRows)).toEqual(updatedRows);
+        expect(getUpdatedRows('bar', newRow, 'foo', originalRows)).to.deep.equal(updatedRows);
     });
     it('should return updated row using row comparator', () => {
         const originalRows = [{ someOtherId: 1, foo: 'fee', doh: 'ray' }];
@@ -424,7 +424,7 @@ describe('getUpdatedRows', () => {
         const updatedRows = [{ someOtherId: 1, foo: 'bar', doh: 'ray' }];
         expect(
             getUpdatedRows('bar', newRow, 'foo', originalRows, (r1, r2) => r1.someOtherId === r2.someOtherId)
-        ).toEqual(updatedRows);
+        ).to.deep.equal(updatedRows);
     });
     it('should return updated rows', () => {
         const originalRows = [
@@ -436,40 +436,40 @@ describe('getUpdatedRows', () => {
             { doh: 'ray', foo: 'bar', id: 1 },
             { doh: 'bloo', foo: 'blee', id: 2 }
         ];
-        expect(getUpdatedRows('bar', newRow, 'foo', originalRows)).toEqual(updatedRows);
+        expect(getUpdatedRows('bar', newRow, 'foo', originalRows)).to.deep.equal(updatedRows);
     });
 });
 
 describe('getColumnType', () => {
     it('should get combo type', () => {
-        expect(getColumnType({ rich: { autoComplete: { options: ['foo'] } } })).toEqual('combo');
+        expect(getColumnType({ rich: { autoComplete: { options: ['foo'] } } })).to.equal('combo');
     });
     it('should get date type', () => {
-        expect(getColumnType({ rich: { date: {} } })).toEqual('date');
+        expect(getColumnType({ rich: { date: {} } })).to.equal('date');
     });
     it('should default to text type', () => {
-        expect(getColumnType({})).toEqual('text');
-        expect(getColumnType({ foo: 'bar' })).toEqual('text');
-        expect(getColumnType({ rich: {} })).toEqual('text');
-        expect(getColumnType({ rich: { autoComplete: {} } })).toEqual('text');
-        expect(getColumnType({ rich: { autoComplete: { options: [] } } })).toEqual('text');
+        expect(getColumnType({})).to.equal('text');
+        expect(getColumnType({ foo: 'bar' })).to.equal('text');
+        expect(getColumnType({ rich: {} })).to.equal('text');
+        expect(getColumnType({ rich: { autoComplete: {} } })).to.equal('text');
+        expect(getColumnType({ rich: { autoComplete: { options: [] } } })).to.equal('text');
     });
 });
 
 describe('getBlinkDirectionColour', () => {
     it('should provide correct blink colour or null', () => {
-        expect(getBlinkDirectionColour(10, 9)).toEqual('blue');
-        expect(getBlinkDirectionColour(10, 10)).toEqual(null);
-        expect(getBlinkDirectionColour(9, 10)).toEqual('red');
-        expect(getBlinkDirectionColour(9)).toEqual(null);
-        expect(getBlinkDirectionColour()).toEqual(null);
-        expect(getBlinkDirectionColour('foo', 'foo')).toEqual(null);
+        expect(getBlinkDirectionColour(10, 9)).to.equal('blue');
+        expect(getBlinkDirectionColour(10, 10)).to.equal(null);
+        expect(getBlinkDirectionColour(9, 10)).to.equal('red');
+        expect(getBlinkDirectionColour(9)).to.equal(null);
+        expect(getBlinkDirectionColour()).to.equal(null);
+        expect(getBlinkDirectionColour('foo', 'foo')).to.equal(null);
     });
 });
 
 describe('createCellId', () => {
     it('should create cell id', () => {
-        expect(createCellId('footableid', 'foo', 'bar')).toEqual('footableid-field-foo-bar');
+        expect(createCellId('footableid', 'foo', 'bar')).to.equal('footableid-field-foo-bar');
     });
 });
 
@@ -477,29 +477,29 @@ describe('filterRow', () => {
     it('should find search string in row using wildcard match', () => {
         const row = { field1: 'football', field2: 'boots 123', field3: 4 };
         const columns = [{ field: 'field1' }, { field: 'field2' }, { field: 'field3' }];
-        expect(filterRow(row, columns, 'foo')).toEqual(true);
-        expect(filterRow(row, columns, 'ba')).toEqual(true);
-        expect(filterRow(row, columns, 'all')).toEqual(true);
-        expect(filterRow(row, columns, 'FOO')).toEqual(true);
-        expect(filterRow(row, columns, 'BA')).toEqual(true);
-        expect(filterRow(row, columns, 'ALL')).toEqual(true);
-        expect(filterRow(row, columns, '1')).toEqual(true);
-        expect(filterRow(row, columns, '3')).toEqual(true);
-        expect(filterRow(row, columns, '2')).toEqual(true);
-        expect(filterRow(row, columns, '123')).toEqual(true);
-        expect(filterRow(row, columns, '4')).toEqual(true);
-        expect(filterRow(row, columns, 4)).toEqual(true);
+        expect(filterRow(row, columns, 'foo')).to.equal(true);
+        expect(filterRow(row, columns, 'ba')).to.equal(true);
+        expect(filterRow(row, columns, 'all')).to.equal(true);
+        expect(filterRow(row, columns, 'FOO')).to.equal(true);
+        expect(filterRow(row, columns, 'BA')).to.equal(true);
+        expect(filterRow(row, columns, 'ALL')).to.equal(true);
+        expect(filterRow(row, columns, '1')).to.equal(true);
+        expect(filterRow(row, columns, '3')).to.equal(true);
+        expect(filterRow(row, columns, '2')).to.equal(true);
+        expect(filterRow(row, columns, '123')).to.equal(true);
+        expect(filterRow(row, columns, '4')).to.equal(true);
+        expect(filterRow(row, columns, 4)).to.equal(true);
     });
     it('should not find search string in row', () => {
         const row = { field1: 'football', field2: 'boots' };
         const columns = [{ field: 'field1' }, { field: 'field2' }];
-        expect(filterRow(row, columns, 'bar')).toEqual(false);
+        expect(filterRow(row, columns, 'bar')).to.equal(false);
     });
     it('should return row if search text is blank', () => {
         const row = { field1: 'football', field2: 'boots' };
         const columns = [{ field: 'field1' }, { field: 'field2' }];
-        expect(filterRow(row, columns, '')).toEqual(true);
-        expect(filterRow(row, columns)).toEqual(true);
+        expect(filterRow(row, columns, '')).to.equal(true);
+        expect(filterRow(row, columns)).to.equal(true);
     });
     it('should be able to search lookup labels and not their values', () => {
         const row = { field1: 'bar', field2: 'boots' };
@@ -514,83 +514,83 @@ describe('filterRow', () => {
             },
             { field: 'field2' }
         ];
-        expect(filterRow(row, columns, 'foo')).toEqual(true);
-        expect(filterRow(row, columns, 'bar')).toEqual(false);
+        expect(filterRow(row, columns, 'foo')).to.equal(true);
+        expect(filterRow(row, columns, 'bar')).to.equal(false);
     });
 });
 
 describe('isNumPad', () => {
     it('should return true when number pad', () => {
-        expect(isNumPad(96)).toEqual(true);
-        expect(isNumPad(105)).toEqual(true);
+        expect(isNumPad(96)).to.equal(true);
+        expect(isNumPad(105)).to.equal(true);
     });
     it('should return false when not number pad', () => {
-        expect(isNumPad(95)).toEqual(false);
-        expect(isNumPad(106)).toEqual(false);
+        expect(isNumPad(95)).to.equal(false);
+        expect(isNumPad(106)).to.equal(false);
     });
 });
 
 describe('isValidDate', () => {
     it('should return true when in valid date', () => {
-        expect(isValidDate('2019-10-12')).toEqual(true);
-        expect(isValidDate('12/10/2019')).toEqual(true);
+        expect(isValidDate('2019-10-12')).to.equal(true);
+        expect(isValidDate('12/10/2019')).to.equal(true);
     });
     it('should return false when not valid date', () => {
-        expect(isValidDate('foo')).toEqual(false);
+        expect(isValidDate('foo')).to.equal(false);
     });
 });
 
 describe('translateKeyCodeToChar', () => {
     it('should translate key code character', () => {
-        expect(translateKeyCodeToChar('96')).toEqual('0');
-        expect(translateKeyCodeToChar(96)).toEqual('0');
-        expect(translateKeyCodeToChar('95')).toEqual('_');
-        expect(translateKeyCodeToChar('106')).toEqual('j');
-        expect(translateKeyCodeToChar('189')).toEqual('½');
-        expect(translateKeyCodeToChar('190')).toEqual('¾');
+        expect(translateKeyCodeToChar('96')).to.equal('0');
+        expect(translateKeyCodeToChar(96)).to.equal('0');
+        expect(translateKeyCodeToChar('95')).to.equal('_');
+        expect(translateKeyCodeToChar('106')).to.equal('j');
+        expect(translateKeyCodeToChar('189')).to.equal('½');
+        expect(translateKeyCodeToChar('190')).to.equal('¾');
     });
 });
 
 describe('getFormattedCurrencyValue', () => {
     it('should format value to currency with thousands separators and without symbol', () => {
-        expect(getFormattedCurrencyValue(10000)).toEqual('10,000');
+        expect(getFormattedCurrencyValue(10000)).to.equal('10,000');
     });
     it('should format value to currency with thousands separators and symbol', () => {
-        expect(getFormattedCurrencyValue(10000, true)).toEqual('£10,000');
+        expect(getFormattedCurrencyValue(10000, true)).to.equal('£10,000');
     });
     it('should format negative value with brackets ', () => {
-        expect(getFormattedCurrencyValue(-10000, false)).toEqual('(10,000)');
-        expect(getFormattedCurrencyValue(-10000, true)).toEqual('(£10,000)');
+        expect(getFormattedCurrencyValue(-10000, false)).to.equal('(10,000)');
+        expect(getFormattedCurrencyValue(-10000, true)).to.equal('(£10,000)');
     });
     it('should format decimal numbers to N decimal places ', () => {
-        expect(getFormattedCurrencyValue(1.2356, true)).toEqual('£1.24');
-        expect(getFormattedCurrencyValue(1.2356, false)).toEqual('1.24');
-        expect(getFormattedCurrencyValue(-1.2356, true)).toEqual('(£1.24)');
-        expect(getFormattedCurrencyValue(-1.2356, false)).toEqual('(1.24)');
-        expect(getFormattedCurrencyValue(10000.2356, true)).toEqual('£10,000.24');
-        expect(getFormattedCurrencyValue(10000.2356, false)).toEqual('10,000.24');
-        expect(getFormattedCurrencyValue(-10000.2356, true)).toEqual('(£10,000.24)');
-        expect(getFormattedCurrencyValue(-10000.2356, false)).toEqual('(10,000.24)');
+        expect(getFormattedCurrencyValue(1.2356, true)).to.equal('£1.24');
+        expect(getFormattedCurrencyValue(1.2356, false)).to.equal('1.24');
+        expect(getFormattedCurrencyValue(-1.2356, true)).to.equal('(£1.24)');
+        expect(getFormattedCurrencyValue(-1.2356, false)).to.equal('(1.24)');
+        expect(getFormattedCurrencyValue(10000.2356, true)).to.equal('£10,000.24');
+        expect(getFormattedCurrencyValue(10000.2356, false)).to.equal('10,000.24');
+        expect(getFormattedCurrencyValue(-10000.2356, true)).to.equal('(£10,000.24)');
+        expect(getFormattedCurrencyValue(-10000.2356, false)).to.equal('(10,000.24)');
     });
 });
 
 describe('isValidChar', () => {
     it('should return true when valid alpha numeric character', () => {
-        expect(isValidChar('a')).toEqual(true);
-        expect(isValidChar('A')).toEqual(true);
-        expect(isValidChar(1)).toEqual(true);
-        expect(isValidChar('1')).toEqual(true);
+        expect(isValidChar('a')).to.equal(true);
+        expect(isValidChar('A')).to.equal(true);
+        expect(isValidChar(1)).to.equal(true);
+        expect(isValidChar('1')).to.equal(true);
     });
 
     it('should return false when not a valid alpha numeric character', () => {
-        expect(isValidChar('.')).toEqual(false);
+        expect(isValidChar('.')).to.equal(false);
     });
 
     it('should accept - and . when numeric only', () => {
-        expect(isValidChar('.', NUMERIC_TYPE)).toEqual(true);
-        expect(isValidChar('-', NUMERIC_TYPE)).toEqual(true);
-        expect(isValidChar('.', CURRENCY_TYPE)).toEqual(true);
-        expect(isValidChar('-', CURRENCY_TYPE)).toEqual(true);
+        expect(isValidChar('.', NUMERIC_TYPE)).to.equal(true);
+        expect(isValidChar('-', NUMERIC_TYPE)).to.equal(true);
+        expect(isValidChar('.', CURRENCY_TYPE)).to.equal(true);
+        expect(isValidChar('-', CURRENCY_TYPE)).to.equal(true);
     });
 });
 
@@ -608,11 +608,11 @@ describe('validateColumns', () => {
                     field: 'bar'
                 }
             ])
-        ).not.toThrow();
+        ).not.to.throw();
     });
     it('should throw when no columns specified', () => {
-        expect(() => validateColumns()).toThrow('No columns provided!');
-        expect(() => validateColumns([])).toThrow('No columns provided!');
+        expect(() => validateColumns()).to.throw('No columns provided!');
+        expect(() => validateColumns([])).to.throw('No columns provided!');
     });
     it("should throw when columns don't contain field property", () => {
         expect(() =>
@@ -624,7 +624,7 @@ describe('validateColumns', () => {
                     bar: 'foo'
                 }
             ])
-        ).toThrow('columns must all include a field property');
+        ).to.throw('columns must all include a field property');
         expect(() =>
             validateColumns([
                 {
@@ -634,7 +634,7 @@ describe('validateColumns', () => {
                     bar: 'foo'
                 }
             ])
-        ).toThrow('columns must all include a field property');
+        ).to.throw('columns must all include a field property');
     });
     it('should throw when no id field specified', () => {
         expect(() =>
@@ -646,7 +646,7 @@ describe('validateColumns', () => {
                     field: 'bar'
                 }
             ])
-        ).toThrow('columns must include an id field');
+        ).to.throw('columns must include an id field');
     });
     it('should throw when trying to use reserved fields', () => {
         expect(() =>
@@ -664,7 +664,7 @@ describe('validateColumns', () => {
                 ],
                 ['foo']
             )
-        ).toThrow('The following columns are reserved: foo');
+        ).to.throw('The following columns are reserved: foo');
     });
     it('should throw when duplicate columns are found', () => {
         expect(() =>
@@ -679,7 +679,7 @@ describe('validateColumns', () => {
                     field: 'foo'
                 }
             ])
-        ).toThrow('The following columns appear more than once: foo');
+        ).to.throw('The following columns appear more than once: foo');
     });
     it('should throw when parent header name is provided but not on all fields', () => {
         expect(() =>
@@ -696,7 +696,7 @@ describe('validateColumns', () => {
                     field: 'bar'
                 }
             ])
-        ).toThrow('parentHeaderName field must be set on ALL columns if it is provided');
+        ).to.throw('parentHeaderName field must be set on ALL columns if it is provided');
     });
     it('should not throw when parent header name is not provided on a hidden column', () => {
         expect(() =>
@@ -714,7 +714,7 @@ describe('validateColumns', () => {
                     parentHeaderName: 'General'
                 }
             ])
-        ).not.toThrow();
+        ).not.to.throw();
     });
 });
 
@@ -732,7 +732,7 @@ describe('getDuplicates', () => {
                 ],
                 f => f.field
             )
-        ).toEqual([]);
+        ).to.deep.equal([]);
     });
     it('should return duplicates', () => {
         expect(
@@ -750,9 +750,9 @@ describe('getDuplicates', () => {
                 ],
                 f => f.field
             )
-        ).toEqual(['foo']);
+        ).to.deep.equal(['foo']);
     });
     it('should return duplicates with default key selector if none provided', () => {
-        expect(getDuplicates(['foo', 'bar', 'foo'])).toEqual(['foo']);
+        expect(getDuplicates(['foo', 'bar', 'foo'])).to.deep.equal(['foo']);
     });
 });

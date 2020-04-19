@@ -1,7 +1,12 @@
+import chai from 'chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import { moveHorizontal, moveVertical, getGridNavigationMap } from './gridNavigation';
 import * as helpersModule from './helpers';
 import { ID_FIELD_PREFIX } from '../constants';
-// jest.mock("./helpers"); //NOT SUPPORTED in CodeSandbox!
+
+chai.should();
+chai.use(sinonChai);
 
 describe('getGridNavigationMap', () => {
     it('should build expected navigation map', () => {
@@ -44,7 +49,7 @@ describe('getGridNavigationMap', () => {
                 rich: { date: {} }
             }
         ];
-        expect(getGridNavigationMap('footableid', rows, columns)).toEqual({
+        expect(getGridNavigationMap('footableid', rows, columns)).to.deep.equal({
             idToPositionMap: {
                 '1': {
                     dateQualified: { columnIndex: 3, rowIndex: 0, type: 'date' },
@@ -101,7 +106,7 @@ describe('getGridNavigationMap', () => {
                 field: 'lastName'
             }
         ];
-        expect(getGridNavigationMap('footableid', rows, columns)).toEqual({
+        expect(getGridNavigationMap('footableid', rows, columns)).to.deep.equal({
             idToPositionMap: {
                 '1': {
                     firstName: { columnIndex: 0, rowIndex: 0, type: 'text' },
@@ -126,7 +131,7 @@ describe('getGridNavigationMap', () => {
     });
     it('should reject when no id field provided to build map with', () => {
         const columns = [{ field: 'id' }];
-        expect(() => getGridNavigationMap('footableid', [{ foo: 'bar' }, { bar: 'foo' }], columns)).toThrow(
+        expect(() => getGridNavigationMap('footableid', [{ foo: 'bar' }, { bar: 'foo' }], columns)).to.throw(
             'One or more rows are missing an id property'
         );
         expect(() =>
@@ -138,7 +143,7 @@ describe('getGridNavigationMap', () => {
                 ],
                 columns
             )
-        ).toThrow('One or more rows are missing an id property');
+        ).to.throw('One or more rows are missing an id property');
         expect(() =>
             getGridNavigationMap(
                 'footableid',
@@ -148,7 +153,7 @@ describe('getGridNavigationMap', () => {
                 ],
                 columns
             )
-        ).toThrow('One or more rows are missing an id property');
+        ).to.throw('One or more rows are missing an id property');
         expect(() =>
             getGridNavigationMap(
                 'footableid',
@@ -158,7 +163,7 @@ describe('getGridNavigationMap', () => {
                 ],
                 columns
             )
-        ).toThrow('One or more rows are missing an id property');
+        ).to.throw('One or more rows are missing an id property');
     });
     it('should reject duplicate ids when building map', () => {
         const rows = [
@@ -166,31 +171,31 @@ describe('getGridNavigationMap', () => {
             { id: 1, bar: 'foo' }
         ];
         const columns = [{ field: 'id' }];
-        expect(() => getGridNavigationMap('footableid', rows, columns)).toThrow(
+        expect(() => getGridNavigationMap('footableid', rows, columns)).to.throw(
             'Duplicate ids found in row collection'
         );
     });
     it('should throw when no columns provided', () => {
-        expect(() => getGridNavigationMap()).toThrow('No tableId provided');
-        expect(() => getGridNavigationMap('footableid', [])).toThrow('No columns provided');
-        expect(() => getGridNavigationMap('footableid', [], null)).toThrow('No columns provided');
-        expect(() => getGridNavigationMap('footableid', [], undefined)).toThrow('No columns provided');
-        expect(() => getGridNavigationMap('footableid', [], [])).toThrow('No columns provided');
+        expect(() => getGridNavigationMap()).to.throw('No tableId provided');
+        expect(() => getGridNavigationMap('footableid', [])).to.throw('No columns provided');
+        expect(() => getGridNavigationMap('footableid', [], null)).to.throw('No columns provided');
+        expect(() => getGridNavigationMap('footableid', [], undefined)).to.throw('No columns provided');
+        expect(() => getGridNavigationMap('footableid', [], [])).to.throw('No columns provided');
     });
     it('should return empty map when no rows provided', () => {
         const rows = [];
         const columns = [{ field: 'firstName' }, { field: 'lastName' }];
-        expect(getGridNavigationMap('footableid', rows, columns)).toEqual({});
+        expect(getGridNavigationMap('footableid', rows, columns)).to.deep.equal({});
     });
 });
 
 describe('moveHorizontal and moveVertical', () => {
     it('should throw when invalid direction provided', () => {
-        expect(() => moveHorizontal('foo', 1, {})).toThrow('direction was not one of the expected values: left,right');
-        expect(() => moveVertical('foo', 1, {})).toThrow('direction was not one of the expected values: up,down');
+        expect(() => moveHorizontal('foo', 1, {})).to.throw('direction was not one of the expected values: left,right');
+        expect(() => moveVertical('foo', 1, {})).to.throw('direction was not one of the expected values: up,down');
     });
     it('should move to left end of table', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake();
         const rows = [
             {
                 id: 1,
@@ -212,11 +217,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-1-firstName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-1-rank');
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-1-rank');
     });
 
     it('should not move left when already at left end of table', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake();
         const rows = [
             {
                 id: 1,
@@ -237,11 +242,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-1-rank`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-1-rank', true);
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-1-rank', true);
     });
 
     it('should move to right end of table', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake();
         const rows = [
             {
                 id: 1,
@@ -263,11 +268,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-1-firstName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-1-lastName');
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-1-lastName');
     });
 
     it('should not move right when already at right end of table', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake(() => {});
         const rows = [
             {
                 id: 1,
@@ -288,11 +293,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-1-lastName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-1-lastName', true);
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-1-lastName', true);
     });
 
     it('should move down table', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake(() => {});
         const rows = [
             {
                 id: 1,
@@ -313,11 +318,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-1-lastName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-2-lastName');
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-2-lastName');
     });
 
     it('should move up table', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake(() => {});
         const rows = [
             {
                 id: 1,
@@ -338,11 +343,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-2-lastName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-1-lastName');
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-1-lastName');
     });
 
     it('should not move up table when already at top', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake(() => {});
         const rows = [
             {
                 id: 1,
@@ -363,11 +368,11 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-1-lastName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-1-lastName', true);
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-1-lastName', true);
     });
 
     it('should not move down table when already at bottom', () => {
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.focus = sinon.fake(() => {});
         const rows = [
             {
                 id: 1,
@@ -388,12 +393,12 @@ describe('moveHorizontal and moveVertical', () => {
             `footableid-${ID_FIELD_PREFIX}-2-lastName`,
             getGridNavigationMap('footableid', rows, columns)
         );
-        expect(helpersModule.focus).toHaveBeenCalledWith('footableid-field-2-lastName', true);
+        expect(helpersModule.focus).to.have.been.calledWith('footableid-field-2-lastName', true);
     });
 
     it('should not move down if combo is being edited', () => {
-        helpersModule.cellIsEditing = jest.fn(() => true);
-        helpersModule.focus = jest.fn(() => {});
+        helpersModule.cellIsEditing = sinon.fake(() => true);
+        helpersModule.focus = sinon.fake(() => {});
         const rows = [
             {
                 id: 1,
@@ -414,9 +419,9 @@ describe('moveHorizontal and moveVertical', () => {
             { field: 'lastName' }
         ];
         moveVertical('down', `footableid-${ID_FIELD_PREFIX}-1-rank`, getGridNavigationMap('footableid', rows, columns));
-        expect(helpersModule.focus).not.toHaveBeenCalled();
+        expect(helpersModule.focus).to.have.been.callCount(0);
 
         moveVertical('up', `footableid-${ID_FIELD_PREFIX}-2-rank`, getGridNavigationMap('footableid', rows, columns));
-        expect(helpersModule.focus).not.toHaveBeenCalled();
+        expect(helpersModule.focus).to.have.been.callCount(0);
     });
 });
