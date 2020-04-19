@@ -9,10 +9,8 @@ const getRuleRuns = (row, rules, rows) => {
             Object.keys(row)
         );
         if (fields.length !== rules.length) {
-            // eslint-disable-next-line
-      console.warn(
-        "One or more rule(s) have been ignored. Have they got the correct field names defined?"
-      );
+            console.warn('One or more rule(s) have been ignored. Have they got the correct field names defined?');
+        }
         return (
             fields
                 .map(field => {
