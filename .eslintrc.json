@@ -1,6 +1,10 @@
 {
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
   "rules": {
     "strict": 0, // Allows use of optional chaining, can be removed when eslint supports it.
     "prettier/prettier": ["warn"],

@@ -12,7 +12,7 @@ const getRuleRuns = (row, rules, rows) => {
             // eslint-disable-next-line
       console.warn(
         "One or more rule(s) have been ignored. Have they got the correct field names defined?"
-        }
+      );
         return (
             fields
                 .map(field => {

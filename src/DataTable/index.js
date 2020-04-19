@@ -80,20 +80,13 @@ export class DataTable extends Component {
                     visible: !hidden
                 }))
         };
-
-        this.handleBlur = this.handleBlur.bind(this);
-        this.handleCellDoubleClick = this.handleCellDoubleClick.bind(this);
-        this.handleCellKeyDown = this.handleCellKeyDown.bind(this);
-        this.handleEditorBlur = this.handleEditorBlur.bind(this);
-        this.handleMouseDown = this.handleMouseDown.bind(this);
-        this.handleScroll = this.handleScroll.bind(this);
     }
 
     componentDidMount() {
         this.handleScroll({ target: { scrollTop: 0 } });
     }
 
-    getEditorPosition() {
+    getEditorPosition = () => {
         const {
             editor: { position, editing }
         } = this.state;
@@ -105,9 +98,9 @@ export class DataTable extends Component {
             }
         }
         return position;
-    }
+    };
 
-    handleScroll({ target }) {
+    handleScroll = ({ target }) => {
         const { rows, rowHeight } = this.props;
         const numberOfRows = rows.length;
         const calculatedTableHeight = numberOfRows * rowHeight;
@@ -137,18 +130,18 @@ export class DataTable extends Component {
         }));
         clearTimeout(timer);
         this.timer = setTimeout(() => this.activatePreviousCell(), FOCUS_TIMEOUT_MS);
-    }
+    };
 
-    activatePreviousCell() {
+    activatePreviousCell = () => {
         if (this.activeId.current) {
             const element = document.getElementById(this.activeId.current);
             if (element) {
                 element.classList.add(SELECTED_CLASS_NAME);
             }
         }
-    }
+    };
 
-    showEditor(id) {
+    showEditor = id => {
         const focusedElement = document.getElementById(id);
         if (!focusedElement) {
             console.warn(`element with id: ${id} could not be found`);
@@ -166,17 +159,17 @@ export class DataTable extends Component {
         const editor = document.getElementById(EDITOR_ID);
         editor.setAttribute(EDITING_ID_ATTRIBUTE, id);
         editor.focus();
-    }
+    };
 
-    handleCellDoubleClick(id) {
+    handleCellDoubleClick = id => {
         this.showEditor(id);
-    }
+    };
 
-    handleCellKeyDown(id) {
+    handleCellKeyDown = id => {
         this.showEditor(id);
-    }
+    };
 
-    handleEditorBlur() {
+    handleEditorBlur = () => {
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
@@ -192,9 +185,9 @@ export class DataTable extends Component {
         } else {
             console.warn(`element with id ${id} that was under editing no longer exists`);
         }
-    }
+    };
 
-    handleMouseDown(event) {
+    handleMouseDown = event => {
         if (this.activeId.current) {
             const previousElement = document.getElementById(this.activeId.current);
             if (previousElement) {
@@ -209,17 +202,17 @@ export class DataTable extends Component {
             element.focus();
         }
         event.preventDefault();
-    }
+    };
 
     // eslint-disable-next-line
-    handleBlur(event) {
+    handleBlur = (event) => {
         const element = document.getElementById(event.target.id);
         if (element) {
             element.classList.remove(SELECTED_CLASS_NAME);
         }
-    }
+    };
 
-    renderBody() {
+    renderBody = () => {
         let {
             scroll: { index }
         } = this.state;
@@ -266,7 +259,7 @@ export class DataTable extends Component {
         } while (index < end);
 
         return items;
-    }
+    };
 
     render() {
         const { classes, tableHeight, rowHeight, columns, rows } = this.props;
