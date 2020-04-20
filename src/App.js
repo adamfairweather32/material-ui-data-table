@@ -202,7 +202,6 @@ const App = ({ classes }) => {
     // HIGH
     // Get resize working
     // use Pure Components for complex parts
-    // enable wheel scroll when hovering over text editor
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components
