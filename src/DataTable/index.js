@@ -94,6 +94,8 @@ export class DataTable extends Component {
             editor: { editing }
         } = prevState;
         this.applyEditorVisibilityAndPositioning(editing);
+        window.removeEventListener('resize', this.handleResize);
+        window.addEventListener('resize', this.handleResize);
     }
 
     applyEditorVisibilityAndPositioning = previouslyEditing => {
@@ -200,6 +202,13 @@ export class DataTable extends Component {
                 editing: [id]
             }
         }));
+    };
+
+    handleResize = () => {
+        const {
+            scroll: { top }
+        } = this.state;
+        this.handleScroll({ target: { scrollTop: top } });
     };
 
     handleEditorWheel = event => {

@@ -200,7 +200,6 @@ const App = ({ classes }) => {
     ];
 
     // HIGH
-    // Get resize working
     // use Pure Components for complex parts
 
     // NICE-TO-HAVE
