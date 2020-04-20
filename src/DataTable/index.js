@@ -61,6 +61,7 @@ export class DataTable extends Component {
     constructor(props) {
         super(props);
         const { rowHeight, tableHeight, columns } = this.props;
+        this.editorRef = createRef();
         this.activeId = createRef();
         this.tableId = createRef();
         this.tableId.current = uuidv4()
@@ -85,6 +86,7 @@ export class DataTable extends Component {
 
     componentDidMount() {
         this.handleScroll({ target: { scrollTop: 0 } });
+        this.editorRef.current.onwheel = this.handleEditorWheel;
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -198,6 +200,12 @@ export class DataTable extends Component {
                 editing: [id]
             }
         }));
+    };
+
+    handleEditorWheel = event => {
+        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
+        tableContainer.scroll(event.deltaX, event.deltaY);
+        event.preventDefault();
     };
 
     handleScroll = ({ target }) => {
@@ -355,7 +363,14 @@ export class DataTable extends Component {
                         </div>
                     </TableContainer>
                     <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={editorStyle}>
-                        <StyledOutlinedInput id={EDITOR_INPUT_ID} onBlur={this.handleEditorBlur} variant="outlined" />
+                        <StyledOutlinedInput
+                            id={EDITOR_INPUT_ID}
+                            onBlur={this.handleEditorBlur}
+                            variant="outlined"
+                            inputRef={ref => {
+                                this.editorRef.current = ref;
+                            }}
+                        />
                     </div>
                 </div>
             </>
