@@ -48,9 +48,6 @@ const styles = () => ({
     }
 });
 
-const timer = null;
-
-const FOCUS_TIMEOUT_MS = 10;
 const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
@@ -95,6 +92,7 @@ export class DataTable extends Component {
         this.applyEditorVisibilityAndPositioning(editing);
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
+        this.activatePreviousCell();
     }
 
     applyEditorVisibilityAndPositioning = previouslyEditing => {
@@ -244,8 +242,6 @@ export class DataTable extends Component {
                 top: topRowIndex * rowHeight
             }
         }));
-        clearTimeout(timer);
-        this.timer = setTimeout(() => this.activatePreviousCell(), FOCUS_TIMEOUT_MS);
     };
 
     handleCellDoubleClick = id => {
@@ -333,7 +329,7 @@ export class DataTable extends Component {
     render() {
         const { classes, tableHeight, rowHeight, columns, rows } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
-        const { visibilities, scroll, editor } = this.state;
+        const { visibilities, editor } = this.state;
         const preparedColumns = getPreparedColumns(columns, visibilities);
 
         const editorStyle = {
@@ -344,8 +340,8 @@ export class DataTable extends Component {
         return (
             <>
                 <div>
-                    {JSON.stringify(scroll)}
-                    {JSON.stringify(editor)}
+                    {/* {JSON.stringify(scroll)}
+                    {JSON.stringify(editor)} */}
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
                         onScroll={this.handleScroll}
