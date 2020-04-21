@@ -201,6 +201,7 @@ const App = ({ classes }) => {
 
     // HIGH
     // TODO: fix box styling so it fits correctly
+    // TODO: we can probably just re-activate the previous selected cell within componentDidUpdate hook rather than using a timer
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components

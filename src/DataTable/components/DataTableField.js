@@ -3,12 +3,10 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = () => ({
     mainDiv: {
-        border: '1px',
-        borderStyle: 'solid',
-        borderColor: 'grey',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
+        padding: '5px'
     }
 });
 
