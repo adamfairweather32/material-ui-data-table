@@ -7,6 +7,7 @@
     "allowImportExportEverywhere": true
   },
   "rules": {
+    "import/no-named-as-default": "off",
     "strict": 0, // Allows use of optional chaining, can be removed when eslint supports it.
     "prettier/prettier": ["warn"],
     "react/prop-types": ["off"], // We don't currently use prop type validation
