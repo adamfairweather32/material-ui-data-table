@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
@@ -35,17 +35,24 @@ const styles = () => ({
     }
 });
 
-const initialState = {
-    mouseX: null,
-    mouseY: null
-};
+export class DataTableHeader extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            menuPosition: {
+                mouseX: null,
+                mouseY: null
+            }
+        };
+    }
 
-const DataTableHeader = ({ classes, columns, rowHeight }) => {
-    const [menuPosition, setMenuPosition] = useState(initialState);
+    shouldComponentUpdate(prevProps) {
+        const { columns } = this.props;
+        const { columns: prevColumns } = prevProps;
+        return _.isEqual(columns, prevColumns);
+    }
 
-    const hasParentHeader = columns.filter(c => c.parentHeaderName).length > 0;
-
-    const getAlignmentForColumn = column => {
+    getAlignmentForColumn = column => {
         const {
             rich: { numeric = false }
         } = column || { rich: {} };
@@ -53,15 +60,15 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
         return numeric ? 'right' : 'left';
     };
 
-    const getAlignment = (parentHeader, allColumns) => {
+    getAlignment = (parentHeader, allColumns) => {
         const matchingColumns = allColumns.filter(c => c.parentHeaderName && c.parentHeaderName === parentHeader);
         if (matchingColumns.length > 1) {
             return 'left';
         }
-        return getAlignmentForColumn(matchingColumns && matchingColumns[0]);
+        return this.getAlignmentForColumn(matchingColumns && matchingColumns[0]);
     };
 
-    const shouldShowField = (parentHeader, index, allColumns) => {
+    shouldShowField = (parentHeader, index, allColumns) => {
         // get start position of parent header
         const startIndex = _.indexOf(
             allColumns.map(c => c.parentHeaderName),
@@ -70,11 +77,13 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
         return index === startIndex;
     };
 
-    const renderParentHeader = () => {
+    renderParentHeader = () => {
+        const { columns, classes, rowHeight } = this.props;
+
         const calcColumns = columns.map((c, i) => ({
             ...c,
-            showField: shouldShowField(c.parentHeaderName, i, columns),
-            align: getAlignment(c.parentHeaderName, columns)
+            showField: this.shouldShowField(c.parentHeaderName, i, columns),
+            align: this.getAlignment(c.parentHeaderName, columns)
         }));
 
         return (
@@ -101,10 +110,12 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
         );
     };
 
-    const renderHeader = () => {
+    render() {
+        const { classes, columns, rowHeight } = this.props;
+        const hasParentHeader = columns.filter(c => c.parentHeaderName).length > 0;
         return (
             <>
-                {hasParentHeader && renderParentHeader()}
+                {hasParentHeader && this.renderParentHeader()}
                 <div
                     className={classes.tableRow}
                     style={{
@@ -115,7 +126,7 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
                         <TableCell
                             variant="head"
                             component="div"
-                            align={getAlignmentForColumn(c)}
+                            align={this.getAlignmentForColumn(c)}
                             className={clsx(classes.tableCell, classes.tableCellHead)}
                             style={{
                                 top: rowHeight
@@ -128,15 +139,7 @@ const DataTableHeader = ({ classes, columns, rowHeight }) => {
                 </div>
             </>
         );
-    };
-
-    return renderHeader();
-};
-
-const propsAreEqual = (prev, next) => {
-    return _.isEqual(prev.columns, next.columns);
-};
-
-export const MemoizedDataTableHeader = memo(withStyles(styles)(DataTableHeader), propsAreEqual);
+    }
+}
 
 export default withStyles(styles)(DataTableHeader);

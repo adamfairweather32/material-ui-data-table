@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
@@ -39,12 +39,14 @@ const styles = () => ({
     }
 });
 
-const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
-    if (!columns.filter(c => c.total).length) {
-        return null;
+export class DataTableFooter extends Component {
+    shouldComponentUpdate(prevProps) {
+        const { columns } = this.props;
+        const { columns: prevColumns } = prevProps;
+        return _.isEqual(columns, prevColumns);
     }
 
-    const formatTotal = (total, options) => {
+    formatTotal = (total, options) => {
         if (_.isEmpty(options)) {
             return total;
         }
@@ -56,14 +58,16 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
         return total;
     };
 
-    const parseValue = value => {
+    parseValue = value => {
         if (!Number.isNaN(value)) {
             return parseFloat(value);
         }
         return NaN;
     };
 
-    const getTotal = column => {
+    getTotal = column => {
+        const { rows } = this.props;
+
         const {
             field,
             rich,
@@ -71,17 +75,22 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
         } = column;
 
         const filter = predicate || (() => true);
+
         switch (type) {
             default: {
                 return {
-                    total: formatTotal(_.sum(rows.filter(filter).map(row => parseValue(row[field]))), { ...rich }),
+                    total: this.formatTotal(_.sum(rows.filter(filter).map(row => this.parseValue(row[field]))), {
+                        ...rich
+                    }),
                     filtered: !!predicate
                 };
             }
         }
     };
 
-    const renderTotal = column => {
+    renderTotal = column => {
+        const { classes } = this.props;
+
         if (!column.total) {
             return (
                 <TableCell
@@ -95,7 +104,8 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
         }
         const { warnNegative } = column;
 
-        const { total, filtered } = getTotal(column);
+        const { total, filtered } = this.getTotal(column);
+
         const cellStyle = {
             color: total && total.includes('(') && warnNegative ? 'red' : 'inherit'
         };
@@ -123,22 +133,23 @@ const DataTableFooter = ({ classes, rows, columns, rowHeight }) => {
         );
     };
 
-    return (
-        <div
-            className={classes.tableRow}
-            style={{
-                height: rowHeight,
-                lineHeight: `${rowHeight}px`
-            }}>
-            {columns.map(c => renderTotal(c))}
-        </div>
-    );
-};
+    render() {
+        const { columns, classes, rowHeight } = this.props;
 
-const propsAreEqual = (prev, next) => {
-    return _.isEqual(prev.columns, next.columns);
-};
-
-export const MemoizedDataTableFooter = memo(withStyles(styles)(DataTableFooter), propsAreEqual);
+        if (!columns.filter(c => c.total).length) {
+            return null;
+        }
+        return (
+            <div
+                className={classes.tableRow}
+                style={{
+                    height: rowHeight,
+                    lineHeight: `${rowHeight}px`
+                }}>
+                {columns.map(c => this.renderTotal(c))}
+            </div>
+        );
+    }
+}
 
 export default withStyles(styles)(DataTableFooter);

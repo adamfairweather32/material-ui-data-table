@@ -2,7 +2,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 
-import { MemoizedDataTableField } from './DataTableField';
+import DataTableField from './DataTableField';
 import { createCellId } from '../helpers/helpers';
 
 const styles = () => ({
@@ -44,7 +44,7 @@ const DataTableRow = ({
                     style={{
                         width: `${currentColWidth}px`
                     }}>
-                    <MemoizedDataTableField
+                    <DataTableField
                         id={key}
                         column={column}
                         value={value}

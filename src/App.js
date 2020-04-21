@@ -200,7 +200,8 @@ const App = ({ classes }) => {
     ];
 
     // HIGH
-    // use Pure Components for complex parts
+    // TODO: adjust z-indexes so editor hides correctly behind table header
+    // TODO: fix box styling so it fits correctly
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components

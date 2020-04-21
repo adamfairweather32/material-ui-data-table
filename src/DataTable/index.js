@@ -1,12 +1,11 @@
 import React, { Component, createRef } from 'react';
-import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
 import Paper from '@material-ui/core/Paper';
 import TableContainer from '@material-ui/core/TableContainer';
-import { MemoizedDataTableHeader } from './components/DataTableHeader';
-import { MemoizedDataTableFooter } from './components/DataTableFooter';
+import DataTableHeader from './components/DataTableHeader';
+import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import StyledOutlinedInput from './styled/StyledOutlinedInput';
 import { getPreparedColumns } from './helpers/helpers';
@@ -356,7 +355,7 @@ export class DataTable extends Component {
                             <div
                                 id={`${this.tableId.current}-thead`}
                                 className={clsx(classes.tableHeadComponent, classes.tableHead)}>
-                                <MemoizedDataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
+                                <DataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
                             </div>
                             <div
                                 id={`${this.tableId.current}-tbody`}
@@ -367,7 +366,7 @@ export class DataTable extends Component {
                                 {this.renderBody()}
                             </div>
                             <div id={`${this.tableId.current}-tfoot`} className={classes.tableFooterComponent}>
-                                <MemoizedDataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
+                                <DataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
                             </div>
                         </div>
                     </TableContainer>

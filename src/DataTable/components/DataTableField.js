@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = () => ({
@@ -35,13 +35,5 @@ const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, 
         </div>
     );
 };
-
-const propsAreEqual = (prev, next) => {
-    // TODO: there is a problem with this
-    return false;
-    // return prev.value === next.value;
-};
-
-export const MemoizedDataTableField = memo(withStyles(styles)(DataTableField), propsAreEqual);
 
 export default withStyles(styles)(DataTableField);
