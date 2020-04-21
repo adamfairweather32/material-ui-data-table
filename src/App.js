@@ -200,7 +200,6 @@ const App = ({ classes }) => {
     ];
 
     // HIGH
-    // TODO: adjust z-indexes so editor hides correctly behind table header
     // TODO: fix box styling so it fits correctly
 
     // NICE-TO-HAVE

@@ -102,7 +102,7 @@ export class DataTable extends Component {
         const editorElement = document.getElementById(EDITOR_ID);
         const editorPosition = this.getEditorPosition();
         const showEditor = !!editor.active && !!editorPosition;
-        editorElement.style.zIndex = showEditor ? 100 : -100;
+        editorElement.style.zIndex = showEditor ? 1 : -1;
         editorElement.style.opacity = showEditor ? 1 : 0;
         if (editorPosition) {
             editorElement.style.top = `${editorPosition.top}px`;
