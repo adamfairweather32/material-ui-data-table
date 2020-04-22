@@ -7,6 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import DataTableHeader from './components/DataTableHeader';
 import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
+import DataTableEditor from './components/DataTableEditor';
 import StyledOutlinedInput from './styled/StyledOutlinedInput';
 import { getPreparedColumns } from './helpers/helpers';
 
@@ -82,7 +83,9 @@ export class DataTable extends Component {
 
     componentDidMount() {
         this.handleScroll({ target: { scrollTop: 0 } });
-        this.editorRef.current.onwheel = this.handleEditorWheel;
+        if (this.editorRef && this.editorRef.current) {
+            this.editorRef.current.onwheel = this.handleEditorWheel;
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -185,10 +188,24 @@ export class DataTable extends Component {
         }
     };
 
+    getColumn = id => {
+        // TODO:
+        return null;
+    };
+
+    isEditable = id => {
+        console.log(`TODO: check if ${id} is editable`);
+        // TODO use getColumn to retrieve column and then grab type
+        return true;
+    };
+
     showEditor = id => {
         const focusedElement = document.getElementById(id);
         if (!focusedElement) {
             console.warn(`element with id: ${id} could not be found`);
+            return;
+        }
+        if (!this.isEditable(id)) {
             return;
         }
         this.setState(prevState => ({
@@ -332,8 +349,8 @@ export class DataTable extends Component {
         const { visibilities, editor } = this.state;
         const preparedColumns = getPreparedColumns(columns, visibilities);
 
-        const editorStyle = {
-            zIndex: editor.active ? 100 : -1,
+        const edtiorContainerStyle = {
+            zIndex: editor.active ? 1 : -1,
             opacity: editor.active ? 1 : 0,
             ...this.getEditorPosition()
         };
@@ -366,12 +383,12 @@ export class DataTable extends Component {
                             </div>
                         </div>
                     </TableContainer>
-                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={editorStyle}>
-                        <StyledOutlinedInput
+                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={edtiorContainerStyle}>
+                        <DataTableEditor
                             id={EDITOR_INPUT_ID}
+                            editor={editor}
                             onBlur={this.handleEditorBlur}
-                            variant="outlined"
-                            inputRef={ref => {
+                            ref={ref => {
                                 this.editorRef.current = ref;
                             }}
                         />
