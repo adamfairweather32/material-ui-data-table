@@ -1,7 +1,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { moveHorizontal, moveVertical, getGridNavigationMap } from './gridNavigation';
+import { moveHorizontal, moveVertical, getGridNavigationMap, isEditable } from './gridNavigation';
 import * as helpersModule from './helpers';
 import { ID_FIELD_PREFIX } from '../constants';
 
@@ -423,5 +423,23 @@ describe('moveHorizontal and moveVertical', () => {
 
         moveVertical('up', `footableid-${ID_FIELD_PREFIX}-2-rank`, getGridNavigationMap('footableid', rows, columns));
         expect(helpersModule.focus).to.have.been.callCount(0);
+    });
+});
+
+describe('isEditable', () => {
+    it('should throw if column cannot be found', () => {
+        const columns = [{ field: 'rank' }];
+        expect(() => isEditable('footableid-field-1-foo', columns)).to.throw();
+    });
+    it('should not be editable when column has no rich property', () => {
+        const columns = [{ field: 'rank' }];
+        expect(isEditable('footableid-field-1-rank', columns)).to.equal(false);
+    });
+    it('should not be editable when column has rich property but is not marked as editable', () => {
+        expect(isEditable('footableid-field-1-rank', [{ field: 'rank', rich: {} }])).to.equal(false);
+        expect(isEditable('footableid-field-1-rank', [{ field: 'rank', rich: { editable: false } }])).to.equal(false);
+    });
+    it('should be editable when column has rich property but is  marked as editable', () => {
+        expect(isEditable('footableid-field-1-rank', [{ field: 'rank', rich: { editable: true } }])).to.equal(true);
     });
 });

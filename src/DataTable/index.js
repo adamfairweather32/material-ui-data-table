@@ -8,8 +8,8 @@ import DataTableHeader from './components/DataTableHeader';
 import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
-import StyledOutlinedInput from './styled/StyledOutlinedInput';
 import { getPreparedColumns } from './helpers/helpers';
+import { isEditable } from './helpers/gridNavigation';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -193,19 +193,14 @@ export class DataTable extends Component {
         return null;
     };
 
-    isEditable = id => {
-        console.log(`TODO: check if ${id} is editable`);
-        // TODO use getColumn to retrieve column and then grab type
-        return true;
-    };
-
     showEditor = id => {
         const focusedElement = document.getElementById(id);
         if (!focusedElement) {
             console.warn(`element with id: ${id} could not be found`);
             return;
         }
-        if (!this.isEditable(id)) {
+        const { columns } = this.props;
+        if (!isEditable(id, columns)) {
             return;
         }
         this.setState(prevState => ({

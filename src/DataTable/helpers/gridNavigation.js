@@ -24,6 +24,16 @@ const getRowAndColumnIdentifiers = id => {
     };
 };
 
+export const isEditable = (id, columns) => {
+    const { columnIdentifier } = getRowAndColumnIdentifiers(id);
+    const column = columns.find(c => c.field === columnIdentifier);
+    if (!column) {
+        throw Error(`column ${columnIdentifier} could not be found`);
+    }
+    const { rich } = column;
+    return !!rich && !!rich.editable;
+};
+
 const getIncludedKeys = columns => {
     const included = columns.map(c => ({
         field: c.field,
