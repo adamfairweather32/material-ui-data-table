@@ -9,7 +9,7 @@ import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import { getPreparedColumns } from './helpers/helpers';
-import { isEditable } from './helpers/gridNavigation';
+import { isEditable, getColumn } from './helpers/gridNavigation';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -52,7 +52,7 @@ const styles = () => ({
 const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
-const AUTOCOMPLETE_TYPE = 'autocomplete';
+const EDITOR_INITIAL_STATE = { active: false, editing: null, editingColumn: null };
 
 export class DataTable extends Component {
     constructor(props) {
@@ -70,7 +70,7 @@ export class DataTable extends Component {
                 index: 0,
                 end: Math.ceil((tableHeight * 2) / rowHeight)
             },
-            editor: { active: false },
+            editor: EDITOR_INITIAL_STATE,
             visibilities: columns
                 .filter(c => c.headerName)
                 .map(({ headerName, field, hidden }) => ({
@@ -188,11 +188,6 @@ export class DataTable extends Component {
         }
     };
 
-    getColumn = id => {
-        // TODO:
-        return null;
-    };
-
     showEditor = id => {
         const focusedElement = document.getElementById(id);
         if (!focusedElement) {
@@ -206,7 +201,7 @@ export class DataTable extends Component {
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
-                type: AUTOCOMPLETE_TYPE,
+                editingColumn: getColumn(id, columns),
                 active: true,
                 editing: [id]
             }
@@ -268,8 +263,7 @@ export class DataTable extends Component {
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
-                active: false,
-                editing: null
+                ...EDITOR_INITIAL_STATE
             }
         }));
     };
@@ -342,6 +336,7 @@ export class DataTable extends Component {
         const { classes, tableHeight, rowHeight, columns, rows } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
         const { visibilities, editor } = this.state;
+        const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
 
         const edtiorContainerStyle = {
@@ -381,7 +376,7 @@ export class DataTable extends Component {
                     <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={edtiorContainerStyle}>
                         <DataTableEditor
                             id={EDITOR_INPUT_ID}
-                            editor={editor}
+                            column={editingColumn}
                             onBlur={this.handleEditorBlur}
                             ref={ref => {
                                 this.editorRef.current = ref;

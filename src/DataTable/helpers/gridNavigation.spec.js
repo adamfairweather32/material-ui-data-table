@@ -1,7 +1,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { moveHorizontal, moveVertical, getGridNavigationMap, isEditable } from './gridNavigation';
+import { moveHorizontal, moveVertical, getGridNavigationMap, isEditable, getColumn } from './gridNavigation';
 import * as helpersModule from './helpers';
 import { ID_FIELD_PREFIX } from '../constants';
 
@@ -426,10 +426,41 @@ describe('moveHorizontal and moveVertical', () => {
     });
 });
 
+describe('getColumn', () => {
+    it('should throw if id not provided', () => {
+        expect(() => getColumn()).to.throw('id not provided');
+        expect(() => getColumn(undefined)).to.throw('id not provided');
+        expect(() => getColumn(null)).to.throw('id not provided');
+    });
+    it('should throw if columns not provided', () => {
+        expect(() => getColumn('footableid-field-1-rank')).to.throw('columns not provided');
+        expect(() => getColumn('footableid-field-1-rank', undefined)).to.throw('columns not provided');
+        expect(() => getColumn('footableid-field-1-rank', null)).to.throw('columns not provided');
+    });
+    it('should throw if columns cannot be found', () => {
+        const columns = [{ field: 'rank' }];
+        expect(() => getColumn('footableid-field-1-foo', columns)).to.throw('column foo could not be found');
+    });
+    it('should return column', () => {
+        const columns = [{ field: 'rank', foo: 'bar' }];
+        expect(getColumn('footableid-field-1-rank', columns)).to.equal(columns[0]);
+    });
+});
+
 describe('isEditable', () => {
+    it('should throw if id not provided', () => {
+        expect(() => isEditable()).to.throw('id not provided');
+        expect(() => isEditable(undefined)).to.throw('id not provided');
+        expect(() => isEditable(null)).to.throw('id not provided');
+    });
+    it('should throw if columns not provided', () => {
+        expect(() => isEditable('footableid-field-1-rank')).to.throw('columns not provided');
+        expect(() => isEditable('footableid-field-1-rank', undefined)).to.throw('columns not provided');
+        expect(() => isEditable('footableid-field-1-rank', null)).to.throw('columns not provided');
+    });
     it('should throw if column cannot be found', () => {
         const columns = [{ field: 'rank' }];
-        expect(() => isEditable('footableid-field-1-foo', columns)).to.throw();
+        expect(() => isEditable('footableid-field-1-foo', columns)).to.throw('column foo could not be found');
     });
     it('should not be editable when column has no rich property', () => {
         const columns = [{ field: 'rank' }];

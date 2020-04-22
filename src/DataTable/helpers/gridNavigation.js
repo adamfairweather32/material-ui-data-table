@@ -24,13 +24,23 @@ const getRowAndColumnIdentifiers = id => {
     };
 };
 
-export const isEditable = (id, columns) => {
+export const getColumn = (id, columns) => {
+    if (!id) {
+        throw Error('id not provided');
+    }
+    if (!columns) {
+        throw Error('columns not provided');
+    }
     const { columnIdentifier } = getRowAndColumnIdentifiers(id);
     const column = columns.find(c => c.field === columnIdentifier);
     if (!column) {
         throw Error(`column ${columnIdentifier} could not be found`);
     }
-    const { rich } = column;
+    return column;
+};
+
+export const isEditable = (id, columns) => {
+    const { rich } = getColumn(id, columns);
     return !!rich && !!rich.editable;
 };
 
