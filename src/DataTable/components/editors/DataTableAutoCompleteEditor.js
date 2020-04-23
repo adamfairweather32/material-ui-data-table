@@ -1,5 +1,5 @@
 import React, { Component, forwardRef } from 'react';
-import StyledOutlinedInput from '../styled/StyledOutlinedInput';
+import StyledOutlinedInput from '../../styled/StyledOutlinedInput';
 
 class DataTableAutoCompleteEditor extends Component {
     render() {

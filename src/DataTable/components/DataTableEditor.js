@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
-import DataTableAutoCompleteEditor from './DataTableAutoCompleteEditor';
-import DataTableAutoDateEditor from './DataTableDateEditor';
-import StyledOutlinedInput from '../styled/StyledOutlinedInput';
+import DataTableAutoCompleteEditor from './editors/DataTableAutoCompleteEditor';
+import DataTableAutoDateEditor from './editors/DataTableDateEditor';
+import DataTableTextEditor from './editors/DataTableTextEditor';
+
 import { getColumnType } from '../helpers/helpers';
 import { COMBO_TYPE, DATE_TYPE } from '../constants';
 
@@ -55,7 +56,21 @@ const DataTableEditor = ({
             );
         }
         default: {
-            return <StyledOutlinedInput id={id} onBlur={onBlur} variant="outlined" inputRef={inputRef} />;
+            return (
+                <DataTableTextEditor
+                    id={id}
+                    value={value}
+                    row={row}
+                    column={column}
+                    error={error}
+                    warning={warning}
+                    onCellChange={onCellChange}
+                    onCommit={onCommit}
+                    onCancel={onCancel}
+                    onBlur={onBlur}
+                    inputRef={inputRef}
+                />
+            );
         }
     }
 };
