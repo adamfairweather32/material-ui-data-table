@@ -34,7 +34,7 @@ const DataTableEditor = ({
                     onCommit={onCommit}
                     onCancel={onCancel}
                     onBlur={onBlur}
-                    inputRef={inputRef}
+                    ref={inputRef}
                 />
             );
         }
@@ -51,7 +51,7 @@ const DataTableEditor = ({
                     onCommit={onCommit}
                     onCancel={onCancel}
                     onBlur={onBlur}
-                    inputRef={inputRef}
+                    ref={inputRef}
                 />
             );
         }
@@ -68,7 +68,7 @@ const DataTableEditor = ({
                     onCommit={onCommit}
                     onCancel={onCancel}
                     onBlur={onBlur}
-                    inputRef={inputRef}
+                    ref={inputRef}
                 />
             );
         }

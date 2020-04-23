@@ -83,9 +83,6 @@ export class DataTable extends Component {
 
     componentDidMount() {
         this.handleScroll({ target: { scrollTop: 0 } });
-        if (this.editorRef && this.editorRef.current) {
-            this.editorRef.current.onwheel = this.handleEditorWheel;
-        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -96,7 +93,14 @@ export class DataTable extends Component {
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.activatePreviousCell();
+        this.assignEditorMouseWheelHandler();
     }
+
+    assignEditorMouseWheelHandler = () => {
+        if (this.editorRef && this.editorRef.current) {
+            this.editorRef.current.onwheel = this.handleEditorWheel;
+        }
+    };
 
     applyEditorVisibilityAndPositioning = previouslyEditing => {
         const { editor } = this.state;
