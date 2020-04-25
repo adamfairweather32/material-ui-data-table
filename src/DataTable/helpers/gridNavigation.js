@@ -136,7 +136,7 @@ export const getGridNavigationMap = (tableId, rows = [], columns) => {
     );
 };
 
-const move = (direction, directions, currentId, gridNavigationMap) => {
+const move = (direction, directions, currentId, gridNavigationMap, activateCell = focus) => {
     if (!directions.includes(direction)) {
         throw Error(`direction was not one of the expected values: ${directions}`);
     }
@@ -157,17 +157,17 @@ const move = (direction, directions, currentId, gridNavigationMap) => {
 
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
             const id = positionToIdMap[rowIndex][columnIndex];
-            focus(id);
+            activateCell(id);
         } else {
-            focus(currentId, true);
+            activateCell(currentId, true);
         }
     }
 };
 
-export const moveHorizontal = (direction, currentId, gridNavigationMap) => {
-    move(direction, HORIZONTAL_DIRECTIONS, currentId, gridNavigationMap);
+export const moveHorizontal = (direction, currentId, gridNavigationMap, activateCell) => {
+    move(direction, HORIZONTAL_DIRECTIONS, currentId, gridNavigationMap, activateCell);
 };
 
-export const moveVertical = (direction, currentId, gridNavigationMap) => {
-    move(direction, VERTICAL_DIRECTIONS, currentId, gridNavigationMap);
+export const moveVertical = (direction, currentId, gridNavigationMap, activateCell) => {
+    move(direction, VERTICAL_DIRECTIONS, currentId, gridNavigationMap, activateCell);
 };

@@ -9,7 +9,8 @@ import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import { getPreparedColumns } from './helpers/helpers';
-import { isEditable, getColumn } from './helpers/gridNavigation';
+import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
+import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR } from './constants';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -212,6 +213,10 @@ export class DataTable extends Component {
         }));
     };
 
+    onSetEditorRef = ref => {
+        this.editorRef.current = ref;
+    };
+
     handleResize = () => {
         const {
             scroll: { top }
@@ -259,8 +264,32 @@ export class DataTable extends Component {
         this.showEditor(id);
     };
 
-    handleCellKeyDown = id => {
-        this.showEditor(id);
+    handleCellKeyDown = (event, id) => {
+        if (event.ctrlKey || event.shiftKey) {
+            return;
+        }
+        console.log('this.gridNavigationMap = ', this.gridNavigationMap);
+        switch (event.keyCode) {
+            case UP:
+                moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
+                // scroll up one row only if we're at the top of the table
+                break;
+            case RIGHT:
+                moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
+                // moveHorizontal(RIGHT_DIR, activeReference.current, gridNavigationMap);
+                break;
+            case DOWN:
+                moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
+                // scroll down one row only if we're at the top of the table
+                break;
+            case LEFT:
+                moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
+                break;
+            default: {
+                this.showEditor(id);
+            }
+        }
+        event.preventDefault();
     };
 
     handleEditorBlur = () => {
@@ -301,6 +330,7 @@ export class DataTable extends Component {
         const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
         const columnElements = tableElement ? tableElement.querySelectorAll('div.MuiTableCell-head') : [];
+        const windowedRows = [];
         do {
             if (index >= rows.length) {
                 index = rows.length;
@@ -313,6 +343,7 @@ export class DataTable extends Component {
                 width: tableWidth,
                 position: 'absolute'
             };
+            windowedRows.push(rows[index]);
             items.push(
                 <div
                     style={style}
@@ -332,6 +363,8 @@ export class DataTable extends Component {
             );
             index += 1;
         } while (index < end);
+
+        this.gridNavigationMap = getGridNavigationMap(this.tableId.current, windowedRows, preparedColumns);
 
         return items;
     };
@@ -382,9 +415,7 @@ export class DataTable extends Component {
                             id={EDITOR_INPUT_ID}
                             column={editingColumn}
                             onBlur={this.handleEditorBlur}
-                            ref={ref => {
-                                this.editorRef.current = ref;
-                            }}
+                            ref={this.onSetEditorRef}
                         />
                     </div>
                 </div>
