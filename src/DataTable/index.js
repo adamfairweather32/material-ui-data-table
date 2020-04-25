@@ -54,6 +54,7 @@ const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
 const EDITOR_INITIAL_STATE = { active: false, editing: null, editingColumn: null };
+const PADDING = 1;
 
 export class DataTable extends Component {
     constructor(props) {
@@ -178,9 +179,9 @@ export class DataTable extends Component {
     };
 
     activateCell = id => {
+        this.activeId.current = id;
         const element = document.getElementById(id);
         if (element) {
-            this.activeId.current = id;
             element.classList.add(SELECTED_CLASS_NAME);
             element.focus();
         }
@@ -247,14 +248,14 @@ export class DataTable extends Component {
         const visibleTableHeight = tableContainerHeight - tableHeadHeight - tableFooterHeight;
 
         const topRowIndex = Math.floor(positionInTable / rowHeight);
-        const endRow = topRowIndex + visibleTableHeight / rowHeight;
+        const endRowIndex = topRowIndex + (visibleTableHeight + rowHeight * PADDING) / rowHeight;
         tableBody.style.height = `${calculatedTableHeight}px`;
 
         this.setState(prevState => ({
             scroll: {
                 ...prevState.scroll,
                 index: topRowIndex,
-                end: Math.ceil(endRow),
+                end: Math.ceil(endRowIndex),
                 top: topRowIndex * rowHeight
             }
         }));
@@ -268,19 +269,25 @@ export class DataTable extends Component {
         if (event.ctrlKey || event.shiftKey) {
             return;
         }
-        console.log('this.gridNavigationMap = ', this.gridNavigationMap);
+        const { rowHeight } = this.props;
+        const {
+            scroll: { top }
+        } = this.state;
         switch (event.keyCode) {
             case UP:
-                moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
-                // scroll up one row only if we're at the top of the table
+                // if the next position puts us at the top, we need to force table to scroll up one row
+                // console.log(this.state.scroll.top);
+                moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell, () =>
+                    this.handleScroll({ target: top - rowHeight })
+                );
                 break;
             case RIGHT:
                 moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
-                // moveHorizontal(RIGHT_DIR, activeReference.current, gridNavigationMap);
                 break;
             case DOWN:
-                moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
-                // scroll down one row only if we're at the top of the table
+                moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell, () =>
+                    this.handleScroll({ target: top + rowHeight })
+                );
                 break;
             case LEFT:
                 moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
@@ -372,7 +379,7 @@ export class DataTable extends Component {
     render() {
         const { classes, tableHeight, rowHeight, columns, rows } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
-        const { visibilities, editor } = this.state;
+        const { visibilities, editor, scroll } = this.state;
         const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
 
@@ -384,7 +391,8 @@ export class DataTable extends Component {
         return (
             <>
                 <div>
-                    {/* {JSON.stringify(scroll)}
+                    {/* {`rowHeight = ${rowHeight}`}
+                    {JSON.stringify(scroll)}
                     {JSON.stringify(editor)} */}
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}

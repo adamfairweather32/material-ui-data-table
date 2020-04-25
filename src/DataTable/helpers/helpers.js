@@ -240,6 +240,7 @@ export const removeCellIsEditing = id => {
 
 export const cellIsEditing = id => {
     const element = document.getElementById(id);
+    // TODO: use a class to suggest presence of editing
     const editing = element && element.getAttribute(`${DATA_EDITING_PREFIX}-${id}`);
     return editing;
 };

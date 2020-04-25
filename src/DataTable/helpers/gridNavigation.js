@@ -136,7 +136,11 @@ export const getGridNavigationMap = (tableId, rows = [], columns) => {
     );
 };
 
-const move = (direction, directions, currentId, gridNavigationMap, activateCell = focus) => {
+const willHitBoundary = rowIndex => {
+    return false;
+};
+
+const move = (direction, directions, currentId, gridNavigationMap, activateCell = focus, scrollContainer = null) => {
     if (!directions.includes(direction)) {
         throw Error(`direction was not one of the expected values: ${directions}`);
     }
@@ -156,8 +160,16 @@ const move = (direction, directions, currentId, gridNavigationMap, activateCell 
         const columnCount = Object.keys(Object.values(idToPositionMap)[0]).length;
 
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
+            // if the next position moves us out of boundary, then we need to scroll the container
+            // but first we need to know whether we are at the true boundary of the container -> we
+            // can probably do this by rendering slightly more rows above and below than required for the grid
+            // navigation map and when the map is not rendered with anymore more rows below or above then
+            // we've reached the boundary and can't scroll any further
             const id = positionToIdMap[rowIndex][columnIndex];
-            activateCell(id);
+            activateCell(id); // we activate the cell first even if it's not available to activate
+            if (willHitBoundary(rowIndex) && scrollContainer) {
+                scrollContainer();
+            }
         } else {
             activateCell(currentId, true);
         }
@@ -168,6 +180,6 @@ export const moveHorizontal = (direction, currentId, gridNavigationMap, activate
     move(direction, HORIZONTAL_DIRECTIONS, currentId, gridNavigationMap, activateCell);
 };
 
-export const moveVertical = (direction, currentId, gridNavigationMap, activateCell) => {
-    move(direction, VERTICAL_DIRECTIONS, currentId, gridNavigationMap, activateCell);
+export const moveVertical = (direction, currentId, gridNavigationMap, activateCell, scrollContainer) => {
+    move(direction, VERTICAL_DIRECTIONS, currentId, gridNavigationMap, activateCell, scrollContainer);
 };
