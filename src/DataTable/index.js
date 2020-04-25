@@ -54,7 +54,7 @@ const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
 const EDITOR_INITIAL_STATE = { active: false, editing: null, editingColumn: null };
-const PADDING = 1;
+const PADDING = 0;
 
 export class DataTable extends Component {
     constructor(props) {
@@ -182,6 +182,7 @@ export class DataTable extends Component {
         this.activeId.current = id;
         const element = document.getElementById(id);
         if (element) {
+            // TODO: can we just do this using css?
             element.classList.add(SELECTED_CLASS_NAME);
             element.focus();
         }
@@ -190,6 +191,7 @@ export class DataTable extends Component {
     deactivateCell = id => {
         const element = document.getElementById(id);
         if (element) {
+            // TODO: can we just do this using css?
             element.classList.remove(SELECTED_CLASS_NAME);
         }
     };
@@ -214,9 +216,7 @@ export class DataTable extends Component {
         }));
     };
 
-    onSetEditorRef = ref => {
-        this.editorRef.current = ref;
-    };
+    onSetEditorRef = ref => (this.editorRef.current = ref);
 
     handleResize = () => {
         const {
@@ -261,9 +261,7 @@ export class DataTable extends Component {
         }));
     };
 
-    handleCellDoubleClick = id => {
-        this.showEditor(id);
-    };
+    handleCellDoubleClick = id => this.showEditor(id);
 
     handleCellKeyDown = (event, id) => {
         if (event.ctrlKey || event.shiftKey) {
@@ -279,11 +277,12 @@ export class DataTable extends Component {
                 moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
                     deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell,
-                    scrollContainer: () => tableContainer.scroll({ top: top - rowHeight * 2 })
+                    scroll: () => tableContainer.scroll({ top: top - rowHeight * 2 })
                 });
                 break;
             case RIGHT:
                 moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell
                 });
                 break;
@@ -291,11 +290,13 @@ export class DataTable extends Component {
                 moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
                     deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell,
-                    scrollContainer: () => tableContainer.scroll({ top: top + rowHeight * 2 })
+                    scroll: () => tableContainer.scroll({ top: top + rowHeight * 2 })
                 });
+                event.preventDefault();
                 break;
             case LEFT:
                 moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell
                 });
                 break;
@@ -306,14 +307,13 @@ export class DataTable extends Component {
         event.preventDefault();
     };
 
-    handleEditorBlur = () => {
+    handleEditorBlur = () =>
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
                 ...EDITOR_INITIAL_STATE
             }
         }));
-    };
 
     handleCellMouseDown = event => {
         if (this.activeId.current) {
@@ -326,9 +326,7 @@ export class DataTable extends Component {
         event.preventDefault();
     };
 
-    handleCellBlur = event => {
-        this.deactivateCell(event.target.id);
-    };
+    handleCellBlur = event => this.deactivateCell(event.target.id);
 
     renderBody = () => {
         let {

@@ -4,7 +4,6 @@ import StyledOutlinedInput from '../../styled/StyledOutlinedInput';
 class DataTableAutoCompleteEditor extends Component {
     render() {
         const { id, inputRef, onBlur } = this.props;
-        console.log(`${id} is rendered as DataTableAutoCompleteEditor`);
         return <StyledOutlinedInput id={id} onBlur={onBlur} variant="outlined" inputRef={inputRef} />;
     }
 }

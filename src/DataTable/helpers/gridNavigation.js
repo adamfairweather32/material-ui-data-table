@@ -146,7 +146,7 @@ const move = (
     directions,
     currentId,
     gridNavigationMap,
-    { deactivateCell = null, activateCell = focus, scrollContainer = null } = {}
+    { deactivateCell = null, activateCell = focus, scroll = null } = {}
 ) => {
     if (!directions.includes(direction)) {
         throw Error(`direction was not one of the expected values: ${directions}`);
@@ -173,8 +173,8 @@ const move = (
                 deactivateCell(currentId);
             }
             activateCell(newId, true);
-            if (willHitBoundary(newRowIdentifier, gridNavigationMap) && scrollContainer) {
-                scrollContainer();
+            if (willHitBoundary(newRowIdentifier, gridNavigationMap) && scroll) {
+                scroll();
             }
         } else {
             activateCell(currentId, true);
