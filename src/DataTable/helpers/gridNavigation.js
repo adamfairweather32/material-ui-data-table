@@ -57,28 +57,6 @@ const getIncludedKeys = columns => {
     return includedKeys;
 };
 
-const getPositionsForId = (rowIndex, keys) =>
-    keys.reduce((acc, cur) => {
-        const { key, columnIndex, type } = cur;
-        return {
-            ...acc,
-            [key]: {
-                columnIndex,
-                rowIndex,
-                type
-            }
-        };
-    }, {});
-
-const getIdsForPosition = (tableId, row, keys) =>
-    keys.reduce((acc, cur) => {
-        const { key, columnIndex } = cur;
-        return {
-            ...acc,
-            [columnIndex]: createCellId(tableId, row.id, key)
-        };
-    }, {});
-
 const comboIsBeingEdited = (id, type) => {
     if (!type) {
         return false;
@@ -103,6 +81,28 @@ const getNewPosition = ({ rowIndex, columnIndex }, direction) => {
     }
 };
 
+const getPositionsForId = (rowIndex, keys) =>
+    keys.reduce((acc, cur) => {
+        const { key, columnIndex, type } = cur;
+        return {
+            ...acc,
+            [key]: {
+                columnIndex,
+                rowIndex,
+                type
+            }
+        };
+    }, {});
+
+const getIdsForPosition = (tableId, row, keys) =>
+    keys.reduce((acc, cur) => {
+        const { key, columnIndex } = cur;
+        return {
+            ...acc,
+            [columnIndex]: createCellId(tableId, row.id, key)
+        };
+    }, {});
+
 export const getGridNavigationMap = (tableId, rows = [], columns) => {
     if (!tableId) {
         throw Error('No tableId provided');
@@ -125,7 +125,7 @@ export const getGridNavigationMap = (tableId, rows = [], columns) => {
         (acc, row, rowIndex) => ({
             idToPositionMap: {
                 ...acc.idToPositionMap,
-                [row.id]: getPositionsForId(rowIndex, includedKeys)
+                [row.id]: { ...getPositionsForId(rowIndex, includedKeys), visible: row.visible }
             },
             positionToIdMap: {
                 ...acc.positionToIdMap,
@@ -136,11 +136,18 @@ export const getGridNavigationMap = (tableId, rows = [], columns) => {
     );
 };
 
-const willHitBoundary = rowIndex => {
-    return false;
+const willHitBoundary = (newRowIdentifier, gridNavigationMap) => {
+    const { idToPositionMap } = gridNavigationMap;
+    return !idToPositionMap[newRowIdentifier].visible;
 };
 
-const move = (direction, directions, currentId, gridNavigationMap, activateCell = focus, scrollContainer = null) => {
+const move = (
+    direction,
+    directions,
+    currentId,
+    gridNavigationMap,
+    { deactivateCell = null, activateCell = focus, scrollContainer = null } = {}
+) => {
     if (!directions.includes(direction)) {
         throw Error(`direction was not one of the expected values: ${directions}`);
     }
@@ -160,14 +167,13 @@ const move = (direction, directions, currentId, gridNavigationMap, activateCell 
         const columnCount = Object.keys(Object.values(idToPositionMap)[0]).length;
 
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
-            // if the next position moves us out of boundary, then we need to scroll the container
-            // but first we need to know whether we are at the true boundary of the container -> we
-            // can probably do this by rendering slightly more rows above and below than required for the grid
-            // navigation map and when the map is not rendered with anymore more rows below or above then
-            // we've reached the boundary and can't scroll any further
-            const id = positionToIdMap[rowIndex][columnIndex];
-            activateCell(id); // we activate the cell first even if it's not available to activate
-            if (willHitBoundary(rowIndex) && scrollContainer) {
+            const newId = positionToIdMap[rowIndex][columnIndex];
+            const { rowIdentifier: newRowIdentifier } = getRowAndColumnIdentifiers(newId);
+            if (deactivateCell) {
+                deactivateCell(currentId);
+            }
+            activateCell(newId, true);
+            if (willHitBoundary(newRowIdentifier, gridNavigationMap) && scrollContainer) {
                 scrollContainer();
             }
         } else {
@@ -176,10 +182,10 @@ const move = (direction, directions, currentId, gridNavigationMap, activateCell 
     }
 };
 
-export const moveHorizontal = (direction, currentId, gridNavigationMap, activateCell) => {
-    move(direction, HORIZONTAL_DIRECTIONS, currentId, gridNavigationMap, activateCell);
+export const moveHorizontal = (direction, currentId, gridNavigationMap, options) => {
+    move(direction, HORIZONTAL_DIRECTIONS, currentId, gridNavigationMap, options);
 };
 
-export const moveVertical = (direction, currentId, gridNavigationMap, activateCell, scrollContainer) => {
-    move(direction, VERTICAL_DIRECTIONS, currentId, gridNavigationMap, activateCell, scrollContainer);
+export const moveVertical = (direction, currentId, gridNavigationMap, options) => {
+    move(direction, VERTICAL_DIRECTIONS, currentId, gridNavigationMap, options);
 };

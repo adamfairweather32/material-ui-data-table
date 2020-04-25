@@ -273,24 +273,31 @@ export class DataTable extends Component {
         const {
             scroll: { top }
         } = this.state;
+        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
         switch (event.keyCode) {
             case UP:
-                // if the next position puts us at the top, we need to force table to scroll up one row
-                // console.log(this.state.scroll.top);
-                moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell, () =>
-                    this.handleScroll({ target: top - rowHeight })
-                );
+                moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
+                    activateCell: this.activateCell,
+                    scrollContainer: () => tableContainer.scroll({ top: top - rowHeight * 2 })
+                });
                 break;
             case RIGHT:
-                moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
+                moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
+                    activateCell: this.activateCell
+                });
                 break;
             case DOWN:
-                moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell, () =>
-                    this.handleScroll({ target: top + rowHeight })
-                );
+                moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
+                    activateCell: this.activateCell,
+                    scrollContainer: () => tableContainer.scroll({ top: top + rowHeight * 2 })
+                });
                 break;
             case LEFT:
-                moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, this.activateCell);
+                moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
+                    activateCell: this.activateCell
+                });
                 break;
             default: {
                 this.showEditor(id);
@@ -338,6 +345,11 @@ export class DataTable extends Component {
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
         const columnElements = tableElement ? tableElement.querySelectorAll('div.MuiTableCell-head') : [];
         const windowedRows = [];
+        const invisibleOutOfBoundsTopRow = index - 1 > 0 ? index - 1 : null;
+        const invisibleOutOfBoundsBottomRow = end + 1 < rows.length ? end + 1 : null;
+        if (invisibleOutOfBoundsTopRow) {
+            windowedRows.push({ ...rows[invisibleOutOfBoundsTopRow], visible: false });
+        }
         do {
             if (index >= rows.length) {
                 index = rows.length;
@@ -350,7 +362,9 @@ export class DataTable extends Component {
                 width: tableWidth,
                 position: 'absolute'
             };
-            windowedRows.push(rows[index]);
+            if (rows[index]) {
+                windowedRows.push({ ...rows[index], visible: true });
+            }
             items.push(
                 <div
                     style={style}
@@ -370,7 +384,9 @@ export class DataTable extends Component {
             );
             index += 1;
         } while (index < end);
-
+        if (invisibleOutOfBoundsBottomRow) {
+            windowedRows.push({ ...rows[invisibleOutOfBoundsBottomRow - 1], visible: false });
+        }
         this.gridNavigationMap = getGridNavigationMap(this.tableId.current, windowedRows, preparedColumns);
 
         return items;
@@ -391,9 +407,7 @@ export class DataTable extends Component {
         return (
             <>
                 <div>
-                    {/* {`rowHeight = ${rowHeight}`}
                     {JSON.stringify(scroll)}
-                    {JSON.stringify(editor)} */}
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
                         onScroll={this.handleScroll}
