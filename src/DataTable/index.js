@@ -405,7 +405,7 @@ export class DataTable extends Component {
         return (
             <>
                 <div>
-                    {JSON.stringify(scroll)}
+                    {/* {JSON.stringify(scroll)} */}
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
                         onScroll={this.handleScroll}
