@@ -202,7 +202,9 @@ const App = ({ classes }) => {
     // HIGH
     // TODO: fix box styling so it fits correctly
     // TODO: make table body so that it fits exactly the number of rows given
-    // TODO: scroll only one row at a time when using naviation keys
+    // TODO: keep search box focused while searching
+    // TODO: enable Ctrl Home/End to go to top left/bottom right of table
+    // TODO: when we reach the end of the table then cycle to top of adjacent column to right
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components
