@@ -55,13 +55,15 @@ describe('getGridNavigationMap', () => {
                     dateQualified: { columnIndex: 3, rowIndex: 0, type: 'date' },
                     firstName: { columnIndex: 0, rowIndex: 0, type: 'text' },
                     lastName: { columnIndex: 1, rowIndex: 0, type: 'text' },
-                    occupation: { columnIndex: 2, rowIndex: 0, type: 'combo' }
+                    occupation: { columnIndex: 2, rowIndex: 0, type: 'combo' },
+                    visible: false
                 },
                 '2': {
                     dateQualified: { columnIndex: 3, rowIndex: 1, type: 'date' },
                     firstName: { columnIndex: 0, rowIndex: 1, type: 'text' },
                     lastName: { columnIndex: 1, rowIndex: 1, type: 'text' },
-                    occupation: { columnIndex: 2, rowIndex: 1, type: 'combo' }
+                    occupation: { columnIndex: 2, rowIndex: 1, type: 'combo' },
+                    visible: false
                 }
             },
             positionToIdMap: {
@@ -110,11 +112,13 @@ describe('getGridNavigationMap', () => {
             idToPositionMap: {
                 '1': {
                     firstName: { columnIndex: 0, rowIndex: 0, type: 'text' },
-                    lastName: { columnIndex: 1, rowIndex: 0, type: 'text' }
+                    lastName: { columnIndex: 1, rowIndex: 0, type: 'text' },
+                    visible: false
                 },
                 '2': {
                     firstName: { columnIndex: 0, rowIndex: 1, type: 'text' },
-                    lastName: { columnIndex: 1, rowIndex: 1, type: 'text' }
+                    lastName: { columnIndex: 1, rowIndex: 1, type: 'text' },
+                    visible: false
                 }
             },
             positionToIdMap: {

@@ -125,7 +125,7 @@ export const getGridNavigationMap = (tableId, rows = [], columns) => {
         (acc, row, rowIndex) => ({
             idToPositionMap: {
                 ...acc.idToPositionMap,
-                [row.id]: { ...getPositionsForId(rowIndex, includedKeys), visible: row.visible }
+                [row.id]: { ...getPositionsForId(rowIndex, includedKeys), visible: !!row && !!row.visible }
             },
             positionToIdMap: {
                 ...acc.positionToIdMap,
@@ -158,7 +158,7 @@ const move = (direction, directions, currentId, gridNavigationMap, { activateCel
         const { rowIndex, columnIndex } = getNewPosition(currentCell, direction);
 
         const rowCount = Object.keys(idToPositionMap).length;
-        const columnCount = Object.keys(Object.values(idToPositionMap)[0]).length;
+        const columnCount = Object.keys(Object.values(idToPositionMap)[0]).filter(it => it !== 'visible').length;
 
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
             const newId = positionToIdMap[rowIndex][columnIndex];
