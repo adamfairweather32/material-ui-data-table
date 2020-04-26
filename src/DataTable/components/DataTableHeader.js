@@ -46,10 +46,10 @@ export class DataTableHeader extends Component {
         };
     }
 
-    shouldComponentUpdate(prevProps) {
+    shouldComponentUpdate(nextProps) {
         const { columns } = this.props;
-        const { columns: prevColumns } = prevProps;
-        return _.isEqual(columns, prevColumns);
+        const { columns: nextColumns } = nextProps;
+        return _.isEqual(columns, nextColumns);
     }
 
     getAlignmentForColumn = column => {

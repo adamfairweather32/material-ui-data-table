@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react';
+import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +9,7 @@ import DataTableHeader from './components/DataTableHeader';
 import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
+import DataTableTopPanel from './components/DataTableTopPanel';
 import { getPreparedColumns } from './helpers/helpers';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
 import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR } from './constants';
@@ -66,6 +68,7 @@ export class DataTable extends Component {
             .toString()
             .replace(/-/g, '');
         this.state = {
+            searchText: null,
             scroll: {
                 top: 0,
                 index: 0,
@@ -328,6 +331,12 @@ export class DataTable extends Component {
 
     handleCellBlur = event => this.deactivateCell(event.target.id);
 
+    handleSearchTextChanged = searchText => {
+        this.setState({
+            searchText
+        });
+    };
+
     renderBody = () => {
         let {
             scroll: { index }
@@ -393,19 +402,31 @@ export class DataTable extends Component {
     render() {
         const { classes, tableHeight, rowHeight, columns, rows } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
-        const { visibilities, editor, scroll } = this.state;
+        const { visibilities, editor } = this.state;
         const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
+        const { showErrors = false, showFilter = false } = this.props;
 
         const edtiorContainerStyle = {
             zIndex: editor.active ? 1 : -1,
             opacity: editor.active ? 1 : 0,
             ...this.getEditorPosition()
         };
+
+        const errorCount = _.sum(
+            _.flatMap(rows, row => (row.validations && !_.isEmpty(row.validations.errors) ? 1 : 0))
+        );
+
         return (
             <>
                 <div>
                     {/* {JSON.stringify(scroll)} */}
+                    <DataTableTopPanel
+                        showErrors={showErrors}
+                        showFilter={showFilter}
+                        errorCount={errorCount}
+                        onSearchTextChanged={this.handleSearchTextChanged}
+                    />
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
                         onScroll={this.handleScroll}

@@ -246,6 +246,8 @@ const App = ({ classes }) => {
                         onAdd={handleAdd}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        showFilter
+                        showErrors
                     />
                 </Paper>
                 <div>
