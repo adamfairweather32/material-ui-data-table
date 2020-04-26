@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import getValidatedRows from './validation';
+import getValidatedRows from './getValidatedRows';
 
 describe('getValidatedRows', () => {
     it('should return original rows when no rules defined', () => {

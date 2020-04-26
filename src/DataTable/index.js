@@ -10,7 +10,8 @@ import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
-import { getPreparedColumns } from './helpers/helpers';
+import { getPreparedColumns, filterRow, stableSort, getSorting } from './helpers/helpers';
+import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
 import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR } from './constants';
 
@@ -61,6 +62,7 @@ export class DataTable extends Component {
     constructor(props) {
         super(props);
         const { rowHeight, tableHeight, columns } = this.props;
+        this.preparedColumns = [];
         this.editorRef = createRef();
         this.activeId = createRef();
         this.tableId = createRef();
@@ -69,6 +71,8 @@ export class DataTable extends Component {
             .replace(/-/g, '');
         this.state = {
             searchText: null,
+            order: 'asc',
+            orderBy: null,
             scroll: {
                 top: 0,
                 index: 0,
@@ -99,6 +103,17 @@ export class DataTable extends Component {
         this.activatePreviousCell();
         this.assignEditorMouseWheelHandler();
     }
+
+    getFilteredAndSortedRows = (rows, preparedColumns) => {
+        const { rules, showFilter } = this.props;
+        const { searchText, order, orderBy } = this.state;
+
+        return stableSort(
+            getValidatedRows(rows, rules).filter(r => !showFilter || filterRow(r, preparedColumns, searchText)),
+            preparedColumns,
+            getSorting(order, orderBy)
+        );
+    };
 
     assignEditorMouseWheelHandler = () => {
         if (this.editorRef && this.editorRef.current) {
@@ -337,29 +352,27 @@ export class DataTable extends Component {
         });
     };
 
-    renderBody = () => {
+    renderBody = (filteredRows, preparedColumns) => {
         let {
             scroll: { index }
         } = this.state;
         const {
             scroll: { end }
         } = this.state;
-        const { visibilities } = this.state;
-        const { classes, rowHeight, rows, columns } = this.props;
-        const preparedColumns = getPreparedColumns(columns, visibilities);
+        const { classes, rowHeight } = this.props;
         const items = [];
         const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
         const columnElements = tableElement ? tableElement.querySelectorAll('div.MuiTableCell-head') : [];
         const windowedRows = [];
         const invisibleOutOfBoundsTopRow = index - 1 > 0 ? index - 1 : null;
-        const invisibleOutOfBoundsBottomRow = end + 1 < rows.length ? end + 1 : null;
+        const invisibleOutOfBoundsBottomRow = end + 1 < filteredRows.length ? end + 1 : null;
         if (invisibleOutOfBoundsTopRow) {
-            windowedRows.push({ ...rows[invisibleOutOfBoundsTopRow], visible: false });
+            windowedRows.push({ ...filteredRows[invisibleOutOfBoundsTopRow], visible: false });
         }
         do {
-            if (index >= rows.length) {
-                index = rows.length;
+            if (index >= filteredRows.length) {
+                index = filteredRows.length;
                 break;
             }
             const style = {
@@ -369,8 +382,8 @@ export class DataTable extends Component {
                 width: tableWidth,
                 position: 'absolute'
             };
-            if (rows[index]) {
-                windowedRows.push({ ...rows[index], visible: true });
+            if (filteredRows[index]) {
+                windowedRows.push({ ...filteredRows[index], visible: true });
             }
             items.push(
                 <div
@@ -381,7 +394,7 @@ export class DataTable extends Component {
                         tableId={this.tableId.current}
                         columns={preparedColumns}
                         columnElements={columnElements}
-                        row={rows[index]}
+                        row={filteredRows[index]}
                         onMouseDown={this.handleCellMouseDown}
                         onBlur={this.handleCellBlur}
                         onCellDoubleClick={this.handleCellDoubleClick}
@@ -392,7 +405,7 @@ export class DataTable extends Component {
             index += 1;
         } while (index < end);
         if (invisibleOutOfBoundsBottomRow) {
-            windowedRows.push({ ...rows[invisibleOutOfBoundsBottomRow - 1], visible: false });
+            windowedRows.push({ ...filteredRows[invisibleOutOfBoundsBottomRow - 1], visible: false });
         }
         this.gridNavigationMap = getGridNavigationMap(this.tableId.current, windowedRows, preparedColumns);
 
@@ -405,6 +418,7 @@ export class DataTable extends Component {
         const { visibilities, editor } = this.state;
         const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
+        const filteredRows = this.getFilteredAndSortedRows(rows, preparedColumns);
         const { showErrors = false, showFilter = false } = this.props;
 
         const edtiorContainerStyle = {
@@ -444,7 +458,7 @@ export class DataTable extends Component {
                                 style={{
                                     position: 'relative'
                                 }}>
-                                {this.renderBody()}
+                                {this.renderBody(filteredRows, preparedColumns)}
                             </div>
                             <div id={`${this.tableId.current}-tfoot`} className={classes.tableFooterComponent}>
                                 <DataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
