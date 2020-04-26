@@ -185,7 +185,6 @@ export class DataTable extends Component {
         this.activeId.current = id;
         const element = document.getElementById(id);
         if (element) {
-            // TODO: can we just do this using css?
             element.classList.add(SELECTED_CLASS_NAME);
             element.focus();
         }
@@ -194,8 +193,8 @@ export class DataTable extends Component {
     deactivateCell = id => {
         const element = document.getElementById(id);
         if (element) {
-            // TODO: can we just do this using css?
             element.classList.remove(SELECTED_CLASS_NAME);
+            element.blur();
         }
     };
 
