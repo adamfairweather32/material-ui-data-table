@@ -54,7 +54,6 @@ const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
 const EDITOR_INITIAL_STATE = { active: false, editing: null, editingColumn: null };
-const PADDING = 0;
 
 export class DataTable extends Component {
     constructor(props) {
@@ -139,10 +138,14 @@ export class DataTable extends Component {
     };
 
     activatePreviousCell = () => {
-        if (this.activeId.current) {
+        const {
+            editor: { editing }
+        } = this.state;
+        if (this.activeId.current && !editing) {
             const element = document.getElementById(this.activeId.current);
             if (element) {
                 element.classList.add(SELECTED_CLASS_NAME);
+                element.focus();
             }
         }
     };
@@ -216,7 +219,9 @@ export class DataTable extends Component {
         }));
     };
 
-    onSetEditorRef = ref => (this.editorRef.current = ref);
+    onSetEditorRef = ref => {
+        this.editorRef.current = ref;
+    };
 
     handleResize = () => {
         const {
@@ -248,7 +253,7 @@ export class DataTable extends Component {
         const visibleTableHeight = tableContainerHeight - tableHeadHeight - tableFooterHeight;
 
         const topRowIndex = Math.floor(positionInTable / rowHeight);
-        const endRowIndex = topRowIndex + (visibleTableHeight + rowHeight * PADDING) / rowHeight;
+        const endRowIndex = topRowIndex + visibleTableHeight / rowHeight;
         tableBody.style.height = `${calculatedTableHeight}px`;
 
         this.setState(prevState => ({
@@ -275,28 +280,24 @@ export class DataTable extends Component {
         switch (event.keyCode) {
             case UP:
                 moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell,
-                    scroll: () => tableContainer.scroll({ top: top - rowHeight * 2 })
+                    scroll: () => tableContainer.scroll({ top: top - rowHeight })
                 });
                 break;
             case RIGHT:
                 moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell
                 });
                 break;
             case DOWN:
                 moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell,
-                    scroll: () => tableContainer.scroll({ top: top + rowHeight * 2 })
+                    scroll: () => tableContainer.scroll({ top: top + rowHeight })
                 });
                 event.preventDefault();
                 break;
             case LEFT:
                 moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell
                 });
                 break;

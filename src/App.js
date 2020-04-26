@@ -201,6 +201,8 @@ const App = ({ classes }) => {
 
     // HIGH
     // TODO: fix box styling so it fits correctly
+    // TODO: make table body so that it fits exactly the number of rows given
+    // TODO: scroll only one row at a time when using naviation keys
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components
@@ -240,7 +242,7 @@ const App = ({ classes }) => {
                         rows={rows}
                         columns={columns}
                         rowHeight={30}
-                        tableHeight={200}
+                        tableHeight={210}
                         onAdd={handleAdd}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
