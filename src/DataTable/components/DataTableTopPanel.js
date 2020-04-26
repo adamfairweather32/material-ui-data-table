@@ -9,7 +9,7 @@ import DataTableSearchBox from './DataTableSearchBox';
 const styles = theme => ({
     root: {
         display: 'flex',
-        paddingBottom: '5px'
+        paddingBottom: '6px'
     },
     searchBox: {
         marginLeft: 'auto',

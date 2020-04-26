@@ -10,6 +10,7 @@ import DataTableFooter from './components/DataTableFooter';
 import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
+import DataTableBottomPanel from './components/DataTableBottomPanel';
 import { getPreparedColumns, filterRow, stableSort, getSorting } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
@@ -70,6 +71,7 @@ export class DataTable extends Component {
             .toString()
             .replace(/-/g, '');
         this.state = {
+            selected: [],
             searchText: null,
             order: 'asc',
             orderBy: null,
@@ -97,10 +99,14 @@ export class DataTable extends Component {
         const {
             editor: { editing }
         } = prevState;
+        const { searchText } = this.state;
         this.applyEditorVisibilityAndPositioning(editing);
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.activatePreviousCell();
+        if (searchText !== prevState.searchText) {
+            // TODO: focus search text box -> use forward ref
+        }
         this.assignEditorMouseWheelHandler();
     }
 
@@ -352,6 +358,18 @@ export class DataTable extends Component {
         });
     };
 
+    handleDelete = () => {
+        const { selected } = this.state;
+        const { onDelete } = this.props;
+        onDelete(selected);
+    };
+
+    handleAdd = () => {
+        const { onAdd } = this.props;
+        const row = {};
+        onAdd(row);
+    };
+
     renderBody = (filteredRows, preparedColumns) => {
         let {
             scroll: { index }
@@ -413,13 +431,17 @@ export class DataTable extends Component {
     };
 
     render() {
-        const { classes, tableHeight, rowHeight, columns, rows } = this.props;
+        const { classes, tableHeight, rowHeight, columns, rows, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
-        const { visibilities, editor } = this.state;
+        const { visibilities, editor, selected } = this.state;
         const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
         const filteredRows = this.getFilteredAndSortedRows(rows, preparedColumns);
         const { showErrors = false, showFilter = false } = this.props;
+        const canAdd = !!onAdd && !!onEdit;
+        const canEdit = canAdd;
+        const canDelete = !!onDelete && selected.length > 0;
+        const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
 
         const edtiorContainerStyle = {
             zIndex: editor.active ? 1 : -1,
@@ -461,10 +483,20 @@ export class DataTable extends Component {
                                 {this.renderBody(filteredRows, preparedColumns)}
                             </div>
                             <div id={`${this.tableId.current}-tfoot`} className={classes.tableFooterComponent}>
-                                <DataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
+                                {shouldCalculateTotals && (
+                                    <DataTableFooter columns={preparedColumns} rowHeight={rowHeight} rows={rows} />
+                                )}
                             </div>
                         </div>
                     </TableContainer>
+                    {canEdit && (
+                        <DataTableBottomPanel
+                            canAdd={canAdd}
+                            onAddRequested={this.handleAdd}
+                            onDeleteRequested={this.handleDelete}
+                            canDelete={canDelete}
+                        />
+                    )}
                     <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={edtiorContainerStyle}>
                         <DataTableEditor
                             id={EDITOR_INPUT_ID}
