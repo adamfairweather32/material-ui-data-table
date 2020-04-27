@@ -2,7 +2,16 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Box from '@material-ui/core/Box';
+import { Typography } from '@material-ui/core';
 import clsx from 'clsx';
+import { getUpdatedRows } from '../helpers/helpers';
 
 const styles = () => ({
     tableCell: {
@@ -35,14 +44,16 @@ const styles = () => ({
     }
 });
 
+const initialState = {
+    mouseX: null,
+    mouseY: null
+};
+
 export class DataTableHeader extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            menuPosition: {
-                mouseX: null,
-                mouseY: null
-            }
+            ...initialState
         };
     }
 
@@ -96,6 +107,7 @@ export class DataTableHeader extends Component {
                     }}>
                     {calcColumns.map(({ field, parentHeaderName, align, showField = true }) => (
                         <TableCell
+                            onContextMenu={this.handleCellContextMenu}
                             component="div"
                             align={align}
                             variant="head"
@@ -110,8 +122,47 @@ export class DataTableHeader extends Component {
         );
     };
 
+    handleMenuClose = () => {
+        this.setState({ ...initialState });
+    };
+
+    handleCheckedChange = column => event => {
+        const { visibilities, onColumnVisibilityChanged } = this.props;
+        const updated = getUpdatedRows(
+            !column.visible,
+            column,
+            'visible',
+            visibilities,
+            (r1, r2) => r1.headerName === r2.headerName
+        );
+        const nothingChecked = updated.filter(v => v.visible).length === 0;
+        if (!nothingChecked) {
+            onColumnVisibilityChanged(updated);
+        }
+        event.stopPropagation();
+    };
+
+    handleCellContextMenu = event => {
+        event.preventDefault();
+        this.setState({
+            mouseX: event.clientX - 2,
+            mouseY: event.clientY - 4
+        });
+    };
+
+    renderMenuItems = () => {
+        const { visibilities } = this.props;
+        return visibilities.map(column => (
+            <MenuItem key={column.field} onClick={this.handleCheckedChange(column)}>
+                <Checkbox checked={column.visible} />
+                <Typography>{column.headerName}</Typography>
+            </MenuItem>
+        ));
+    };
+
     render() {
         const { classes, columns, rowHeight } = this.props;
+        const { mouseX, mouseY } = this.state;
         const hasParentHeader = columns.filter(c => c.parentHeaderName).length > 0;
         return (
             <>
@@ -124,6 +175,7 @@ export class DataTableHeader extends Component {
                     }}>
                     {columns.map(c => (
                         <TableCell
+                            onContextMenu={this.handleCellContextMenu}
                             variant="head"
                             component="div"
                             align={this.getAlignmentForColumn(c)}
@@ -136,6 +188,23 @@ export class DataTableHeader extends Component {
                             <div className={classes.tableCellHeadDiv}>{c.headerName}</div>
                         </TableCell>
                     ))}
+                    <ClickAwayListener onClickAway={this.handleMenuClose}>
+                        <Menu
+                            keepMounted
+                            open={!!mouseY}
+                            anchorReference="anchorPosition"
+                            anchorPosition={
+                                mouseY !== null && mouseX !== null ? { top: mouseY, left: mouseX } : undefined
+                            }>
+                            <MenuItem>
+                                <Box fontWeight="fontWeightBold" m={1}>
+                                    Columns
+                                </Box>
+                            </MenuItem>
+                            <Divider />
+                            {this.renderMenuItems()}
+                        </Menu>
+                    </ClickAwayListener>
                 </div>
             </>
         );

@@ -370,6 +370,12 @@ export class DataTable extends Component {
         onAdd(row);
     };
 
+    handleColumnVisibilityChanged = visibilities => {
+        this.setState({
+            visibilities
+        });
+    };
+
     renderBody = (filteredRows, preparedColumns) => {
         let {
             scroll: { index }
@@ -472,7 +478,12 @@ export class DataTable extends Component {
                             <div
                                 id={`${this.tableId.current}-thead`}
                                 className={clsx(classes.tableHeadComponent, classes.tableHead)}>
-                                <DataTableHeader columns={preparedColumns} rowHeight={rowHeight} />
+                                <DataTableHeader
+                                    columns={preparedColumns}
+                                    rowHeight={rowHeight}
+                                    visibilities={visibilities}
+                                    onColumnVisibilityChanged={this.handleColumnVisibilityChanged}
+                                />
                             </div>
                             <div
                                 id={`${this.tableId.current}-tbody`}
