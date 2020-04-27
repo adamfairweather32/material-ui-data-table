@@ -4,6 +4,13 @@ import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
 import Paper from '@material-ui/core/Paper';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
+import { Typography } from '@material-ui/core';
 import TableContainer from '@material-ui/core/TableContainer';
 import DataTableHeader from './components/DataTableHeader';
 import DataTableFooter from './components/DataTableFooter';
@@ -11,7 +18,7 @@ import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
 import DataTableBottomPanel from './components/DataTableBottomPanel';
-import { getPreparedColumns, filterRow, stableSort, getSorting } from './helpers/helpers';
+import { getPreparedColumns, filterRow, stableSort, getSorting, getUpdatedRows } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
 import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR } from './constants';
@@ -58,6 +65,10 @@ const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
 const EDITOR_INITIAL_STATE = { active: false, editing: null, editingColumn: null };
+const MENU_POSITION_INITIAL_STATE = {
+    mouseX: null,
+    mouseY: null
+};
 
 export class DataTable extends Component {
     constructor(props) {
@@ -71,6 +82,7 @@ export class DataTable extends Component {
             .toString()
             .replace(/-/g, '');
         this.state = {
+            menuPosition: MENU_POSITION_INITIAL_STATE,
             selected: [],
             searchText: null,
             order: 'asc',
@@ -376,6 +388,43 @@ export class DataTable extends Component {
         });
     };
 
+    handleMenuClose = event => {
+        console.log('close');
+        this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE });
+    };
+
+    handleContextTableHeader = menuPosition => {
+        this.setState({ menuPosition });
+    };
+
+    handleCheckedChange = column => event => {
+        const { visibilities } = this.props;
+        const updated = getUpdatedRows(
+            !column.visible,
+            column,
+            'visible',
+            visibilities,
+            (r1, r2) => r1.headerName === r2.headerName
+        );
+        const nothingChecked = updated.filter(v => v.visible).length === 0;
+        if (!nothingChecked) {
+            this.setState({
+                visibilities: updated
+            });
+        }
+        event.stopPropagation();
+    };
+
+    renderMenuItems = () => {
+        const { visibilities } = this.state;
+        return visibilities.map(column => (
+            <MenuItem key={column.field} onClick={this.handleCheckedChange(column)}>
+                <Checkbox checked={column.visible} />
+                <Typography>{column.headerName}</Typography>
+            </MenuItem>
+        ));
+    };
+
     renderBody = (filteredRows, preparedColumns) => {
         let {
             scroll: { index }
@@ -439,7 +488,12 @@ export class DataTable extends Component {
     render() {
         const { classes, tableHeight, rowHeight, columns, rows, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
-        const { visibilities, editor, selected } = this.state;
+        const {
+            visibilities,
+            editor,
+            selected,
+            menuPosition: { mouseY, mouseX }
+        } = this.state;
         const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
         const filteredRows = this.getFilteredAndSortedRows(rows, preparedColumns);
@@ -482,7 +536,7 @@ export class DataTable extends Component {
                                     columns={preparedColumns}
                                     rowHeight={rowHeight}
                                     visibilities={visibilities}
-                                    onColumnVisibilityChanged={this.handleColumnVisibilityChanged}
+                                    onContextTableHeader={this.handleContextTableHeader}
                                 />
                             </div>
                             <div
@@ -516,6 +570,23 @@ export class DataTable extends Component {
                             ref={this.onSetEditorRef}
                         />
                     </div>
+                    <ClickAwayListener onClickAway={this.handleMenuClose}>
+                        <Menu
+                            keepMounted
+                            open={!!mouseY}
+                            anchorReference="anchorPosition"
+                            anchorPosition={
+                                mouseY !== null && mouseX !== null ? { top: mouseY, left: mouseX } : undefined
+                            }>
+                            <MenuItem>
+                                <Box fontWeight="fontWeightBold" m={1}>
+                                    Columns
+                                </Box>
+                            </MenuItem>
+                            <Divider />
+                            {this.renderMenuItems()}
+                        </Menu>
+                    </ClickAwayListener>
                 </div>
             </>
         );
