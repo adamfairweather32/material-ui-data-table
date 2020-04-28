@@ -43,21 +43,7 @@ const styles = () => ({
         backgroundColor: '#fafafa',
         color: '#fcfcfc'
     },
-    tableCell: {
-        letterSpacing: '0',
-        fontSize: '1rem',
-        width: '6rem'
-    },
-    tableRow: {
-        display: 'table-row'
-    },
-    tableRowOdd: {
-        backgroundColor: '#EBEAF6'
-    },
-    tableRowEven: {
-        backgroundColor: '#fcfcfc'
-    },
-    autoCompleteEditor: {
+    editor: {
         position: 'absolute'
     }
 });
@@ -429,7 +415,7 @@ export class DataTable extends Component {
         const {
             scroll: { end }
         } = this.state;
-        const { classes, rowHeight } = this.props;
+        const { rowHeight } = this.props;
         const items = [];
         const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
@@ -445,32 +431,23 @@ export class DataTable extends Component {
                 index = filteredRows.length;
                 break;
             }
-            const style = {
-                top: index * rowHeight,
-                height: rowHeight,
-                lineHeight: `${rowHeight}px`,
-                width: tableWidth,
-                position: 'absolute'
-            };
             if (filteredRows[index]) {
                 windowedRows.push({ ...filteredRows[index], visible: true });
             }
             items.push(
-                <div
-                    style={style}
-                    className={clsx(classes.tableRow, index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}
-                    key={index}>
-                    <DataTableRow
-                        tableId={this.tableId.current}
-                        columns={preparedColumns}
-                        columnElements={columnElements}
-                        row={filteredRows[index]}
-                        onMouseDown={this.handleCellMouseDown}
-                        onBlur={this.handleCellBlur}
-                        onCellDoubleClick={this.handleCellDoubleClick}
-                        onCellKeyDown={this.handleCellKeyDown}
-                    />
-                </div>
+                <DataTableRow
+                    tableId={this.tableId.current}
+                    columns={preparedColumns}
+                    columnElements={columnElements}
+                    row={filteredRows[index]}
+                    rowIndex={index}
+                    rowHeight={rowHeight}
+                    tableWidth={tableWidth}
+                    onMouseDown={this.handleCellMouseDown}
+                    onBlur={this.handleCellBlur}
+                    onCellDoubleClick={this.handleCellDoubleClick}
+                    onCellKeyDown={this.handleCellKeyDown}
+                />
             );
             index += 1;
         } while (index < end);
@@ -559,7 +536,7 @@ export class DataTable extends Component {
                             canDelete={canDelete}
                         />
                     )}
-                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={edtiorContainerStyle}>
+                    <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
                         <DataTableEditor
                             id={EDITOR_INPUT_ID}
                             column={editingColumn}

@@ -86,7 +86,7 @@ export class DataTableHeader extends Component {
                     }}>
                     {calcColumns.map(({ field, parentHeaderName, align, showField = true }, index) => (
                         <TableCell
-                            onContextMenu={this.handleCellContextMenu}
+                            // onContextMenu={this.handleCellContextMenu}
                             component="div"
                             align={align}
                             variant="head"
@@ -127,7 +127,7 @@ export class DataTableHeader extends Component {
                     }}>
                     {columns.map(c => (
                         <TableCell
-                            onContextMenu={this.handleCellContextMenu}
+                            // onContextMenu={this.handleCellContextMenu}
                             variant="head"
                             component="div"
                             align={this.getAlignmentForColumn(c)}
