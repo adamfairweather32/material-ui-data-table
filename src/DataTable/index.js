@@ -181,7 +181,7 @@ export class DataTable extends Component {
             const element = document.getElementById(this.activeId.current);
             if (element) {
                 element.classList.add(SELECTED_CLASS_NAME);
-                element.focus();
+                // element.focus();
             }
         }
     };

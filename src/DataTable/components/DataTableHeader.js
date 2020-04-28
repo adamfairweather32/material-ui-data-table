@@ -45,9 +45,7 @@ export class DataTableHeader extends Component {
     }
 
     getAlignmentForColumn = column => {
-        const {
-            rich: { numeric = false }
-        } = column || { rich: {} };
+        const { rich: { numeric = false } = {} } = column || { rich: {} };
 
         return numeric ? 'right' : 'left';
     };

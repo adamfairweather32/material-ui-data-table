@@ -11,9 +11,7 @@ const styles = () => ({
 });
 
 const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, onMouseDown, onBlur }) => {
-    const {
-        rich: { numeric = false }
-    } = column || { rich: {} };
+    const { rich: { numeric = false } = {} } = column || { rich: {} };
 
     return (
         <div
