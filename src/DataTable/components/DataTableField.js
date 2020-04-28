@@ -25,7 +25,9 @@ const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, 
             onKeyDown={event => onKeyDown(event, id)}
             className={classes.mainDiv}
             style={{
-                textAlign: numeric ? 'right' : undefined
+                textAlign: numeric ? 'right' : undefined,
+                borderStyle: 'solid',
+                borderWidth: '1px'
             }}>
             {value}
         </div>

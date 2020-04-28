@@ -33,6 +33,7 @@ const styles = () => ({
     tableComponent: {
         width: '100%',
         display: 'table',
+        tableLayout: 'fixed',
         borderSpacing: 0
     },
     tableFooterComponent: {

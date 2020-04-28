@@ -94,7 +94,7 @@ const App = ({ classes }) => {
     const columns = [
         {
             field: 'id',
-            hidden: true
+            hidden: false
         },
         {
             field: 'name',

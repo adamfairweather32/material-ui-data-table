@@ -84,7 +84,7 @@ export class DataTableHeader extends Component {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {calcColumns.map(({ field, parentHeaderName, align, showField = true }) => (
+                    {calcColumns.map(({ field, parentHeaderName, align, showField = true }, index) => (
                         <TableCell
                             onContextMenu={this.handleCellContextMenu}
                             component="div"
@@ -92,7 +92,10 @@ export class DataTableHeader extends Component {
                             variant="head"
                             className={clsx(classes.tableCell, classes.tableCellHead)}
                             key={field}
-                            padding="none">
+                            padding="none"
+                            style={{
+                                width: index === 0 ? '20px' : undefined
+                            }}>
                             {showField && <div className={classes.tableCellHeadDiv}>{parentHeaderName}</div>}
                         </TableCell>
                     ))}
