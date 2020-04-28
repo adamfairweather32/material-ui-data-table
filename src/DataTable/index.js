@@ -112,14 +112,10 @@ export class DataTable extends Component {
         const {
             editor: { editing }
         } = prevState;
-        const { searchText } = this.state;
         this.applyEditorVisibilityAndPositioning(editing);
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.activatePreviousCell();
-        if (searchText !== prevState.searchText) {
-            // TODO: focus search text box -> use forward ref
-        }
         this.assignEditorMouseWheelHandler();
     }
 
