@@ -12,9 +12,10 @@ html {
 
 .cell-selected {
   /*border: rgb(75, 137, 255) !important; */
-  border: #3f51b5 !important;
-  border-style: solid !important;
-  border-width: 2px !important;
+  outline: #3f51b5 !important;
+  outline-style: solid !important;
+  outline-offset: -2px;
+  outline-width: 2px !important;
 }
 
 ::-webkit-scrollbar {

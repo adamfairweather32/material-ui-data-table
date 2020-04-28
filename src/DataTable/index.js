@@ -18,10 +18,17 @@ import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
 import DataTableBottomPanel from './components/DataTableBottomPanel';
-import { getPreparedColumns, filterRow, stableSort, getSorting, getUpdatedRows } from './helpers/helpers';
+import {
+    getPreparedColumns,
+    filterRow,
+    stableSort,
+    getSorting,
+    getUpdatedRows,
+    clearBlinkers
+} from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
-import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR } from './constants';
+import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR, SELECTOR } from './constants';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -237,6 +244,18 @@ export class DataTable extends Component {
         }));
     };
 
+    isIndeterminate = () => {
+        const { selected } = this.state;
+        const { rows } = this.props;
+        return selected.length > 0 && selected.length < rows.length;
+    };
+
+    isChecked = () => {
+        const { selected } = this.state;
+        const { rows } = this.props;
+        return selected.length === rows.length;
+    };
+
     onSetEditorRef = ref => {
         this.editorRef.current = ref;
     };
@@ -326,13 +345,14 @@ export class DataTable extends Component {
         event.preventDefault();
     };
 
-    handleEditorBlur = () =>
+    handleEditorBlur = () => {
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
                 ...EDITOR_INITIAL_STATE
             }
         }));
+    };
 
     handleCellMouseDown = event => {
         if (this.activeId.current) {
@@ -371,13 +391,46 @@ export class DataTable extends Component {
         });
     };
 
-    handleMenuClose = event => {
-        console.log('close');
-        this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE });
+    handleMenuClose = () => {
+        // console.log('close');
+        // this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE });
     };
 
     handleContextTableHeader = menuPosition => {
         this.setState({ menuPosition });
+    };
+
+    handleRequestSort = (event, property) => {
+        clearBlinkers();
+        const { order, orderBy } = this.state;
+        const isDesc = orderBy === property && order === 'desc';
+        this.setState({
+            order: isDesc ? 'asc' : 'desc',
+            orderBy: property
+        });
+    };
+
+    handleSelectAllClick = () => {
+        const { rows } = this.props;
+        if (this.isIndeterminate()) {
+            this.setState({ selected: [...rows.map(row => row.id)] });
+        } else if (this.isChecked()) {
+            this.setState({ selected: [] });
+        } else {
+            this.setState({ selected: [...rows.map(row => row.id)] });
+        }
+    };
+
+    handleSelectedChanged = (rowId, isSelected) => {
+        if (isSelected) {
+            this.setState(prevState => ({
+                selected: [...prevState.selected, rowId]
+            }));
+        } else {
+            const { selected } = this.state;
+            selected.splice(selected.indexOf(rowId), 1);
+            this.setState({ selected: [...selected] });
+        }
     };
 
     handleCheckedChange = column => event => {
@@ -415,7 +468,7 @@ export class DataTable extends Component {
         const {
             scroll: { end }
         } = this.state;
-        const { rowHeight } = this.props;
+        const { rowHeight, onAdd, onEdit } = this.props;
         const items = [];
         const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
@@ -463,6 +516,8 @@ export class DataTable extends Component {
         const { classes, tableHeight, rowHeight, columns, rows, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
         const {
+            order,
+            orderBy,
             visibilities,
             editor,
             selected,
@@ -475,7 +530,15 @@ export class DataTable extends Component {
         const canAdd = !!onAdd && !!onEdit;
         const canEdit = canAdd;
         const canDelete = !!onDelete && selected.length > 0;
+        if (canEdit) {
+            // push a check column into the mix
+            preparedColumns.unshift({
+                field: SELECTOR
+            });
+        }
         const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
+        const checked = this.isChecked();
+        const indeterminate = this.isIndeterminate();
 
         const edtiorContainerStyle = {
             zIndex: editor.active ? 1 : -1,
@@ -511,6 +574,13 @@ export class DataTable extends Component {
                                     rowHeight={rowHeight}
                                     visibilities={visibilities}
                                     onContextTableHeader={this.handleContextTableHeader}
+                                    onRequestSort={this.handleRequestSort}
+                                    onSelectAll={this.handleSelectAll}
+                                    order={order}
+                                    orderBy={orderBy}
+                                    checked={checked}
+                                    indeterminate={indeterminate}
+                                    editable={canEdit}
                                 />
                             </div>
                             <div

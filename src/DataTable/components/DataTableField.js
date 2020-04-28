@@ -10,7 +10,7 @@ const styles = () => ({
     }
 });
 
-const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, onMouseDown, onBlur }) => {
+const DataTableField = ({ classes, id, value, column, rowHeight, onDoubleClick, onKeyDown, onMouseDown, onBlur }) => {
     const { rich: { numeric = false } = {} } = column || { rich: {} };
 
     return (
@@ -26,8 +26,9 @@ const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, 
             className={classes.mainDiv}
             style={{
                 textAlign: numeric ? 'right' : undefined,
-                borderStyle: 'solid',
-                borderWidth: '1px'
+                // borderStyle: 'solid',
+                // borderWidth: '1px',
+                maxHeight: rowHeight
             }}>
             {value}
         </div>

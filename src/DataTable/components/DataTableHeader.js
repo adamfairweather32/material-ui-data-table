@@ -5,6 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import clsx from 'clsx';
+import { SELECTOR } from '../constants';
 
 const styles = () => ({
     tableCell: {
@@ -37,11 +38,16 @@ const styles = () => ({
     }
 });
 
+const SELECTOR_COL_WIDTH_PX = 45;
+
 export class DataTableHeader extends Component {
     shouldComponentUpdate(nextProps) {
-        const { columns } = this.props;
-        const { columns: nextColumns } = nextProps;
-        return _.isEqual(columns, nextColumns);
+        const { columns = [] } = this.props;
+        const { columns: nextColumns = [] } = nextProps;
+        return !_.isEqual(
+            columns.map(c => c.field),
+            nextColumns.map(c => c.field)
+        );
     }
 
     getAlignmentForColumn = column => {
@@ -72,8 +78,8 @@ export class DataTableHeader extends Component {
 
         const calcColumns = columns.map((c, i) => ({
             ...c,
-            showField: this.shouldShowField(c.parentHeaderName, i, columns),
-            align: this.getAlignment(c.parentHeaderName, columns)
+            showField: c.field !== SELECTOR ? this.shouldShowField(c.parentHeaderName, i, columns) : false,
+            align: c.field !== SELECTOR ? this.getAlignment(c.parentHeaderName, columns) : undefined
         }));
 
         return (
@@ -84,7 +90,7 @@ export class DataTableHeader extends Component {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {calcColumns.map(({ field, parentHeaderName, align, showField = true }, index) => (
+                    {calcColumns.map(({ field, parentHeaderName, align, showField = true }) => (
                         <TableCell
                             // onContextMenu={this.handleCellContextMenu}
                             component="div"
@@ -93,9 +99,7 @@ export class DataTableHeader extends Component {
                             className={clsx(classes.tableCell, classes.tableCellHead)}
                             key={field}
                             padding="none"
-                            style={{
-                                width: index === 0 ? '20px' : undefined
-                            }}>
+                            style={{ width: field === SELECTOR ? `${SELECTOR_COL_WIDTH_PX}px` : 'auto' }}>
                             {showField && <div className={classes.tableCellHeadDiv}>{parentHeaderName}</div>}
                         </TableCell>
                     ))}

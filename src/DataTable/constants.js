@@ -8,6 +8,7 @@ export const ALPHA_TYPE = 'alpha';
 export const ALPHA_NUMERIC_TYPE = 'alpha_numeric';
 export const CURRENCY_TYPE = 'currency';
 
+export const SELECTOR = 'selector';
 export const SEARCH_DEBOUNCE_DELAY_SECS = 500;
 
 export const REGEX_MAP = {

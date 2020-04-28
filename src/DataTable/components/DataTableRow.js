@@ -3,13 +3,15 @@ import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 
+import { Checkbox } from '@material-ui/core';
 import DataTableField from './DataTableField';
 import { createCellId } from '../helpers/helpers';
+import { SELECTOR } from '../constants';
 
 const styles = () => ({
     tableCell: {
-        display: 'inline-block',
         letterSpacing: '0',
+        lineHeight: 'normal',
         fontSize: '1rem',
         width: '6rem'
     },
@@ -54,17 +56,23 @@ const DataTableRow = ({
                 padding="none"
                 className={classes.tableCell}
                 style={{
-                    width: `${currentColWidth}px`
+                    width: `${currentColWidth}px`,
+                    maxHeight: rowHeight
                 }}>
-                <DataTableField
-                    id={key}
-                    column={column}
-                    value={value}
-                    onMouseDown={onMouseDown}
-                    onBlur={onBlur}
-                    onDoubleClick={onCellDoubleClick}
-                    onKeyDown={onCellKeyDown}
-                />
+                {field !== SELECTOR ? (
+                    <DataTableField
+                        id={key}
+                        column={column}
+                        value={value}
+                        rowHeight={rowHeight}
+                        onMouseDown={onMouseDown}
+                        onBlur={onBlur}
+                        onDoubleClick={onCellDoubleClick}
+                        onKeyDown={onCellKeyDown}
+                    />
+                ) : (
+                    <div style={{ maxHeight: rowHeight }}>foo</div>
+                )}
             </TableCell>
         );
     };

@@ -41,9 +41,12 @@ const styles = () => ({
 
 export class DataTableFooter extends Component {
     shouldComponentUpdate(nextProps) {
-        const { columns } = this.props;
-        const { columns: nextColumns } = nextProps;
-        return _.isEqual(columns, nextColumns);
+        const { columns = [] } = this.props;
+        const { columns: nextColumns = [] } = nextProps;
+        return !_.isEqual(
+            columns.map(c => c.field),
+            nextColumns.map(c => c.field)
+        );
     }
 
     formatTotal = (total, options) => {
