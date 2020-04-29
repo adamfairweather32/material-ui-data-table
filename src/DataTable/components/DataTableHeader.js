@@ -5,6 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import clsx from 'clsx';
+import { SELECTOR } from '../constants';
 
 const styles = () => ({
     tableCell: {
@@ -34,14 +35,34 @@ const styles = () => ({
     },
     tableRow: {
         display: 'table-row'
+    },
+    visuallyHidden: {
+        border: 0,
+        clip: 'rect(0 0 0 0)',
+        height: 1,
+        margin: -1,
+        overflow: 'hidden',
+        padding: 0,
+        position: 'absolute',
+        top: 20,
+        width: 1
     }
 });
 
+const SELECTOR_COL_WIDTH_PX = 45;
+
 export class DataTableHeader extends Component {
     shouldComponentUpdate(nextProps) {
-        const { columns } = this.props;
-        const { columns: nextColumns } = nextProps;
-        return _.isEqual(columns, nextColumns);
+        const { columns = [], order, orderBy } = this.props;
+        const { columns: nextColumns = [], order: nextOrder, orderBy: nextOrderBy } = nextProps;
+        return (
+            order !== nextOrder ||
+            orderBy !== nextOrderBy ||
+            !_.isEqual(
+                columns.map(c => c.field),
+                nextColumns.map(c => c.field)
+            )
+        );
     }
 
     getAlignmentForColumn = column => {
@@ -67,13 +88,68 @@ export class DataTableHeader extends Component {
         return index === startIndex;
     };
 
+    handleCellContextMenu = event => {
+        event.preventDefault();
+        const { onContextTableHeader } = this.props;
+        onContextTableHeader({
+            mouseX: event.clientX - 2,
+            mouseY: event.clientY - 4
+        });
+    };
+
+    handleSortClick = property => event => {
+        const { onRequestSort } = this.props;
+        if (onRequestSort) {
+            onRequestSort(event, property);
+        }
+    };
+
+    handleSelectAllClick = () => {
+        const { onSelectAllClick } = this.props;
+        onSelectAllClick();
+    };
+
+    renderHeaderCell = column => {
+        const { classes, rowHeight, order, orderBy, onRequestSort } = this.props;
+        const { field, headerName, rich: { sortable } = {} } = column;
+        const canSort = sortable && !!onRequestSort;
+        const showHeader = field !== SELECTOR;
+        return (
+            <TableCell
+                // onContextMenu={this.handleCellContextMenu}
+                variant="head"
+                component="div"
+                align={this.getAlignmentForColumn(column)}
+                className={clsx(classes.tableCell, classes.tableCellHead)}
+                style={{
+                    top: rowHeight
+                }}
+                key={field}
+                sortDirection={orderBy === field ? order : false}
+                padding="none">
+                {canSort ? (
+                    <TableSortLabel active={orderBy === field} direction={order} onClick={this.handleSortClick(field)}>
+                        <div className={classes.tableCellHeadDiv}>{headerName || field}</div>
+                        {orderBy === field ? (
+                            <span className={classes.visuallyHidden}>
+                                {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                            </span>
+                        ) : null}
+                    </TableSortLabel>
+                ) : (
+                    <div className={classes.tableCellHeadDiv}>{showHeader && (headerName || field)}</div>
+                )}
+            </TableCell>
+        );
+    };
+
     renderParentHeader = () => {
         const { columns, classes, rowHeight } = this.props;
 
         const calcColumns = columns.map((c, i) => ({
             ...c,
-            showField: this.shouldShowField(c.parentHeaderName, i, columns),
-            align: this.getAlignment(c.parentHeaderName, columns)
+            showField: c.field !== SELECTOR ? this.shouldShowField(c.parentHeaderName, i, columns) : false,
+            align: c.field !== SELECTOR ? this.getAlignment(c.parentHeaderName, columns) : undefined
         }));
 
         return (
@@ -86,28 +162,20 @@ export class DataTableHeader extends Component {
                     }}>
                     {calcColumns.map(({ field, parentHeaderName, align, showField = true }) => (
                         <TableCell
-                            onContextMenu={this.handleCellContextMenu}
+                            // onContextMenu={this.handleCellContextMenu}
                             component="div"
                             align={align}
                             variant="head"
                             className={clsx(classes.tableCell, classes.tableCellHead)}
                             key={field}
-                            padding="none">
+                            padding="none"
+                            style={{ width: field === SELECTOR ? `${SELECTOR_COL_WIDTH_PX}px` : 'auto' }}>
                             {showField && <div className={classes.tableCellHeadDiv}>{parentHeaderName}</div>}
                         </TableCell>
                     ))}
                 </div>
             </>
         );
-    };
-
-    handleCellContextMenu = event => {
-        event.preventDefault();
-        const { onContextTableHeader } = this.props;
-        onContextTableHeader({
-            mouseX: event.clientX - 2,
-            mouseY: event.clientY - 4
-        });
     };
 
     render() {
@@ -122,21 +190,7 @@ export class DataTableHeader extends Component {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {columns.map(c => (
-                        <TableCell
-                            onContextMenu={this.handleCellContextMenu}
-                            variant="head"
-                            component="div"
-                            align={this.getAlignmentForColumn(c)}
-                            className={clsx(classes.tableCell, classes.tableCellHead)}
-                            style={{
-                                top: rowHeight
-                            }}
-                            key={c.field}
-                            padding="none">
-                            <div className={classes.tableCellHeadDiv}>{c.headerName}</div>
-                        </TableCell>
-                    ))}
+                    {columns.map(this.renderHeaderCell)}
                 </div>
             </>
         );

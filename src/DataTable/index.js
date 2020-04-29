@@ -18,10 +18,17 @@ import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
 import DataTableBottomPanel from './components/DataTableBottomPanel';
-import { getPreparedColumns, filterRow, stableSort, getSorting, getUpdatedRows } from './helpers/helpers';
+import {
+    getPreparedColumns,
+    filterRow,
+    stableSort,
+    getSorting,
+    getUpdatedRows,
+    clearBlinkers
+} from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
-import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR } from './constants';
+import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR, SELECTOR } from './constants';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -33,6 +40,7 @@ const styles = () => ({
     tableComponent: {
         width: '100%',
         display: 'table',
+        tableLayout: 'fixed',
         borderSpacing: 0
     },
     tableFooterComponent: {
@@ -42,21 +50,7 @@ const styles = () => ({
         backgroundColor: '#fafafa',
         color: '#fcfcfc'
     },
-    tableCell: {
-        letterSpacing: '0',
-        fontSize: '1rem',
-        width: '6rem'
-    },
-    tableRow: {
-        display: 'table-row'
-    },
-    tableRowOdd: {
-        backgroundColor: '#EBEAF6'
-    },
-    tableRowEven: {
-        backgroundColor: '#fcfcfc'
-    },
-    autoCompleteEditor: {
+    editor: {
         position: 'absolute'
     }
 });
@@ -111,14 +105,10 @@ export class DataTable extends Component {
         const {
             editor: { editing }
         } = prevState;
-        const { searchText } = this.state;
         this.applyEditorVisibilityAndPositioning(editing);
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.activatePreviousCell();
-        if (searchText !== prevState.searchText) {
-            // TODO: focus search text box -> use forward ref
-        }
         this.assignEditorMouseWheelHandler();
     }
 
@@ -181,7 +171,8 @@ export class DataTable extends Component {
             const element = document.getElementById(this.activeId.current);
             if (element) {
                 element.classList.add(SELECTED_CLASS_NAME);
-                // element.focus();
+                // TODO: this line causes issues and needs to be removed as it steals focus
+                element.focus();
             }
         }
     };
@@ -252,6 +243,18 @@ export class DataTable extends Component {
                 editing: [id]
             }
         }));
+    };
+
+    isIndeterminate = () => {
+        const { selected } = this.state;
+        const { rows } = this.props;
+        return selected.length > 0 && selected.length < rows.length;
+    };
+
+    isChecked = () => {
+        const { selected } = this.state;
+        const { rows } = this.props;
+        return selected.length === rows.length;
     };
 
     onSetEditorRef = ref => {
@@ -343,13 +346,14 @@ export class DataTable extends Component {
         event.preventDefault();
     };
 
-    handleEditorBlur = () =>
+    handleEditorBlur = () => {
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
                 ...EDITOR_INITIAL_STATE
             }
         }));
+    };
 
     handleCellMouseDown = event => {
         if (this.activeId.current) {
@@ -388,13 +392,46 @@ export class DataTable extends Component {
         });
     };
 
-    handleMenuClose = event => {
-        console.log('close');
-        this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE });
+    handleMenuClose = () => {
+        // console.log('close');
+        // this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE });
     };
 
     handleContextTableHeader = menuPosition => {
         this.setState({ menuPosition });
+    };
+
+    handleRequestSort = (event, property) => {
+        clearBlinkers();
+        const { order, orderBy } = this.state;
+        const isDesc = orderBy === property && order === 'desc';
+        this.setState({
+            order: isDesc ? 'asc' : 'desc',
+            orderBy: property
+        });
+    };
+
+    handleSelectAllClick = () => {
+        const { rows } = this.props;
+        if (this.isIndeterminate()) {
+            this.setState({ selected: [...rows.map(row => row.id)] });
+        } else if (this.isChecked()) {
+            this.setState({ selected: [] });
+        } else {
+            this.setState({ selected: [...rows.map(row => row.id)] });
+        }
+    };
+
+    handleSelectedChanged = (rowId, isSelected) => {
+        if (isSelected) {
+            this.setState(prevState => ({
+                selected: [...prevState.selected, rowId]
+            }));
+        } else {
+            const { selected } = this.state;
+            selected.splice(selected.indexOf(rowId), 1);
+            this.setState({ selected: [...selected] });
+        }
     };
 
     handleCheckedChange = column => event => {
@@ -430,9 +467,10 @@ export class DataTable extends Component {
             scroll: { index }
         } = this.state;
         const {
-            scroll: { end }
+            scroll: { end },
+            selected
         } = this.state;
-        const { classes, rowHeight } = this.props;
+        const { rowHeight, onAdd, onEdit } = this.props;
         const items = [];
         const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
@@ -448,32 +486,27 @@ export class DataTable extends Component {
                 index = filteredRows.length;
                 break;
             }
-            const style = {
-                top: index * rowHeight,
-                height: rowHeight,
-                lineHeight: `${rowHeight}px`,
-                width: tableWidth,
-                position: 'absolute'
-            };
             if (filteredRows[index]) {
                 windowedRows.push({ ...filteredRows[index], visible: true });
             }
+            const row = filteredRows[index];
             items.push(
-                <div
-                    style={style}
-                    className={clsx(classes.tableRow, index % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}
-                    key={index}>
-                    <DataTableRow
-                        tableId={this.tableId.current}
-                        columns={preparedColumns}
-                        columnElements={columnElements}
-                        row={filteredRows[index]}
-                        onMouseDown={this.handleCellMouseDown}
-                        onBlur={this.handleCellBlur}
-                        onCellDoubleClick={this.handleCellDoubleClick}
-                        onCellKeyDown={this.handleCellKeyDown}
-                    />
-                </div>
+                <DataTableRow
+                    tableId={this.tableId.current}
+                    key={row.id}
+                    columns={preparedColumns}
+                    columnElements={columnElements}
+                    row={row}
+                    rowIndex={index}
+                    rowHeight={rowHeight}
+                    selected={selected.includes(row.id)}
+                    tableWidth={tableWidth}
+                    onMouseDown={this.handleCellMouseDown}
+                    onBlur={this.handleCellBlur}
+                    onCellDoubleClick={this.handleCellDoubleClick}
+                    onCellKeyDown={this.handleCellKeyDown}
+                    onSelectedChanged={this.handleSelectedChanged}
+                />
             );
             index += 1;
         } while (index < end);
@@ -489,6 +522,8 @@ export class DataTable extends Component {
         const { classes, tableHeight, rowHeight, columns, rows, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
         const {
+            order,
+            orderBy,
             visibilities,
             editor,
             selected,
@@ -501,7 +536,15 @@ export class DataTable extends Component {
         const canAdd = !!onAdd && !!onEdit;
         const canEdit = canAdd;
         const canDelete = !!onDelete && selected.length > 0;
+        if (canEdit) {
+            // push a check column into the mix
+            preparedColumns.unshift({
+                field: SELECTOR
+            });
+        }
         const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
+        const checked = this.isChecked();
+        const indeterminate = this.isIndeterminate();
 
         const edtiorContainerStyle = {
             zIndex: editor.active ? 1 : -1,
@@ -537,6 +580,13 @@ export class DataTable extends Component {
                                     rowHeight={rowHeight}
                                     visibilities={visibilities}
                                     onContextTableHeader={this.handleContextTableHeader}
+                                    onRequestSort={this.handleRequestSort}
+                                    onSelectAll={this.handleSelectAll}
+                                    order={order}
+                                    orderBy={orderBy}
+                                    checked={checked}
+                                    indeterminate={indeterminate}
+                                    editable={canEdit}
                                 />
                             </div>
                             <div
@@ -562,7 +612,7 @@ export class DataTable extends Component {
                             canDelete={canDelete}
                         />
                     )}
-                    <div id={EDITOR_ID} className={classes.autoCompleteEditor} style={edtiorContainerStyle}>
+                    <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
                         <DataTableEditor
                             id={EDITOR_INPUT_ID}
                             column={editingColumn}

@@ -200,11 +200,12 @@ const App = ({ classes }) => {
     ];
 
     // HIGH
-    // TODO: fix box styling so it fits correctly
     // TODO: make table body so that it fits exactly the number of rows given
-    // TODO: keep search box focused while searching
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
+    // TODO: grid steals focus when re-activating previous cell that was active
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
+    // TODO: add option to number rows
+    // TODO: use fast sort and filter (https://www.npmjs.com/package/fast-sort) (https://www.npmjs.com/package/fast-filter)
 
     // NICE-TO-HAVE
     // TODO: migrate to just using styled components

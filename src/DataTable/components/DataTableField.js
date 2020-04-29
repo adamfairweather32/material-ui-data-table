@@ -10,8 +10,16 @@ const styles = () => ({
     }
 });
 
-const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, onMouseDown, onBlur }) => {
+const DataTableField = ({ classes, id, value, column, rowHeight, onDoubleClick, onKeyDown, onMouseDown, onBlur }) => {
     const { rich: { numeric = false } = {} } = column || { rich: {} };
+
+    const handleDoubleClick = id => () => {
+        onDoubleClick(id);
+    };
+
+    const handleKeyDown = id => event => {
+        onKeyDown(event, id);
+    };
 
     return (
         <div
@@ -21,11 +29,13 @@ const DataTableField = ({ classes, id, value, column, onDoubleClick, onKeyDown, 
             title={value}
             onMouseDown={onMouseDown}
             onBlur={onBlur}
-            onDoubleClick={() => onDoubleClick(id)}
-            onKeyDown={event => onKeyDown(event, id)}
+            onDoubleClick={handleDoubleClick(id)}
+            onKeyDown={handleKeyDown(id)}
             className={classes.mainDiv}
             style={{
-                textAlign: numeric ? 'right' : undefined
+                textAlign: numeric ? 'right' : undefined,
+                maxHeight: rowHeight,
+                userSelect: 'none'
             }}>
             {value}
         </div>
