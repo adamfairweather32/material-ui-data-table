@@ -537,7 +537,6 @@ export class DataTable extends Component {
         const canEdit = canAdd;
         const canDelete = !!onDelete && selected.length > 0;
         if (canEdit) {
-            // push a check column into the mix
             preparedColumns.unshift({
                 field: SELECTOR
             });
@@ -559,7 +558,6 @@ export class DataTable extends Component {
         return (
             <>
                 <div>
-                    {/* {JSON.stringify(scroll)} */}
                     <DataTableTopPanel
                         showErrors={showErrors}
                         showFilter={showFilter}
@@ -581,7 +579,7 @@ export class DataTable extends Component {
                                     visibilities={visibilities}
                                     onContextTableHeader={this.handleContextTableHeader}
                                     onRequestSort={this.handleRequestSort}
-                                    onSelectAll={this.handleSelectAll}
+                                    onSelectAll={this.handleSelectAllClick}
                                     order={order}
                                     orderBy={orderBy}
                                     checked={checked}

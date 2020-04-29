@@ -8,6 +8,10 @@ import clsx from 'clsx';
 import { SELECTOR } from '../constants';
 
 const styles = () => ({
+    checkBox: {
+        padding: '0',
+        paddingLeft: '4px'
+    },
     tableCell: {
         letterSpacing: '0',
         fontSize: '1rem',
@@ -53,11 +57,19 @@ const SELECTOR_COL_WIDTH_PX = 45;
 
 export class DataTableHeader extends Component {
     shouldComponentUpdate(nextProps) {
-        const { columns = [], order, orderBy } = this.props;
-        const { columns: nextColumns = [], order: nextOrder, orderBy: nextOrderBy } = nextProps;
+        const { columns = [], order, orderBy, checked, indeterminate } = this.props;
+        const {
+            columns: nextColumns = [],
+            order: nextOrder,
+            orderBy: nextOrderBy,
+            checked: nextChecked,
+            indeterminate: nextIndeterminate
+        } = nextProps;
         return (
             order !== nextOrder ||
             orderBy !== nextOrderBy ||
+            checked !== nextChecked ||
+            indeterminate !== nextIndeterminate ||
             !_.isEqual(
                 columns.map(c => c.field),
                 nextColumns.map(c => c.field)
@@ -67,7 +79,6 @@ export class DataTableHeader extends Component {
 
     getAlignmentForColumn = column => {
         const { rich: { numeric = false } = {} } = column || { rich: {} };
-
         return numeric ? 'right' : 'left';
     };
 
@@ -105,15 +116,33 @@ export class DataTableHeader extends Component {
     };
 
     handleSelectAllClick = () => {
-        const { onSelectAllClick } = this.props;
-        onSelectAllClick();
+        const { onSelectAll } = this.props;
+        onSelectAll();
+    };
+
+    renderHeaderContent = (headerName, field) => {
+        const { classes, indeterminate, checked } = this.props;
+        const isSelector = field === SELECTOR;
+        if (isSelector) {
+            return (
+                <div className={classes.tableCellHeadDiv}>
+                    <Checkbox
+                        className={classes.checkBox}
+                        indeterminate={indeterminate}
+                        checked={checked}
+                        onChange={this.handleSelectAllClick}
+                        inputProps={{ 'aria-label': 'select all' }}
+                    />
+                </div>
+            );
+        }
+        return <div className={classes.tableCellHeadDiv}>{headerName || field}</div>;
     };
 
     renderHeaderCell = column => {
         const { classes, rowHeight, order, orderBy, onRequestSort } = this.props;
         const { field, headerName, rich: { sortable } = {} } = column;
         const canSort = sortable && !!onRequestSort;
-        const showHeader = field !== SELECTOR;
         return (
             <TableCell
                 // onContextMenu={this.handleCellContextMenu}
@@ -137,7 +166,7 @@ export class DataTableHeader extends Component {
                         ) : null}
                     </TableSortLabel>
                 ) : (
-                    <div className={classes.tableCellHeadDiv}>{showHeader && (headerName || field)}</div>
+                    this.renderHeaderContent(headerName, field)
                 )}
             </TableCell>
         );
