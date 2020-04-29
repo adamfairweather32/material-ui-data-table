@@ -1,5 +1,6 @@
 import React, { Component, createRef } from 'react';
 import _ from 'lodash';
+import fastFilter from 'fast-filter';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -117,7 +118,7 @@ export class DataTable extends Component {
         const { searchText, order, orderBy } = this.state;
 
         return stableSort(
-            getValidatedRows(rows, rules).filter(r => !showFilter || filterRow(r, preparedColumns, searchText)),
+            fastFilter(getValidatedRows(rows, rules), r => !showFilter || filterRow(r, preparedColumns, searchText)),
             preparedColumns,
             getSorting(order, orderBy)
         );
@@ -470,7 +471,7 @@ export class DataTable extends Component {
             scroll: { end },
             selected
         } = this.state;
-        const { rowHeight, onAdd, onEdit } = this.props;
+        const { rowHeight } = this.props;
         const items = [];
         const tableElement = document.getElementById(`${this.tableId.current}-table`);
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
