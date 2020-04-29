@@ -467,7 +467,8 @@ export class DataTable extends Component {
             scroll: { index }
         } = this.state;
         const {
-            scroll: { end }
+            scroll: { end },
+            selected
         } = this.state;
         const { rowHeight, onAdd, onEdit } = this.props;
         const items = [];
@@ -498,11 +499,13 @@ export class DataTable extends Component {
                     row={row}
                     rowIndex={index}
                     rowHeight={rowHeight}
+                    selected={selected.includes(row.id)}
                     tableWidth={tableWidth}
                     onMouseDown={this.handleCellMouseDown}
                     onBlur={this.handleCellBlur}
                     onCellDoubleClick={this.handleCellDoubleClick}
                     onCellKeyDown={this.handleCellKeyDown}
+                    onSelectedChanged={this.handleSelectedChanged}
                 />
             );
             index += 1;

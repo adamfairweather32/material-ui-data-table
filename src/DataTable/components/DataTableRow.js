@@ -2,13 +2,17 @@ import React from 'react';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
-
+import TableRow from '@material-ui/core/TableRow';
 import { Checkbox } from '@material-ui/core';
 import DataTableField from './DataTableField';
 import { createCellId } from '../helpers/helpers';
 import { SELECTOR } from '../constants';
 
 const styles = () => ({
+    checkBox: {
+        padding: '0',
+        paddingLeft: '10px'
+    },
     tableCell: {
         letterSpacing: '0',
         lineHeight: 'normal',
@@ -31,23 +35,30 @@ const DataTableRow = ({
     tableId,
     columns,
     columnElements,
+    selected,
     row,
     rowHeight,
     rowIndex,
     tableWidth,
+    onBlur,
     onCellDoubleClick,
     onCellKeyDown,
     onMouseDown,
-    onBlur
+    onSelectedChanged
 }) => {
     const rowId = row.id;
+
+    const handleRowClick = rowId => () => {
+        const newValue = !selected;
+        onSelectedChanged(rowId, newValue);
+    };
 
     const renderCell = (column, index) => {
         const { field } = column;
         const key = createCellId(tableId, rowId, field);
         const value = row[field];
         const currentColWidth = columnElements[index] ? columnElements[index].getBoundingClientRect().width : 0;
-
+        const labelId = `enhanced-table-checkbox-${rowIndex}`;
         return (
             <TableCell
                 component="div"
@@ -71,7 +82,13 @@ const DataTableRow = ({
                         onKeyDown={onCellKeyDown}
                     />
                 ) : (
-                    <div style={{ maxHeight: rowHeight }}>foo</div>
+                    <Checkbox
+                        className={classes.checkBox}
+                        checked={selected}
+                        onClick={handleRowClick(rowId)}
+                        inputProps={{ 'aria-labelledby': labelId }}
+                        style={{ maxHeight: rowHeight }}
+                    />
                 )}
             </TableCell>
         );
@@ -85,11 +102,16 @@ const DataTableRow = ({
         position: 'absolute'
     };
     return (
-        <div
+        <TableRow
+            hover
+            component="div"
+            tabIndex={-1}
+            aria-checked={selected}
+            selected={selected}
             style={style}
             className={clsx(classes.tableRow, rowIndex % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}>
             {columns.map((column, index) => renderCell(column, index))}
-        </div>
+        </TableRow>
     );
 };
 
