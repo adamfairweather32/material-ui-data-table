@@ -35,6 +35,17 @@ const styles = () => ({
     },
     tableRow: {
         display: 'table-row'
+    },
+    visuallyHidden: {
+        border: 0,
+        clip: 'rect(0 0 0 0)',
+        height: 1,
+        margin: -1,
+        overflow: 'hidden',
+        padding: 0,
+        position: 'absolute',
+        top: 20,
+        width: 1
     }
 });
 
@@ -42,11 +53,15 @@ const SELECTOR_COL_WIDTH_PX = 45;
 
 export class DataTableHeader extends Component {
     shouldComponentUpdate(nextProps) {
-        const { columns = [] } = this.props;
-        const { columns: nextColumns = [] } = nextProps;
-        return !_.isEqual(
-            columns.map(c => c.field),
-            nextColumns.map(c => c.field)
+        const { columns = [], order, orderBy } = this.props;
+        const { columns: nextColumns = [], order: nextOrder, orderBy: nextOrderBy } = nextProps;
+        return (
+            order !== nextOrder ||
+            orderBy !== nextOrderBy ||
+            !_.isEqual(
+                columns.map(c => c.field),
+                nextColumns.map(c => c.field)
+            )
         );
     }
 
@@ -71,6 +86,61 @@ export class DataTableHeader extends Component {
             parentHeader
         );
         return index === startIndex;
+    };
+
+    handleCellContextMenu = event => {
+        event.preventDefault();
+        const { onContextTableHeader } = this.props;
+        onContextTableHeader({
+            mouseX: event.clientX - 2,
+            mouseY: event.clientY - 4
+        });
+    };
+
+    handleSortClick = property => event => {
+        const { onRequestSort } = this.props;
+        if (onRequestSort) {
+            onRequestSort(event, property);
+        }
+    };
+
+    handleSelectAllClick = () => {
+        const { onSelectAllClick } = this.props;
+        onSelectAllClick();
+    };
+
+    renderHeaderCell = column => {
+        const { classes, rowHeight, order, orderBy, onRequestSort } = this.props;
+        const { field, headerName, rich: { sortable } = {} } = column;
+        const canSort = sortable && !!onRequestSort;
+        const showHeader = field !== SELECTOR;
+        return (
+            <TableCell
+                // onContextMenu={this.handleCellContextMenu}
+                variant="head"
+                component="div"
+                align={this.getAlignmentForColumn(column)}
+                className={clsx(classes.tableCell, classes.tableCellHead)}
+                style={{
+                    top: rowHeight
+                }}
+                key={field}
+                sortDirection={orderBy === field ? order : false}
+                padding="none">
+                {canSort ? (
+                    <TableSortLabel active={orderBy === field} direction={order} onClick={this.handleSortClick(field)}>
+                        <div className={classes.tableCellHeadDiv}>{headerName || field}</div>
+                        {orderBy === field ? (
+                            <span className={classes.visuallyHidden}>
+                                {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                            </span>
+                        ) : null}
+                    </TableSortLabel>
+                ) : (
+                    <div className={classes.tableCellHeadDiv}>{showHeader && (headerName || field)}</div>
+                )}
+            </TableCell>
+        );
     };
 
     renderParentHeader = () => {
@@ -108,15 +178,6 @@ export class DataTableHeader extends Component {
         );
     };
 
-    handleCellContextMenu = event => {
-        event.preventDefault();
-        const { onContextTableHeader } = this.props;
-        onContextTableHeader({
-            mouseX: event.clientX - 2,
-            mouseY: event.clientY - 4
-        });
-    };
-
     render() {
         const { classes, columns, rowHeight } = this.props;
         const hasParentHeader = columns.filter(c => c.parentHeaderName).length > 0;
@@ -129,21 +190,7 @@ export class DataTableHeader extends Component {
                         height: rowHeight,
                         lineHeight: `${rowHeight}px`
                     }}>
-                    {columns.map(c => (
-                        <TableCell
-                            // onContextMenu={this.handleCellContextMenu}
-                            variant="head"
-                            component="div"
-                            align={this.getAlignmentForColumn(c)}
-                            className={clsx(classes.tableCell, classes.tableCellHead)}
-                            style={{
-                                top: rowHeight
-                            }}
-                            key={c.field}
-                            padding="none">
-                            <div className={classes.tableCellHeadDiv}>{c.headerName}</div>
-                        </TableCell>
-                    ))}
+                    {columns.map(this.renderHeaderCell)}
                 </div>
             </>
         );

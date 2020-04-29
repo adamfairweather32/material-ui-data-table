@@ -488,12 +488,14 @@ export class DataTable extends Component {
             if (filteredRows[index]) {
                 windowedRows.push({ ...filteredRows[index], visible: true });
             }
+            const row = filteredRows[index];
             items.push(
                 <DataTableRow
                     tableId={this.tableId.current}
+                    key={row.id}
                     columns={preparedColumns}
                     columnElements={columnElements}
-                    row={filteredRows[index]}
+                    row={row}
                     rowIndex={index}
                     rowHeight={rowHeight}
                     tableWidth={tableWidth}

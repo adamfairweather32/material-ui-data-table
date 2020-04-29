@@ -51,8 +51,8 @@ const DataTableRow = ({
         return (
             <TableCell
                 component="div"
-                variant="body"
                 key={key}
+                variant="body"
                 padding="none"
                 className={classes.tableCell}
                 style={{
@@ -87,8 +87,7 @@ const DataTableRow = ({
     return (
         <div
             style={style}
-            className={clsx(classes.tableRow, rowIndex % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}
-            key={rowIndex}>
+            className={clsx(classes.tableRow, rowIndex % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}>
             {columns.map((column, index) => renderCell(column, index))}
         </div>
     );
