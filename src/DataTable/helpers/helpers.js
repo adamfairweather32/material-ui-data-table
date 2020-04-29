@@ -1,11 +1,11 @@
 import _ from 'lodash';
+import sort from 'fast-sort';
 import { format } from 'date-fns';
 import {
     ID_FIELD_PREFIX,
     COMBO_TYPE,
     TEXT_TYPE,
     DATE_TYPE,
-    IDENTIFIER_ATTRIBUTE,
     DATA_EDITING_PREFIX,
     DECIMAL_PLACES,
     REGEX_MAP,
@@ -296,62 +296,4 @@ export const removeTextSelection = () => {
     if (sel) {
         sel.removeAllRanges();
     }
-};
-
-const getFromChildren = (children, attribute, depth = DEFAULT_MAX_SEARCH_DEPTH) => {
-    if (children && children.length && depth > 0) {
-        // eslint-disable-next-line
-        for (const child of children) {
-            if (child.children && child.children.length) {
-                return getFromChildren(child.children, attribute, depth - 1);
-            }
-            const attr = child && child.getAttribute(attribute);
-            if (attr && attr.startsWith(ID_FIELD_PREFIX)) {
-                return attr;
-            }
-        }
-    }
-    return null;
-};
-
-export const getCellIdFromTarget = (target, depth = DEFAULT_MAX_SEARCH_DEPTH) => {
-    if (!target) {
-        return null;
-    }
-    // TODO: we should really use a custom attribute to avoid
-    // clashes
-    let idAttribute = target.getAttribute(IDENTIFIER_ATTRIBUTE);
-    // keep walking up until we find a parent with the id element
-    if (!idAttribute && depth > 0) {
-        // check children first
-        idAttribute = getFromChildren(target.children, IDENTIFIER_ATTRIBUTE, depth);
-        if (!idAttribute) {
-            // if not in any of the children found then walk up the tree
-            return getCellIdFromTarget(target.parentElement, depth - 1);
-        }
-    }
-    return idAttribute;
-};
-
-const desc = (a, b, columns, orderBy) => {
-    const valueA = extractValue(orderBy, a, columns);
-    const valueB = extractValue(orderBy, b, columns);
-
-    return valueA && valueB ? valueB.toString().localeCompare(valueA.toString()) : 0;
-};
-
-export const stableSort = (rows, columns, comparator) => {
-    const stabilised = rows.map((el, index) => [el, index]);
-    stabilised.sort((a, b) => {
-        const order = comparator(a[0], b[0], columns);
-        if (order !== 0) return order;
-        return a[1] - b[1];
-    });
-    return stabilised.map(el => el[0]);
-};
-
-export const getSorting = (order, orderBy) => {
-    return order === 'desc'
-        ? (a, b, columns) => desc(a, b, columns, orderBy)
-        : (a, b, columns) => -desc(a, b, columns, orderBy);
 };

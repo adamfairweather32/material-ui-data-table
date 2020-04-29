@@ -1,5 +1,6 @@
 import React, { Component, createRef } from 'react';
 import _ from 'lodash';
+import sort from 'fast-sort';
 import fastFilter from 'fast-filter';
 import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
@@ -19,14 +20,7 @@ import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
 import DataTableBottomPanel from './components/DataTableBottomPanel';
-import {
-    getPreparedColumns,
-    filterRow,
-    stableSort,
-    getSorting,
-    getUpdatedRows,
-    clearBlinkers
-} from './helpers/helpers';
+import { getPreparedColumns, filterRow, getUpdatedRows, clearBlinkers } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
 import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR, SELECTOR } from './constants';
@@ -117,11 +111,13 @@ export class DataTable extends Component {
         const { rules, showFilter } = this.props;
         const { searchText, order, orderBy } = this.state;
 
-        return stableSort(
-            fastFilter(getValidatedRows(rows, rules), r => !showFilter || filterRow(r, preparedColumns, searchText)),
-            preparedColumns,
-            getSorting(order, orderBy)
+        const filteredItems = fastFilter(
+            getValidatedRows(rows, rules),
+            r => !showFilter || filterRow(r, preparedColumns, searchText)
         );
+        return order === 'asc'
+            ? sort(filteredItems).asc(it => it[orderBy])
+            : sort(filteredItems).desc(it => it[orderBy]);
     };
 
     assignEditorMouseWheelHandler = () => {
