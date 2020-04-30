@@ -473,10 +473,10 @@ export class DataTable extends Component {
         const tableWidth = tableElement ? tableElement.getBoundingClientRect().width : 0;
         const columnElements = tableElement ? tableElement.querySelectorAll('div.MuiTableCell-head') : [];
         const windowedRows = [];
-        const invisibleOutOfBoundsTopRow = index - 1 > 0 ? index - 1 : null;
-        const invisibleOutOfBoundsBottomRow = end + 1 < filteredRows.length ? end + 1 : null;
-        if (invisibleOutOfBoundsTopRow) {
-            windowedRows.push({ ...filteredRows[invisibleOutOfBoundsTopRow], visible: false });
+        const bufferTopIndex = index - 1 > 0 ? index - 1 : null;
+        const bufferBottomIndex = end + 1 < filteredRows.length ? end + 1 : null;
+        if (bufferTopIndex && filteredRows[bufferTopIndex]) {
+            windowedRows.push({ ...filteredRows[bufferTopIndex], visible: false });
         }
         do {
             if (index >= filteredRows.length) {
@@ -507,8 +507,8 @@ export class DataTable extends Component {
             );
             index += 1;
         } while (index < end);
-        if (invisibleOutOfBoundsBottomRow) {
-            windowedRows.push({ ...filteredRows[invisibleOutOfBoundsBottomRow - 1], visible: false });
+        if (bufferBottomIndex && filteredRows[bufferBottomIndex]) {
+            windowedRows.push({ ...filteredRows[bufferBottomIndex - 1], visible: false });
         }
         this.gridNavigationMap = getGridNavigationMap(this.tableId.current, windowedRows, preparedColumns);
 

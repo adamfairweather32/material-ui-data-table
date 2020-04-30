@@ -206,9 +206,9 @@ const App = ({ classes }) => {
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: add option to number rows
     // TODO: scrolling filtered/sorted items gives error
+    // TODO: get context menu working
 
     // NICE-TO-HAVE
-    // TODO: migrate to just using styled components
     // TODO: re-focus cell once date picker calendar is closed
     // TODO: column resize (https://github.com/gregnb/mui-datatables/blob/master/src/MUIDataTable.js)
     // TODO: add support for drag and drop rows/columns
