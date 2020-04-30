@@ -93,7 +93,8 @@ export class DataTable extends Component {
     }
 
     componentDidMount() {
-        this.handleScroll({ target: { scrollTop: 0 } });
+        const { rows } = this.props;
+        this.handleScroll(rows)({ target: { scrollTop: 0 } });
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -259,10 +260,14 @@ export class DataTable extends Component {
     };
 
     handleResize = () => {
+        const { columns, rows } = this.props;
         const {
-            scroll: { top }
+            scroll: { top },
+            visibilities
         } = this.state;
-        this.handleScroll({ target: { scrollTop: top } });
+        const preparedColumns = getPreparedColumns(columns, visibilities);
+        const filteredRows = this.getFilteredAndSortedRows(rows, preparedColumns);
+        this.handleScroll(filteredRows)({ target: { scrollTop: top } });
     };
 
     handleEditorWheel = event => {
@@ -271,14 +276,14 @@ export class DataTable extends Component {
         event.preventDefault();
     };
 
-    handleScroll = ({ target }) => {
-        const { rows, rowHeight } = this.props;
+    handleScroll = rows => ({ target }) => {
+        const { rowHeight } = this.props;
         const numberOfRows = rows.length;
         const calculatedTableHeight = numberOfRows * rowHeight;
         const tableBody = document.getElementById(`${this.tableId.current}-tbody`);
         const positionInTable = target.scrollTop;
-
-        const tableHeadHeight = document.getElementById(`${this.tableId.current}-thead`).getBoundingClientRect().height;
+        const tableHead = document.getElementById(`${this.tableId.current}-thead`);
+        const tableHeadHeight = tableHead.getBoundingClientRect().height;
         const tableFooterHeight = document.getElementById(`${this.tableId.current}-tfoot`).getBoundingClientRect()
             .height;
         const tableContainerHeight = document
@@ -290,6 +295,7 @@ export class DataTable extends Component {
         const topRowIndex = Math.floor(positionInTable / rowHeight);
         const endRowIndex = topRowIndex + visibleTableHeight / rowHeight;
         tableBody.style.height = `${calculatedTableHeight}px`;
+        tableBody.style.width = `${tableHead.getBoundingClientRect().width}px`;
 
         this.setState(prevState => ({
             scroll: {
@@ -563,7 +569,7 @@ export class DataTable extends Component {
                     />
                     <TableContainer
                         id={`${this.tableId.current}-tcontainer`}
-                        onScroll={this.handleScroll}
+                        onScroll={this.handleScroll(filteredRows)}
                         component={Paper}
                         style={style}>
                         <div id={`${this.tableId.current}-table`} className={classes.tableComponent}>
