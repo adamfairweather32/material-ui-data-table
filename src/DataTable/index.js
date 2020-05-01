@@ -554,9 +554,7 @@ export class DataTable extends Component {
             ...this.getEditorPosition()
         };
 
-        const errorCount = _.sum(
-            _.flatMap(rows, row => (row.validations && !_.isEmpty(row.validations.errors) ? 1 : 0))
-        );
+        const errorCount = _.sum(_.flatMap(filteredRows, row => (!_.isEmpty(row.validations.errors) ? 1 : 0)));
 
         return (
             <>

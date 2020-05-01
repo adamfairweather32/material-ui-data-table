@@ -78,18 +78,18 @@ const App = ({ classes }) => {
     // we can either provide rules to the data grid or we can provide
     // the rows with the validation rules already applied from Redux
     // and then just let the data grid render them
-    // const rules = [
-    //     {
-    //         field: 'cost',
-    //         getMessage: value => (value > 60 ? 'This number cannot be greater than 60' : null),
-    //         level: 'warn'
-    //     },
-    //     {
-    //         field: 'cost',
-    //         getMessage: value => (value < 0 ? 'Should be >= £0' : null),
-    //         level: 'error'
-    //     }
-    // ];
+    const rules = [
+        {
+            field: 'cost',
+            getMessage: value => (value > 60 ? 'This number cannot be greater than 60' : null),
+            level: 'warn'
+        },
+        {
+            field: 'cost',
+            getMessage: value => (value < 0 ? 'Should be >= £0' : null),
+            level: 'error'
+        }
+    ];
 
     const columns = [
         {
@@ -249,6 +249,7 @@ const App = ({ classes }) => {
                         columns={columns}
                         rowHeight={30}
                         tableHeight={210}
+                        rules={rules}
                         onAdd={handleAdd}
                         onEdit={handleEdit}
                         onDelete={handleDelete}

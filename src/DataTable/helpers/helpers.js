@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import sort from 'fast-sort';
 import { format } from 'date-fns';
 import {
     ID_FIELD_PREFIX,
@@ -10,11 +9,11 @@ import {
     DECIMAL_PLACES,
     REGEX_MAP,
     ALPHA_NUMERIC_TYPE,
-    DEFAULT_MAX_SEARCH_DEPTH,
     CURRENCY_TYPE,
     BLINK_DIRECTION_POSITIVE,
     BLINK_DIRECTION_NEGATIVE,
-    NUMERIC_TYPE
+    NUMERIC_TYPE,
+    RESERVED_COLUMNS
 } from '../constants';
 
 const enrich = column => {
@@ -25,48 +24,6 @@ const enrich = column => {
         });
     }
     return column;
-};
-
-export const getPreparedColumns = (columns, visibilities = []) => {
-    const hiddenColumns = visibilities.filter(c => !c.visible).map(c => c.field);
-    return columns
-        .filter(c => !c.hidden && !hiddenColumns.includes(c.field))
-        .map((column, index) => {
-            return { ...enrich(column), index };
-        });
-};
-
-export const getReadonlyDisplayValue = (value, column) => {
-    if (!column) {
-        throw Error('column parameter not provided');
-    }
-    const { rich: { date } = {} } = column || { rich: {} };
-    const { rich: { autoComplete } = {} } = column || { rich: {} };
-    if (value) {
-        if (date && date.format) {
-            try {
-                return format(new Date(value), date.format);
-            } catch (err) {
-                // eslint-disable-next-line
-                console.error(`could not format value: ${value} with format string: ${date.format}`);
-                return value;
-            }
-        }
-        if (autoComplete && autoComplete.options && autoComplete.options.length) {
-            const option = autoComplete.options[value];
-            return (option && option.label) || value;
-        }
-    }
-    return value;
-};
-
-export const isValidChar = (char, type = ALPHA_NUMERIC_TYPE) => {
-    const validTypes = [CURRENCY_TYPE, NUMERIC_TYPE];
-    // TODO: be good to get this working in regex
-    if (validTypes.includes(type) && (char === '-' || char === '.')) {
-        return true;
-    }
-    return REGEX_MAP[type].test(char);
 };
 
 export const getDuplicates = (items, keySelector) => {
@@ -105,6 +62,51 @@ export const validateColumns = (columns, reservedColumns = []) => {
             throw new Error(`parentHeaderName field must be set on ALL columns if it is provided`);
         }
     }
+};
+
+export const getPreparedColumns = (columns, visibilities = [], validate = true) => {
+    if (validate) {
+        validateColumns(columns, RESERVED_COLUMNS);
+    }
+    const hiddenColumns = (visibilities || []).filter(c => !c.visible).map(c => c.field);
+    return columns
+        .filter(c => !c.hidden && !hiddenColumns.includes(c.field))
+        .map((column, index) => {
+            return { ...enrich(column), index };
+        });
+};
+
+export const getReadonlyDisplayValue = (value, column) => {
+    if (!column) {
+        throw Error('column parameter not provided');
+    }
+    const { rich: { date } = {} } = column || { rich: {} };
+    const { rich: { autoComplete } = {} } = column || { rich: {} };
+    if (value) {
+        if (date && date.format) {
+            try {
+                return format(new Date(value), date.format);
+            } catch (err) {
+                // eslint-disable-next-line
+                console.error(`could not format value: ${value} with format string: ${date.format}`);
+                return value;
+            }
+        }
+        if (autoComplete && autoComplete.options && autoComplete.options.length) {
+            const option = autoComplete.options[value];
+            return (option && option.label) || value;
+        }
+    }
+    return value;
+};
+
+export const isValidChar = (char, type = ALPHA_NUMERIC_TYPE) => {
+    const validTypes = [CURRENCY_TYPE, NUMERIC_TYPE];
+    // TODO: be good to get this working in regex
+    if (validTypes.includes(type) && (char === '-' || char === '.')) {
+        return true;
+    }
+    return REGEX_MAP[type].test(char);
 };
 
 export const getBlinkDirectionColour = (value, previousValue) => {

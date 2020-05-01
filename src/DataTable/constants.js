@@ -58,3 +58,5 @@ export const BLINK_DIRECTION_NEGATIVE = 'red';
 
 export const WARNING_COLOUR = '#ffeb3b';
 export const ERROR_COLOUR = 'red';
+
+export const RESERVED_COLUMNS = ['validations', SELECTOR];
