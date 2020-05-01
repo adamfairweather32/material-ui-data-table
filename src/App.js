@@ -205,9 +205,7 @@ const App = ({ classes }) => {
     // TODO: grid steals focus when re-activating previous cell that was active
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: add option to number rows
-    // TODO: scrolling filtered/sorted items gives error
     // TODO: get context menu working
-    // TODO: show errors
     // TODO: get blinkers working
     // TODO: should render 1 extra row bigger than visible table area
 

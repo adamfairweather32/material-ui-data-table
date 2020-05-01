@@ -17,7 +17,7 @@ const styles = theme => ({
     },
     alertContainer: {
         display: 'flex',
-        padding: '5px 7px 5px 7px',
+        padding: '0px 2px 0px 2px',
         color: '#fff',
         fontWeight: theme.typography.fontWeightMedium,
         backgroundColor: theme.palette.error.main
