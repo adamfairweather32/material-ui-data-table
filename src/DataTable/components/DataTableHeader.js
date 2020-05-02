@@ -145,7 +145,7 @@ export class DataTableHeader extends Component {
         const canSort = sortable && !!onRequestSort;
         return (
             <TableCell
-                // onContextMenu={this.handleCellContextMenu}
+                onContextMenu={this.handleCellContextMenu}
                 variant="head"
                 component="div"
                 align={this.getAlignmentForColumn(column)}
@@ -191,7 +191,7 @@ export class DataTableHeader extends Component {
                     }}>
                     {calcColumns.map(({ field, parentHeaderName, align, showField = true }) => (
                         <TableCell
-                            // onContextMenu={this.handleCellContextMenu}
+                            onContextMenu={this.handleCellContextMenu}
                             component="div"
                             align={align}
                             variant="head"

@@ -205,9 +205,9 @@ const App = ({ classes }) => {
     // TODO: grid steals focus when re-activating previous cell that was active
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: add option to number rows
-    // TODO: get context menu working
     // TODO: should render 1 extra row bigger than visible table area
     // TODO: implement editors
+    // TODO: move context menu into it's own component
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
