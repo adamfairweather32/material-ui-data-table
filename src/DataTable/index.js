@@ -185,8 +185,6 @@ export class DataTable extends Component {
             const element = document.getElementById(this.activeId.current);
             if (element) {
                 element.classList.add(SELECTED_CLASS_NAME);
-                // TODO: this line causes issues and needs to be removed as it steals focus
-                element.focus();
             }
         }
     };
@@ -235,7 +233,6 @@ export class DataTable extends Component {
         const element = document.getElementById(id);
         if (element) {
             element.classList.remove(SELECTED_CLASS_NAME);
-            element.blur();
         }
     };
 
@@ -337,24 +334,28 @@ export class DataTable extends Component {
         switch (event.keyCode) {
             case UP:
                 moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell,
                     scroll: () => tableContainer.scroll({ top: top - rowHeight })
                 });
                 break;
             case RIGHT:
                 moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell
                 });
                 break;
             case DOWN:
                 moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
                     activateCell: this.activateCell,
+                    deactivateCell: this.deactivateCell,
                     scroll: () => tableContainer.scroll({ top: top + rowHeight })
                 });
                 event.preventDefault();
                 break;
             case LEFT:
                 moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
+                    deactivateCell: this.deactivateCell,
                     activateCell: this.activateCell
                 });
                 break;
