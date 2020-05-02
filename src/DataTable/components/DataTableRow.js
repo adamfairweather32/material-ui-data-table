@@ -20,11 +20,16 @@ const styles = () => ({
         width: '6rem'
     },
     tableRow: {
-        display: 'table-row'
+        display: 'table-row',
+        '&$selected, &$selected:hover': {
+            backgroundColor: '#00fffb'
+        }
     },
     tableRowOdd: {
         backgroundColor: '#EBEAF6'
-    }
+    },
+    hover: {},
+    selected: {}
 });
 
 const DataTableRow = ({
@@ -107,6 +112,7 @@ const DataTableRow = ({
             aria-checked={selected}
             selected={selected}
             style={style}
+            classes={{ hover: classes.hover, selected: classes.selected }}
             className={clsx(
                 classes.tableRow,
                 rowIndex % 2 === 0 && alternate ? classes.tableRowOdd : classes.tableRow

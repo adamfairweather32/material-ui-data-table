@@ -206,10 +206,8 @@ const App = ({ classes }) => {
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: add option to number rows
     // TODO: get context menu working
-    // TODO: get blinkers working
     // TODO: should render 1 extra row bigger than visible table area
     // TODO: implement editors
-    // TODO: change hover colour to a stronger blue
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
