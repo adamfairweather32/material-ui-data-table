@@ -60,3 +60,4 @@ export const WARNING_COLOUR = '#ffeb3b';
 export const ERROR_COLOUR = 'red';
 
 export const RESERVED_COLUMNS = ['validations', SELECTOR];
+export const COLUMN_HEADER_MENU_TARGET = 'column-header';

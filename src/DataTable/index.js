@@ -6,13 +6,6 @@ import { withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
 import Paper from '@material-ui/core/Paper';
-import Fade from '@material-ui/core/Fade';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Divider from '@material-ui/core/Divider';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Checkbox from '@material-ui/core/Checkbox';
-import { Typography } from '@material-ui/core';
 import TableContainer from '@material-ui/core/TableContainer';
 import DataTableHeader from './components/DataTableHeader';
 import DataTableFooter from './components/DataTableFooter';
@@ -20,25 +13,25 @@ import DataTableRow from './components/DataTableRow';
 import DataTableEditor from './components/DataTableEditor';
 import DataTableTopPanel from './components/DataTableTopPanel';
 import DataTableBottomPanel from './components/DataTableBottomPanel';
-import { getPreparedColumns, filterRow, getUpdatedRows, clearBlinkers } from './helpers/helpers';
+import DataTableContextMenu from './components/DataTableContextMenu';
+import { getPreparedColumns, filterRow, clearBlinkers } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
 import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
-import { LEFT, RIGHT, UP, DOWN, ENTER, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR, SELECTOR } from './constants';
+import {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    ENTER,
+    UP_DIR,
+    RIGHT_DIR,
+    DOWN_DIR,
+    LEFT_DIR,
+    SELECTOR,
+    COLUMN_HEADER_MENU_TARGET
+} from './constants';
 
 const styles = () => ({
-    checkBox: {
-        padding: 0
-    },
-    menuItem: {
-        padding: '0px 5px 0px 5px',
-        '&:nth-child(3)': {
-            // takes into account the divider
-            paddingTop: '5px'
-        }
-    },
-    menuTitle: {
-        padding: '0px 0px 0px 5px'
-    },
     tableHeadComponent: {
         width: '100%',
         display: 'table-header-group',
@@ -71,8 +64,6 @@ const MENU_POSITION_INITIAL_STATE = {
     mouseX: null,
     mouseY: null
 };
-
-const COLUMN_HEADER_MENU_TARGET = 'column-header';
 
 export class DataTable extends Component {
     constructor(props) {
@@ -413,7 +404,7 @@ export class DataTable extends Component {
     };
 
     handleMenuClose = () => {
-        this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE });
+        this.setState({ menuPosition: MENU_POSITION_INITIAL_STATE, menuTarget: null });
     };
 
     handleContextTableHeader = menuPosition => {
@@ -450,69 +441,6 @@ export class DataTable extends Component {
             const { selected } = this.state;
             selected.splice(selected.indexOf(rowId), 1);
             this.setState({ selected: [...selected] });
-        }
-    };
-
-    handleCheckedChange = column => () => {
-        const { visibilities } = this.state;
-        const updated = getUpdatedRows(
-            !column.visible,
-            column,
-            'visible',
-            visibilities,
-            (r1, r2) => r1.headerName === r2.headerName
-        );
-        const nothingChecked = updated.filter(v => v.visible).length === 0;
-        if (!nothingChecked) {
-            this.setState({
-                visibilities: updated
-            });
-        }
-    };
-
-    renderMenuItems = () => {
-        const { classes } = this.props;
-        const { visibilities } = this.state;
-        return visibilities.map(column => (
-            <MenuItem key={column.field} onClick={this.handleCheckedChange(column)} className={classes.menuItem}>
-                <Checkbox className={classes.checkBox} checked={column.visible} />
-                <Typography>{column.headerName}</Typography>
-            </MenuItem>
-        ));
-    };
-
-    renderColumnHeaderMenu = () => {
-        const { classes } = this.props;
-        const {
-            menuPosition: { mouseY, mouseX }
-        } = this.state;
-        return (
-            <ClickAwayListener onClickAway={this.handleMenuClose}>
-                <Menu
-                    keepMounted
-                    open={!!mouseY}
-                    onClose={this.handleMenuClose}
-                    anchorReference="anchorPosition"
-                    anchorPosition={mouseY !== null && mouseX !== null ? { top: mouseY, left: mouseX } : undefined}
-                    TransitionComponent={Fade}>
-                    <MenuItem className={clsx(classes.menuItem, classes.menuTitle)}>
-                        <Typography>Configure Columns</Typography>
-                    </MenuItem>
-                    <Divider />
-                    {this.renderMenuItems()}
-                </Menu>
-            </ClickAwayListener>
-        );
-    };
-
-    renderMenu = () => {
-        const { menuTarget } = this.state;
-        switch (menuTarget) {
-            case COLUMN_HEADER_MENU_TARGET: {
-                return this.renderColumnHeaderMenu();
-            }
-            default:
-                return null;
         }
     };
 
@@ -575,7 +503,7 @@ export class DataTable extends Component {
     render() {
         const { classes, tableHeight, rowHeight, columns, rows, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
-        const { order, orderBy, visibilities, editor, selected, menuTarget } = this.state;
+        const { order, orderBy, visibilities, editor, selected, menuTarget, menuPosition } = this.state;
         const { editingColumn } = editor;
         const preparedColumns = getPreparedColumns(columns, visibilities);
         const filteredRows = this.getFilteredAndSortedRows(rows, preparedColumns);
@@ -663,7 +591,14 @@ export class DataTable extends Component {
                             ref={this.onSetEditorRef}
                         />
                     </div>
-                    {!!menuTarget && this.renderMenu()}
+                    <DataTableContextMenu
+                        open={!!menuTarget}
+                        type={menuTarget}
+                        menuPosition={menuPosition}
+                        visibilities={visibilities}
+                        onVisibilitiesChanged={this.handleColumnVisibilityChanged}
+                        onClose={this.handleMenuClose}
+                    />
                 </div>
             </>
         );

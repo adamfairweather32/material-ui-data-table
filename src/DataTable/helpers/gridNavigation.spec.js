@@ -423,10 +423,35 @@ describe('moveHorizontal and moveVertical', () => {
             { field: 'lastName' }
         ];
         moveVertical('down', `footableid-${ID_FIELD_PREFIX}-1-rank`, getGridNavigationMap('footableid', rows, columns));
-        expect(helpersModule.focus).to.have.been.callCount(0);
+        expect(helpersModule.focus).to.have.been.callCount(1);
+        expect(helpersModule.focus).to.have.been.calledWith(`footableid-${ID_FIELD_PREFIX}-1-rank`);
+    });
 
+    it('should not move down if combo is being edited', () => {
+        helpersModule.cellIsEditing = sinon.fake(() => true);
+        helpersModule.focus = sinon.fake(() => {});
+        const rows = [
+            {
+                id: 1,
+                rank: 'General',
+                firstName: 'Bob',
+                lastName: 'Jones'
+            },
+            {
+                id: 2,
+                rank: 'Sergeant',
+                firstName: 'James',
+                lastName: 'Brooks'
+            }
+        ];
+        const columns = [
+            { field: 'rank', rich: { autoComplete: { options: ['foo'] } } },
+            { field: 'firstName' },
+            { field: 'lastName' }
+        ];
         moveVertical('up', `footableid-${ID_FIELD_PREFIX}-2-rank`, getGridNavigationMap('footableid', rows, columns));
-        expect(helpersModule.focus).to.have.been.callCount(0);
+        expect(helpersModule.focus).to.have.been.callCount(1);
+        expect(helpersModule.focus).to.have.been.calledWith(`footableid-${ID_FIELD_PREFIX}-2-rank`);
     });
 });
 

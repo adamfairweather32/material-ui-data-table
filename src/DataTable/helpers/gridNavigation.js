@@ -160,8 +160,10 @@ const move = (
     const currentCell = idToPositionMap[rowIdentifier][columnIdentifier];
     if (currentCell) {
         if (comboIsBeingEdited(currentId, currentCell.type)) {
+            console.log('combo edited');
             return;
         }
+        console.log('In here');
         const { rowIndex, columnIndex } = getNewPosition(currentCell, direction);
 
         const rowCount = Object.keys(idToPositionMap).length;
