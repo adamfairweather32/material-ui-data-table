@@ -24,13 +24,11 @@ const styles = () => ({
     },
     tableRowOdd: {
         backgroundColor: '#EBEAF6'
-    },
-    tableRowEven: {
-        backgroundColor: '#fcfcfc'
     }
 });
 
 const DataTableRow = ({
+    alternate = false,
     classes,
     tableId,
     columns,
@@ -109,7 +107,10 @@ const DataTableRow = ({
             aria-checked={selected}
             selected={selected}
             style={style}
-            className={clsx(classes.tableRow, rowIndex % 2 === 0 ? classes.tableRowOdd : classes.tableRowEven)}>
+            className={clsx(
+                classes.tableRow,
+                rowIndex % 2 === 0 && alternate ? classes.tableRowOdd : classes.tableRow
+            )}>
             {columns.map((column, index) => renderCell(column, index))}
         </TableRow>
     );

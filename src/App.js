@@ -208,6 +208,8 @@ const App = ({ classes }) => {
     // TODO: get context menu working
     // TODO: get blinkers working
     // TODO: should render 1 extra row bigger than visible table area
+    // TODO: implement editors
+    // TODO: change hover colour to a stronger blue
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
