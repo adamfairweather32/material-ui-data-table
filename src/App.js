@@ -206,7 +206,6 @@ const App = ({ classes }) => {
     // TODO: remove checkboxes and add row headers
     // TODO: should render 1 extra row bigger than visible table area
     // TODO: implement editors
-    // TODO: move context menu into it's own component
     // TODO: stop focus moving out of bounds on left when we get to checkbox
 
     // NICE-TO-HAVE
