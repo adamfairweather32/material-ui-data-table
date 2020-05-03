@@ -446,6 +446,7 @@ export class DataTable extends Component {
             }
         }
         this.activateCell(event.target.id);
+        // this.showEditor(this.activeId.current);
         event.preventDefault();
     };
 
