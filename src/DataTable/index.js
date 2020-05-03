@@ -660,21 +660,6 @@ export class DataTable extends Component {
                             canDelete={canDelete}
                         />
                     )}
-                    <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
-                        <DataTableEditor
-                            id={EDITOR_INPUT_ID}
-                            value={value}
-                            row={row}
-                            error={null} // TODO:
-                            warning={null} // TODO:
-                            column={editingColumn}
-                            onCommit={this.handleCommit}
-                            onCancel={this.handleCancel}
-                            onCellChange={this.handleCellChange}
-                            onBlur={this.handleEditorBlur}
-                            ref={this.onSetEditorRef}
-                        />
-                    </div>
                     <DataTableContextMenu
                         open={!!menuTarget}
                         type={menuTarget}
@@ -682,6 +667,21 @@ export class DataTable extends Component {
                         visibilities={visibilities}
                         onVisibilitiesChanged={this.handleColumnVisibilityChanged}
                         onClose={this.handleMenuClose}
+                    />
+                </div>
+                <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
+                    <DataTableEditor
+                        id={EDITOR_INPUT_ID}
+                        value={value}
+                        row={row}
+                        error={null} // TODO:
+                        warning={null} // TODO:
+                        column={editingColumn}
+                        onCommit={this.handleCommit}
+                        onCancel={this.handleCancel}
+                        onCellChange={this.handleCellChange}
+                        onBlur={this.handleEditorBlur}
+                        ref={this.onSetEditorRef}
                     />
                 </div>
             </>
