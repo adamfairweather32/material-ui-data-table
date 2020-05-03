@@ -10,7 +10,7 @@ import {
 } from '../constants';
 import { getColumnType, createCellId, getDuplicates, cellIsEditing, focus } from './helpers';
 
-const getRowAndColumnIdentifiers = id => {
+export const getRowAndColumnIdentifiers = id => {
     if (!id) {
         throw Error('id is empty!');
     }
@@ -37,6 +37,13 @@ export const getColumn = (id, columns) => {
         throw Error(`column ${columnIdentifier} could not be found`);
     }
     return column;
+};
+
+export const getRow = (id, gridNavigationMap, rows) => {
+    const { idToPositionMap } = gridNavigationMap || {};
+    const { rowIdentifier } = (id && getRowAndColumnIdentifiers(id)) || {};
+    const { rowIndex } = (id && idToPositionMap[rowIdentifier]) || {};
+    return rows[rowIndex];
 };
 
 export const isEditable = (id, columns) => {
@@ -86,6 +93,7 @@ const getPositionsForId = (rowIndex, keys) =>
         const { key, columnIndex, type } = cur;
         return {
             ...acc,
+            rowIndex,
             [key]: {
                 columnIndex,
                 rowIndex,
@@ -160,10 +168,8 @@ const move = (
     const currentCell = idToPositionMap[rowIdentifier][columnIdentifier];
     if (currentCell) {
         if (comboIsBeingEdited(currentId, currentCell.type)) {
-            console.log('combo edited');
             return;
         }
-        console.log('In here');
         const { rowIndex, columnIndex } = getNewPosition(currentCell, direction);
 
         const rowCount = Object.keys(idToPositionMap).length;

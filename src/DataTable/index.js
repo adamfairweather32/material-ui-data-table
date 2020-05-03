@@ -16,13 +16,19 @@ import DataTableBottomPanel from './components/DataTableBottomPanel';
 import DataTableContextMenu from './components/DataTableContextMenu';
 import { getPreparedColumns, filterRow, clearBlinkers } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
-import { isEditable, getColumn, getGridNavigationMap, moveVertical, moveHorizontal } from './helpers/gridNavigation';
+import {
+    isEditable,
+    getColumn,
+    getGridNavigationMap,
+    moveVertical,
+    moveHorizontal,
+    getRow
+} from './helpers/gridNavigation';
 import {
     LEFT,
     RIGHT,
     UP,
     DOWN,
-    ENTER,
     UP_DIR,
     RIGHT_DIR,
     DOWN_DIR,
@@ -77,6 +83,7 @@ export class DataTable extends Component {
             .toString()
             .replace(/-/g, '');
         this.state = {
+            draftValue: null,
             menuPosition: MENU_POSITION_INITIAL_STATE,
             menuTarget: null,
             selected: [],
@@ -227,17 +234,22 @@ export class DataTable extends Component {
         }
     };
 
-    showEditor = id => {
+    // TODO: if editor shown via typing then overwrite value with typed value
+    // TODO: if editor shown via double click then clear value altogether
+    showEditor = (id, clearOnActivation) => {
         const focusedElement = document.getElementById(id);
         if (!focusedElement) {
             console.warn(`element with id: ${id} could not be found`);
             return;
         }
-        const { columns } = this.props;
+        const { columns, rows } = this.props;
         if (!isEditable(id, columns)) {
             return;
         }
+        const column = getColumn(this.activeId.current, columns);
+        const row = getRow(this.activeId.current, this.gridNavigationMap, rows);
         this.setState(prevState => ({
+            draftValue: clearOnActivation ? { value: '', row, column: column.field } : prevState.draftValue,
             editor: {
                 ...prevState.editor,
                 editingColumn: getColumn(id, columns),
@@ -245,6 +257,46 @@ export class DataTable extends Component {
                 editing: [id]
             }
         }));
+    };
+
+    moveDown = () => {
+        const { rowHeight } = this.props;
+        const {
+            scroll: { top }
+        } = this.state;
+        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
+        moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
+            activateCell: this.activateCell,
+            deactivateCell: this.deactivateCell,
+            scroll: () => tableContainer.scroll({ top: top + rowHeight })
+        });
+    };
+
+    moveUp = () => {
+        const { rowHeight } = this.props;
+        const {
+            scroll: { top }
+        } = this.state;
+        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
+        moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
+            deactivateCell: this.deactivateCell,
+            activateCell: this.activateCell,
+            scroll: () => tableContainer.scroll({ top: top - rowHeight })
+        });
+    };
+
+    moveLeft = () => {
+        moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
+            deactivateCell: this.deactivateCell,
+            activateCell: this.activateCell
+        });
+    };
+
+    moveRight = () => {
+        moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
+            deactivateCell: this.deactivateCell,
+            activateCell: this.activateCell
+        });
     };
 
     isIndeterminate = () => {
@@ -257,6 +309,17 @@ export class DataTable extends Component {
         const { selected } = this.state;
         const { rows } = this.props;
         return selected.length === rows.length;
+    };
+
+    getOriginalOrDraft = row => {
+        const { draftValue } = this.state;
+        if (draftValue && !_.isEmpty(draftValue) && row.id === draftValue.row.id) {
+            return {
+                ...row,
+                [draftValue.column]: draftValue.value
+            };
+        }
+        return row;
     };
 
     onSetEditorRef = ref => {
@@ -311,47 +374,28 @@ export class DataTable extends Component {
         }));
     };
 
-    handleCellDoubleClick = id => this.showEditor(id);
+    handleCellDoubleClick = id => this.showEditor(id, true);
 
     handleCellKeyDown = (event, id) => {
         if (event.ctrlKey || event.shiftKey) {
             return;
         }
-        const { rowHeight } = this.props;
-        const {
-            scroll: { top }
-        } = this.state;
-        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
         switch (event.keyCode) {
             case UP:
-                moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
-                    activateCell: this.activateCell,
-                    scroll: () => tableContainer.scroll({ top: top - rowHeight })
-                });
+                this.moveUp();
                 break;
             case RIGHT:
-                moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
-                    activateCell: this.activateCell
-                });
+                this.moveRight();
                 break;
             case DOWN:
-                moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
-                    activateCell: this.activateCell,
-                    deactivateCell: this.deactivateCell,
-                    scroll: () => tableContainer.scroll({ top: top + rowHeight })
-                });
+                this.moveDown();
                 event.preventDefault();
                 break;
             case LEFT:
-                moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
-                    deactivateCell: this.deactivateCell,
-                    activateCell: this.activateCell
-                });
+                this.moveLeft();
                 break;
             default: {
-                this.showEditor(id);
+                this.showEditor(id, true);
             }
         }
         event.preventDefault();
@@ -364,6 +408,34 @@ export class DataTable extends Component {
                 ...EDITOR_INITIAL_STATE
             }
         }));
+    };
+
+    handleCellChange = (value, row, column, commit = false) => {
+        const { onEdit } = this.props;
+        if (commit) {
+            onEdit(value, row, column);
+            this.setState({ draftValue: null });
+        } else {
+            this.setState({ draftValue: { value, row, column } });
+        }
+    };
+
+    handleCancel = () => {
+        this.setState({ draftValue: null });
+        this.handleEditorBlur();
+    };
+
+    handleCommit = keyed => {
+        const { onEdit } = this.props;
+        const { draftValue } = this.state;
+        if (draftValue) {
+            const { value, row, column } = draftValue;
+            onEdit(value, row, column);
+            this.setState({ draftValue: null });
+            if (keyed) {
+                this.moveDown();
+            }
+        }
     };
 
     handleCellMouseDown = event => {
@@ -519,6 +591,10 @@ export class DataTable extends Component {
         const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
         const checked = this.isChecked();
         const indeterminate = this.isIndeterminate();
+        const row = getRow(this.activeId.current, this.gridNavigationMap, rows);
+        const { field: activeField } = editingColumn || {};
+        const draftedRow = this.getOriginalOrDraft(row);
+        const value = draftedRow && draftedRow[activeField];
 
         const edtiorContainerStyle = {
             zIndex: editor.active ? 1 : -1,
@@ -586,7 +662,14 @@ export class DataTable extends Component {
                     <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
                         <DataTableEditor
                             id={EDITOR_INPUT_ID}
+                            value={value}
+                            row={row}
+                            error={null} // TODO:
+                            warning={null} // TODO:
                             column={editingColumn}
+                            onCommit={this.handleCommit}
+                            onCancel={this.handleCancel}
+                            onCellChange={this.handleCellChange}
                             onBlur={this.handleEditorBlur}
                             ref={this.onSetEditorRef}
                         />

@@ -8,6 +8,7 @@ import { COMBO_TYPE, DATE_TYPE } from '../constants';
 
 const DataTableEditor = ({
     id,
+    blank,
     value,
     row,
     column,
@@ -20,6 +21,9 @@ const DataTableEditor = ({
     onBlur
 }) => {
     const type = column && getColumnType(column);
+    if (!type) {
+        return null;
+    }
     switch (type) {
         case COMBO_TYPE: {
             return (
