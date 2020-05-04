@@ -8,12 +8,13 @@ import { COMBO_TYPE, DATE_TYPE } from '../constants';
 
 const DataTableEditor = ({
     id,
-    blank,
     value,
     row,
     column,
     error,
     warning,
+    onActivateEditor,
+    onDeactivateEditor,
     onCellChange,
     onCommit,
     onCancel,
@@ -21,6 +22,7 @@ const DataTableEditor = ({
     onBlur
 }) => {
     const type = column && getColumnType(column);
+    console.log('type = ', type);
     if (!type) {
         return null;
     }
@@ -72,6 +74,8 @@ const DataTableEditor = ({
                     onCommit={onCommit}
                     onCancel={onCancel}
                     onBlur={onBlur}
+                    onActivateEditor={onActivateEditor}
+                    onDeactivateEditor={onDeactivateEditor}
                     ref={inputRef}
                 />
             );

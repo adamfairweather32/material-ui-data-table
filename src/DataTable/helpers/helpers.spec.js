@@ -16,6 +16,7 @@ import {
 } from './helpers';
 import { NUMERIC_TYPE, CURRENCY_TYPE } from '../constants';
 
+// TODO: add test for selector
 describe('getPreparedColumns', () => {
     it('should filter out columns that are hidden', () => {
         const columns = [
@@ -27,7 +28,7 @@ describe('getPreparedColumns', () => {
                 field: 'bar'
             }
         ];
-        expect(getPreparedColumns(columns, null, false)).to.deep.equal([{ field: 'bar', index: 0 }]);
+        expect(getPreparedColumns(columns, null, { validate: false })).to.deep.equal([{ field: 'bar', index: 0 }]);
     });
     it('should filter out columns that are included in visibility list and set to not visible', () => {
         const columns = [
@@ -39,7 +40,9 @@ describe('getPreparedColumns', () => {
             }
         ];
         const visibilities = [{ field: 'foo', headerName: 'Foo Name', visible: false }];
-        expect(getPreparedColumns(columns, visibilities, false)).to.deep.equal([{ field: 'bar', index: 0 }]);
+        expect(getPreparedColumns(columns, visibilities, { validate: false })).to.deep.equal([
+            { field: 'bar', index: 0 }
+        ]);
     });
     it('should prepare basic column collection', () => {
         const columns = [
@@ -50,7 +53,7 @@ describe('getPreparedColumns', () => {
                 field: 'bar'
             }
         ];
-        expect(getPreparedColumns(columns, null, false)).to.deep.equal([
+        expect(getPreparedColumns(columns, null, { validate: false })).to.deep.equal([
             { field: 'foo', index: 0 },
             { field: 'bar', index: 1 }
         ]);
@@ -69,7 +72,7 @@ describe('getPreparedColumns', () => {
                 }
             }
         ];
-        const prepared = getPreparedColumns(columns, null, false)[0];
+        const prepared = getPreparedColumns(columns, null, { validate: false })[0];
         expect(prepared.rich.autoComplete.options.bar).to.deep.equal({
             label: 'Bar Label',
             value: 'bar'
@@ -116,7 +119,7 @@ describe('getReadonlyDisplayValue', () => {
                 }
             }
         };
-        const preparedColumns = getPreparedColumns([column], null, false);
+        const preparedColumns = getPreparedColumns([column], null, { validate: false });
         expect(getReadonlyDisplayValue('foo', preparedColumns[0])).to.equal('foo display value');
     });
     it('should return original value if no matching autocomplete option', () => {

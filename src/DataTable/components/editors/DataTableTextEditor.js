@@ -134,8 +134,9 @@ class DataTableTextEditor extends Component {
     };
 
     handleKeyDown = e => {
+        console.log('DataTableTextEditor key down');
         const { editing } = this.state;
-        const { column, row, value, onCellChange } = this.props;
+        const { column, row, value, onCellChange, onActivateEditor, onDeactivateEditor } = this.props;
         const {
             rich: { editable = false },
             clearable = false
@@ -147,9 +148,11 @@ class DataTableTextEditor extends Component {
         if (e.keyCode === ENTER || e.keyCode === DOWN) {
             this.commitChange(true);
             e.preventDefault();
+            onDeactivateEditor();
         }
         if (e.keyCode === ESC) {
             this.cancelChange();
+            onDeactivateEditor();
         }
         if (!editing && clearable && value && e.keyCode === DELETE) {
             onCellChange('', row, column.field, true);
@@ -157,10 +160,12 @@ class DataTableTextEditor extends Component {
         if (!editing && e.keyCode !== DELETE && isValidChar(translateKeyCodeToChar(e.keyCode), this.getType())) {
             this.setCaretPositionToEnd();
             this.enterEditMode();
+            onActivateEditor();
         }
     };
 
     handleFocus = () => {
+        console.log('DataTableTextEditor focus');
         const { value } = this.props;
         if (value) {
             removeTextSelection();

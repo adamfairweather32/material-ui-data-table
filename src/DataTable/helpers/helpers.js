@@ -13,7 +13,8 @@ import {
     BLINK_DIRECTION_POSITIVE,
     BLINK_DIRECTION_NEGATIVE,
     NUMERIC_TYPE,
-    RESERVED_COLUMNS
+    RESERVED_COLUMNS,
+    SELECTOR
 } from '../constants';
 
 const enrich = column => {
@@ -64,16 +65,19 @@ export const validateColumns = (columns, reservedColumns = []) => {
     }
 };
 
-export const getPreparedColumns = (columns, visibilities = [], validate = true) => {
+export const getPreparedColumns = (columns, visibilities = [], { editable = false, validate = true }) => {
     if (validate) {
         validateColumns(columns, RESERVED_COLUMNS);
     }
     const hiddenColumns = (visibilities || []).filter(c => !c.visible).map(c => c.field);
-    return columns
+    const addSelector = editable && !columns.map(c => c.field).includes(SELECTOR);
+
+    return [addSelector ? { field: SELECTOR } : null, ...columns]
         .filter(c => !c.hidden && !hiddenColumns.includes(c.field))
         .map((column, index) => {
             return { ...enrich(column), index };
-        });
+        })
+        .filter(f => f);
 };
 
 export const getReadonlyDisplayValue = (value, column) => {
