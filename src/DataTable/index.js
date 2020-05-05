@@ -25,18 +25,7 @@ import {
     moveHorizontal,
     getRow
 } from './helpers/gridNavigation';
-import {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-    UP_DIR,
-    RIGHT_DIR,
-    DOWN_DIR,
-    LEFT_DIR,
-    SELECTOR,
-    COLUMN_HEADER_MENU_TARGET
-} from './constants';
+import { LEFT, RIGHT, UP, DOWN, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR, COLUMN_HEADER_MENU_TARGET } from './constants';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -66,7 +55,7 @@ const styles = () => ({
 const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
-const EDITOR_INITIAL_STATE = { active: false, editing: null, position: null };
+const EDITOR_INITIAL_STATE = { active: false, editing: null, tracking: null, position: null };
 const MENU_POSITION_INITIAL_STATE = {
     mouseX: null,
     mouseY: null
@@ -126,7 +115,6 @@ export class DataTable extends Component {
         const {
             editor: { active, position }
         } = this.state;
-        // this.applyEditorVisibilityAndPositioning(editing);
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.assignEditorMouseWheelHandler();
@@ -222,6 +210,7 @@ export class DataTable extends Component {
         }
     };
 
+    // TODO: can we just activate the cell in the render or just track which cell is active by the editor
     activateCell = id => {
         this.activeId.current = id;
         const element = document.getElementById(id);
@@ -245,6 +234,7 @@ export class DataTable extends Component {
             editor: {
                 ...prevState.editor,
                 active: false,
+                tracking: id,
                 position: this.getEditorPosition(id)
             }
         }));
@@ -471,8 +461,9 @@ export class DataTable extends Component {
                 previousElement.classList.remove(SELECTED_CLASS_NAME);
             }
         }
+        // TODO: can we just activate the cell in the render
         this.activateCell(event.target.id);
-        if (this.editorRef) {
+        if (this.editorRef.current) {
             this.editorRef.current.blur();
         }
         this.positionEditor(event.target.id);
