@@ -201,10 +201,6 @@ const App = ({ classes }) => {
 
     // HIGH
 
-    // TODO: when the user changes a value and this triggers the rows collection to be fed
-    // back into the component then somehow we need to update the filtered rows state when it's fed back in -> just initialise
-    // rows everytime in render
-
     // TODO: scrolling needs to re-enable previous focused cell
     // TODO: cannot click away from grid to search box - focus always stolen
     // TODO: grid blows up if you search, click in the grid then click back to search and type
