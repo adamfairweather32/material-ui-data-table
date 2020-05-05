@@ -177,7 +177,6 @@ const move = (
             it => it !== 'visible' && it !== 'rowIndex'
         ).length;
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
-            console.log('columnIndex, columnCount', columnIndex, columnCount, idToPositionMap);
             const newId = positionToIdMap[rowIndex][columnIndex];
             const { rowIdentifier: newRowIdentifier } = getRowAndColumnIdentifiers(newId);
             if (deactivateCell) {
