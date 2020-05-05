@@ -385,14 +385,10 @@ export class DataTable extends Component {
     };
 
     handleResize = () => {
-        const { columns, rows } = this.props;
         const {
             scroll: { top },
-            visibilities,
             filteredRows
         } = this.state;
-        // const preparedColumns = getPreparedColumns(columns, visibilities);
-        // const filteredRows = this.getFilteredAndSortedRows(rows, preparedColumns);
         this.handleScroll(filteredRows)({ target: { scrollTop: top } });
     };
 
