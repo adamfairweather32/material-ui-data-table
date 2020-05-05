@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
+import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = () => ({
+    activeDiv: {
+        outline: '#3f51b5 !important',
+        outlineStyle: 'solid !important',
+        outlineOffset: '-2px',
+        outlineWidth: '2px !important'
+    },
     mainDiv: {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
@@ -12,8 +19,10 @@ const styles = () => ({
 
 class DataTableField extends Component {
     shouldComponentUpdate(nextProps) {
-        const { id, value } = this.props;
-        return nextProps.id === id && nextProps.value !== value;
+        const { id, value, tracking } = this.props;
+        const isTracking = tracking === id;
+        const changedTracking = isTracking !== (nextProps.tracking === nextProps.id);
+        return nextProps.id !== id || nextProps.value !== value || changedTracking;
     }
 
     handleDoubleClick = id => () => {
@@ -27,7 +36,7 @@ class DataTableField extends Component {
     };
 
     render = () => {
-        const { classes, id, value, rowHeight, onMouseDown, onBlur, column } = this.props;
+        const { classes, id, tracking, value, rowHeight, onMouseDown, column } = this.props;
         const { rich: { numeric = false } = {} } = column || { rich: {} };
         return (
             <div
@@ -36,10 +45,9 @@ class DataTableField extends Component {
                 role="textbox"
                 title={value}
                 onMouseDown={onMouseDown}
-                onBlur={onBlur}
                 onDoubleClick={this.handleDoubleClick(id)}
                 onKeyDown={this.handleKeyDown(id)}
-                className={classes.mainDiv}
+                className={tracking === id ? clsx(classes.mainDiv, classes.activeDiv) : classes.mainDiv}
                 style={{
                     textAlign: numeric ? 'right' : undefined,
                     maxHeight: rowHeight,

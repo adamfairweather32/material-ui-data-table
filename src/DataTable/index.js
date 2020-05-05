@@ -1,5 +1,4 @@
 import React, { Component, createRef } from 'react';
-import rdiff from 'recursive-diff';
 import _ from 'lodash';
 import sort from 'fast-sort';
 import fastFilter from 'fast-filter';
@@ -54,7 +53,6 @@ const styles = () => ({
 
 const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
-const SELECTED_CLASS_NAME = 'cell-selected';
 const EDITOR_INITIAL_STATE = { active: false, editing: null, tracking: null, position: null };
 const MENU_POSITION_INITIAL_STATE = {
     mouseX: null,
@@ -124,7 +122,7 @@ export class DataTable extends Component {
         }
 
         // TODO: can we just move these into the normal render?
-        this.activatePreviousCell();
+        // this.activatePreviousCell();
         if (active) {
             this.overlayEditorAndHideOverlayedElement();
         } else {
@@ -168,15 +166,6 @@ export class DataTable extends Component {
         return null;
     };
 
-    activatePreviousCell = () => {
-        if (this.activeId.current) {
-            const element = document.getElementById(this.activeId.current);
-            if (element) {
-                element.classList.add(SELECTED_CLASS_NAME);
-            }
-        }
-    };
-
     restoreOverlayedElement = id => {
         const activeCell = document.getElementById(id);
         if (activeCell) {
@@ -187,14 +176,10 @@ export class DataTable extends Component {
     restoreOverlayedElementByEditor = previouslyEditing => {
         console.log('restoreOverlayedElementByEditor', previouslyEditing);
         if (previouslyEditing) {
-            this.restoreOverlayedElement(previouslyEditing);
-        }
-    };
-
-    overlayElement = id => {
-        const activeCell = document.getElementById(id);
-        if (activeCell) {
-            activeCell.parentElement.style.setProperty('opacity', 0);
+            const activeCell = document.getElementById(previouslyEditing);
+            if (activeCell) {
+                activeCell.parentElement.style.setProperty('opacity', 1);
+            }
         }
     };
 
@@ -204,27 +189,10 @@ export class DataTable extends Component {
         } = this.state;
         console.log('overlayEditorAndHideOverlayedElement', editing);
         if (editing) {
-            this.overlayElement(editing);
-            // const editorInput = document.getElementById(EDITOR_INPUT_ID);
-            // editorInput.focus();
-        }
-    };
-
-    // TODO: can we just activate the cell in the render or just track which cell is active by the editor
-    activateCell = id => {
-        this.activeId.current = id;
-        const element = document.getElementById(id);
-        if (element) {
-            element.classList.add(SELECTED_CLASS_NAME);
-            // TODO: do not focus the element as editor should always secretly have focus
-            // element.focus();
-        }
-    };
-
-    deactivateCell = id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.classList.remove(SELECTED_CLASS_NAME);
+            const activeCell = document.getElementById(editing);
+            if (activeCell) {
+                activeCell.parentElement.style.setProperty('opacity', 0);
+            }
         }
     };
 
@@ -260,45 +228,45 @@ export class DataTable extends Component {
         this.activateOrDeactivateEditor(false);
     };
 
-    moveDown = () => {
-        const { rowHeight } = this.props;
-        const {
-            scroll: { top }
-        } = this.state;
-        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
-        moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
-            activateCell: this.activateCell,
-            deactivateCell: this.deactivateCell,
-            scroll: () => tableContainer.scroll({ top: top + rowHeight })
-        });
-    };
+    // moveDown = () => {
+    //     const { rowHeight } = this.props;
+    //     const {
+    //         scroll: { top }
+    //     } = this.state;
+    //     const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
+    //     moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
+    //         activateCell: this.activateCell,
+    //         deactivateCell: this.deactivateCell,
+    //         scroll: () => tableContainer.scroll({ top: top + rowHeight })
+    //     });
+    // };
 
-    moveUp = () => {
-        const { rowHeight } = this.props;
-        const {
-            scroll: { top }
-        } = this.state;
-        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
-        moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
-            deactivateCell: this.deactivateCell,
-            activateCell: this.activateCell,
-            scroll: () => tableContainer.scroll({ top: top - rowHeight })
-        });
-    };
+    // moveUp = () => {
+    //     const { rowHeight } = this.props;
+    //     const {
+    //         scroll: { top }
+    //     } = this.state;
+    //     const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
+    //     moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
+    //         deactivateCell: this.deactivateCell,
+    //         activateCell: this.activateCell,
+    //         scroll: () => tableContainer.scroll({ top: top - rowHeight })
+    //     });
+    // };
 
-    moveLeft = () => {
-        moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
-            deactivateCell: this.deactivateCell,
-            activateCell: this.activateCell
-        });
-    };
+    // moveLeft = () => {
+    //     moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
+    //         deactivateCell: this.deactivateCell,
+    //         activateCell: this.activateCell
+    //     });
+    // };
 
-    moveRight = () => {
-        moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
-            deactivateCell: this.deactivateCell,
-            activateCell: this.activateCell
-        });
-    };
+    // moveRight = () => {
+    //     moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
+    //         deactivateCell: this.deactivateCell,
+    //         activateCell: this.activateCell
+    //     });
+    // };
 
     isIndeterminate = () => {
         const { selected } = this.state;
@@ -377,7 +345,7 @@ export class DataTable extends Component {
     };
 
     handleCellDoubleClick = id => {
-        // this.showEditor(id, true);
+        console.log('handleCellDoubleClick');
         this.activateEditor(id);
     };
 
@@ -443,7 +411,7 @@ export class DataTable extends Component {
         this.handleEditorBlur();
     };
 
-    handleCommit = keyed => {
+    handleCommit = () => {
         const { onEdit } = this.props;
         const { draftValue } = this.state;
         if (draftValue) {
@@ -455,22 +423,12 @@ export class DataTable extends Component {
 
     handleCellMouseDown = event => {
         console.log('handleCellMouseDown');
-        if (this.activeId.current) {
-            const previousElement = document.getElementById(this.activeId.current);
-            if (previousElement) {
-                previousElement.classList.remove(SELECTED_CLASS_NAME);
-            }
-        }
-        // TODO: can we just activate the cell in the render
-        this.activateCell(event.target.id);
         if (this.editorRef.current) {
             this.editorRef.current.blur();
         }
         this.positionEditor(event.target.id);
         event.preventDefault();
     };
-
-    handleCellBlur = event => this.deactivateCell(event.target.id);
 
     handleSearchTextChanged = searchText => {
         this.setState({
@@ -545,7 +503,8 @@ export class DataTable extends Component {
         } = this.state;
         const {
             scroll: { end },
-            selected
+            selected,
+            editor: { tracking }
         } = this.state;
         const { rowHeight } = this.props;
         const items = [];
@@ -570,6 +529,7 @@ export class DataTable extends Component {
             items.push(
                 <DataTableRow
                     tableId={this.tableId.current}
+                    tracking={tracking}
                     key={row.id}
                     columns={preparedColumns}
                     columnElements={columnElements}
@@ -579,7 +539,6 @@ export class DataTable extends Component {
                     selected={selected.includes(row.id)}
                     tableWidth={tableWidth}
                     onMouseDown={this.handleCellMouseDown}
-                    // onBlur={this.handleCellBlur}
                     onCellDoubleClick={this.handleCellDoubleClick}
                     onCellKeyDown={this.handleCellKeyDown}
                     onSelectedChanged={this.handleSelectedChanged}
@@ -624,7 +583,7 @@ export class DataTable extends Component {
             menuPosition,
             preparedColumns
         } = this.state;
-        const { position } = editor;
+        const { position, tracking } = editor;
         const { showErrors = false, showFilter = false } = this.props;
         const canAdd = !!onAdd && !!onEdit;
         const canEdit = canAdd;
@@ -632,14 +591,15 @@ export class DataTable extends Component {
         const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
         const checked = this.isChecked();
         const indeterminate = this.isIndeterminate();
-        const row = getRow(this.activeId.current, this.gridNavigationMap, rows);
-        const column = this.activeId.current && getColumn(this.activeId.current, preparedColumns);
+        const row = getRow(tracking, this.gridNavigationMap, rows);
+        const column = tracking && getColumn(tracking, preparedColumns);
         const { field: activeField } = column || {};
         const draftedRow = this.getOriginalOrDraft(row);
         const value = draftedRow && draftedRow[activeField];
         // TODO: encapsulate this function so we don't have to pass params in
         const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);
         const edtiorContainerStyle = {
+            backgroundColor: 'red',
             zIndex: editor.active ? 1 : -1,
             opacity: editor.active ? 1 : 0,
             ...position
@@ -714,7 +674,7 @@ export class DataTable extends Component {
                 <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
                     <DataTableEditor
                         id={EDITOR_INPUT_ID}
-                        dataId={this.activeId.current}
+                        dataId={tracking}
                         value={value}
                         row={row}
                         error={null} // TODO:

@@ -90,12 +90,12 @@ class DataTableTextEditor extends Component {
         onCancel();
     };
 
-    commitChange = keyed => {
+    commitChange = () => {
         const { onCommit } = this.props;
         const { editing } = this.state;
         if (editing && this.canAcceptValue()) {
             this.exitEditMode();
-            onCommit(keyed);
+            onCommit();
         } else {
             this.cancelChange();
         }
@@ -146,7 +146,7 @@ class DataTableTextEditor extends Component {
             return;
         }
         if (e.keyCode === ENTER || e.keyCode === DOWN) {
-            this.commitChange(true);
+            this.commitChange();
             e.preventDefault();
             onDeactivateEditor();
         }
@@ -174,6 +174,7 @@ class DataTableTextEditor extends Component {
     };
 
     handleDoubleClick = () => {
+        console.log('DataTableTextEditor handleDoubleClick');
         const { editing } = this.state;
         if (!editing) {
             this.setState({ clearOnType: false });

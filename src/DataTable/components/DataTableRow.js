@@ -36,6 +36,7 @@ const DataTableRow = ({
     alternate = false,
     classes,
     tableId,
+    tracking,
     columns,
     columnElements,
     selected,
@@ -76,11 +77,11 @@ const DataTableRow = ({
                 {field !== SELECTOR ? (
                     <DataTableField
                         id={key}
+                        tracking={tracking}
                         column={column}
                         value={value}
                         rowHeight={rowHeight}
                         onMouseDown={onMouseDown}
-                        onBlur={onBlur}
                         onDoubleClick={onCellDoubleClick}
                         onKeyDown={onCellKeyDown}
                     />
