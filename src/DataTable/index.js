@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react';
+import rdiff from 'recursive-diff';
 import _ from 'lodash';
 import sort from 'fast-sort';
 import fastFilter from 'fast-filter';
@@ -65,7 +66,7 @@ const styles = () => ({
 const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
 const SELECTED_CLASS_NAME = 'cell-selected';
-const EDITOR_INITIAL_STATE = { active: false, editing: null, editingColumn: null, position: null };
+const EDITOR_INITIAL_STATE = { active: false, editing: null, position: null };
 const MENU_POSITION_INITIAL_STATE = {
     mouseX: null,
     mouseY: null
@@ -120,19 +121,26 @@ export class DataTable extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        console.log('componentDidUpdate');
         const {
             editor: { editing }
         } = prevState;
         const {
-            editor: { active }
+            editor: { active, position }
         } = this.state;
         // this.applyEditorVisibilityAndPositioning(editing);
-        this.focusEditor();
+        // TODO: cannot blindly focus editor everytime as it steals focus and causes issues
+
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
-        this.activatePreviousCell();
         this.assignEditorMouseWheelHandler();
 
+        if (position) {
+            this.focusEditor();
+        }
+
+        // TODO: can we just move these into the normal render?
+        this.activatePreviousCell();
         if (active) {
             this.overlayEditorAndHideOverlayedElement();
         } else {
@@ -166,25 +174,25 @@ export class DataTable extends Component {
         }
     };
 
-    applyEditorVisibilityAndPositioning = previouslyEditing => {
-        const { editor } = this.state;
-        const editorElement = document.getElementById(EDITOR_ID);
-        const editorPosition = this.getEditorPosition();
-        const showEditor = !!editor.active && !!editorPosition;
-        editorElement.style.zIndex = showEditor ? 1 : -1;
-        editorElement.style.opacity = showEditor ? 1 : 0;
-        if (editorPosition) {
-            editorElement.style.top = `${editorPosition.top}px`;
-            editorElement.style.left = `${editorPosition.left}px`;
-            editorElement.style.height = `${editorPosition.height}px`;
-            editorElement.style.width = `${editorPosition.width}px`;
-        }
-        if (editor.active) {
-            this.overlayEditorAndHideOverlayedElement();
-        } else {
-            this.restoreOverlayedElementByEditor(previouslyEditing);
-        }
-    };
+    // applyEditorVisibilityAndPositioning = previouslyEditing => {
+    //     const { editor } = this.state;
+    //     const editorElement = document.getElementById(EDITOR_ID);
+    //     const editorPosition = this.getEditorPosition();
+    //     const showEditor = !!editor.active && !!editorPosition;
+    //     editorElement.style.zIndex = showEditor ? 1 : -1;
+    //     editorElement.style.opacity = showEditor ? 1 : 0;
+    //     if (editorPosition) {
+    //         editorElement.style.top = `${editorPosition.top}px`;
+    //         editorElement.style.left = `${editorPosition.left}px`;
+    //         editorElement.style.height = `${editorPosition.height}px`;
+    //         editorElement.style.width = `${editorPosition.width}px`;
+    //     }
+    //     if (editor.active) {
+    //         this.overlayEditorAndHideOverlayedElement();
+    //     } else {
+    //         this.restoreOverlayedElementByEditor(previouslyEditing);
+    //     }
+    // };
 
     getEditorPosition = id => {
         const editingElement = document.getElementById(id);
@@ -427,43 +435,46 @@ export class DataTable extends Component {
 
     handleCellDoubleClick = id => {
         // this.showEditor(id, true);
+        this.activateEditor(id);
     };
 
-    // handleCellKeyDown = (event, id) => {
-    //     console.log('handleCellKeyDown ', id);
-    //     this.activateEditor(id);
-    //     // if (event.ctrlKey || event.shiftKey) {
-    //     //     return;
-    //     // }
-    //     // switch (event.keyCode) {
-    //     //     case UP:
-    //     //         this.moveUp();
-    //     //         break;
-    //     //     case RIGHT:
-    //     //         this.moveRight();
-    //     //         break;
-    //     //     case DOWN:
-    //     //         this.moveDown();
-    //     //         event.preventDefault();
-    //     //         break;
-    //     //     case LEFT:
-    //     //         this.moveLeft();
-    //     //         break;
-    //     //     default: {
-    //     //         // TODO: just focus editor and bring it to the front
-    //     //         // this.showEditor(id, true);
-    //     //     }
-    //     // }
-    //     // event.preventDefault();
-    // };
+    handleCellKeyDown = (event, id) => {
+        console.log('handleCellKeyDown ', id);
+        //
+        //     this.activateEditor(id);
+        //     // if (event.ctrlKey || event.shiftKey) {
+        //     //     return;
+        //     // }
+        //     // switch (event.keyCode) {
+        //     //     case UP:
+        //     //         this.moveUp();
+        //     //         break;
+        //     //     case RIGHT:
+        //     //         this.moveRight();
+        //     //         break;
+        //     //     case DOWN:
+        //     //         this.moveDown();
+        //     //         event.preventDefault();
+        //     //         break;
+        //     //     case LEFT:
+        //     //         this.moveLeft();
+        //     //         break;
+        //     //     default: {
+        //     //         // TODO: just focus editor and bring it to the front
+        //     //         // this.showEditor(id, true);
+        //     //     }
+        //     // }
+        //     // event.preventDefault();
+    };
 
     handleEditorBlur = () => {
-        // this.setState(prevState => ({
-        //     editor: {
-        //         ...prevState.editor,
-        //         ...EDITOR_INITIAL_STATE
-        //     }
-        // }));
+        console.log('blur editor');
+        this.setState(prevState => ({
+            editor: {
+                ...prevState.editor,
+                ...EDITOR_INITIAL_STATE
+            }
+        }));
     };
 
     handleActivateEditor = id => {
@@ -631,7 +642,7 @@ export class DataTable extends Component {
                     onMouseDown={this.handleCellMouseDown}
                     // onBlur={this.handleCellBlur}
                     onCellDoubleClick={this.handleCellDoubleClick}
-                    // onCellKeyDown={this.handleCellKeyDown}
+                    onCellKeyDown={this.handleCellKeyDown}
                     onSelectedChanged={this.handleSelectedChanged}
                 />
             );

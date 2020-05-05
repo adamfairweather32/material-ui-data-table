@@ -214,7 +214,6 @@ class DataTableTextEditor extends Component {
     };
 
     render() {
-        console.log('this.props =', this.props);
         const { value, column, error, warning, id, dataId, inputRef } = this.props;
         const { editing } = this.state;
         const {

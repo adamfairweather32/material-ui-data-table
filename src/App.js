@@ -200,13 +200,18 @@ const App = ({ classes }) => {
     ];
 
     // HIGH
+
+    // TODO: scrolling needs to re-enable previous focused cell
+    // TODO: cannot click away from grid to search box - focus always stolen
+    // TODO: grid blows up if you search, click in the grid then click back to search and type
+    // TODO: get an uncontrolled input console error when switching between search and grid after typing
+
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: remove checkboxes and add row headers
     // TODO: should render 1 extra row bigger than visible table area
     // TODO: stop focus moving out of bounds on left when we get to checkbox
-    // TODO: when we cancel change we need to re-focus cell after editor is removed
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
