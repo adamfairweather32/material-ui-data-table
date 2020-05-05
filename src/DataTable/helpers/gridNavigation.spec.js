@@ -56,14 +56,16 @@ describe('getGridNavigationMap', () => {
                     firstName: { columnIndex: 0, rowIndex: 0, type: 'text' },
                     lastName: { columnIndex: 1, rowIndex: 0, type: 'text' },
                     occupation: { columnIndex: 2, rowIndex: 0, type: 'combo' },
-                    visible: false
+                    visible: false,
+                    rowIndex: 0
                 },
                 '2': {
                     dateQualified: { columnIndex: 3, rowIndex: 1, type: 'date' },
                     firstName: { columnIndex: 0, rowIndex: 1, type: 'text' },
                     lastName: { columnIndex: 1, rowIndex: 1, type: 'text' },
                     occupation: { columnIndex: 2, rowIndex: 1, type: 'combo' },
-                    visible: false
+                    visible: false,
+                    rowIndex: 1
                 }
             },
             positionToIdMap: {
@@ -113,12 +115,14 @@ describe('getGridNavigationMap', () => {
                 '1': {
                     firstName: { columnIndex: 0, rowIndex: 0, type: 'text' },
                     lastName: { columnIndex: 1, rowIndex: 0, type: 'text' },
-                    visible: false
+                    visible: false,
+                    rowIndex: 0
                 },
                 '2': {
                     firstName: { columnIndex: 0, rowIndex: 1, type: 'text' },
                     lastName: { columnIndex: 1, rowIndex: 1, type: 'text' },
-                    visible: false
+                    visible: false,
+                    rowIndex: 1
                 }
             },
             positionToIdMap: {

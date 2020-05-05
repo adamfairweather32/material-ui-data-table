@@ -73,11 +73,10 @@ export const getPreparedColumns = (columns, visibilities = [], { editable = fals
     const addSelector = editable && !columns.map(c => c.field).includes(SELECTOR);
 
     return [addSelector ? { field: SELECTOR } : null, ...columns]
-        .filter(c => !c.hidden && !hiddenColumns.includes(c.field))
+        .filter(c => c && !c.hidden && !hiddenColumns.includes(c.field))
         .map((column, index) => {
             return { ...enrich(column), index };
-        })
-        .filter(f => f);
+        });
 };
 
 export const getReadonlyDisplayValue = (value, column) => {

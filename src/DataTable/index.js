@@ -129,8 +129,6 @@ export class DataTable extends Component {
             editor: { active, position }
         } = this.state;
         // this.applyEditorVisibilityAndPositioning(editing);
-        // TODO: cannot blindly focus editor everytime as it steals focus and causes issues
-
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.assignEditorMouseWheelHandler();
@@ -173,26 +171,6 @@ export class DataTable extends Component {
             editorElement.focus();
         }
     };
-
-    // applyEditorVisibilityAndPositioning = previouslyEditing => {
-    //     const { editor } = this.state;
-    //     const editorElement = document.getElementById(EDITOR_ID);
-    //     const editorPosition = this.getEditorPosition();
-    //     const showEditor = !!editor.active && !!editorPosition;
-    //     editorElement.style.zIndex = showEditor ? 1 : -1;
-    //     editorElement.style.opacity = showEditor ? 1 : 0;
-    //     if (editorPosition) {
-    //         editorElement.style.top = `${editorPosition.top}px`;
-    //         editorElement.style.left = `${editorPosition.left}px`;
-    //         editorElement.style.height = `${editorPosition.height}px`;
-    //         editorElement.style.width = `${editorPosition.width}px`;
-    //     }
-    //     if (editor.active) {
-    //         this.overlayEditorAndHideOverlayedElement();
-    //     } else {
-    //         this.restoreOverlayedElementByEditor(previouslyEditing);
-    //     }
-    // };
 
     getEditorPosition = id => {
         const editingElement = document.getElementById(id);
@@ -293,29 +271,6 @@ export class DataTable extends Component {
         console.log('deactivateEditor');
         this.activateOrDeactivateEditor(false);
     };
-
-    // showEditor = (id, clearOnActivation) => {
-    //     const focusedElement = document.getElementById(id);
-    //     if (!focusedElement) {
-    //         console.warn(`element with id: ${id} could not be found`);
-    //         return;
-    //     }
-    //     const { columns, rows } = this.props;
-    //     if (!isEditable(id, columns)) {
-    //         return;
-    //     }
-    //     const column = getColumn(this.activeId.current, columns);
-    //     const row = getRow(this.activeId.current, this.gridNavigationMap, rows);
-    //     this.setState(prevState => ({
-    //         draftValue: clearOnActivation ? { value: '', row, column: column.field } : prevState.draftValue
-    //         // editor: {
-    //         //     ...prevState.editor,
-    //         //     editingColumn: getColumn(id, columns),
-    //         //     active: true,
-    //         //     editing: [id]
-    //         // }
-    //     }));
-    // };
 
     moveDown = () => {
         const { rowHeight } = this.props;
@@ -503,9 +458,6 @@ export class DataTable extends Component {
             const { value, row, column } = draftValue;
             onEdit(value, row, column);
             this.setState({ draftValue: null });
-            // if (keyed) {
-            //     this.moveDown();
-            // }
         }
     };
 

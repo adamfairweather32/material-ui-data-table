@@ -173,9 +173,11 @@ const move = (
         const { rowIndex, columnIndex } = getNewPosition(currentCell, direction);
 
         const rowCount = Object.keys(idToPositionMap).length;
-        const columnCount = Object.keys(Object.values(idToPositionMap)[0]).filter(it => it !== 'visible').length;
-
+        const columnCount = Object.keys(Object.values(idToPositionMap)[0]).filter(
+            it => it !== 'visible' && it !== 'rowIndex'
+        ).length;
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
+            console.log('columnIndex, columnCount', columnIndex, columnCount, idToPositionMap);
             const newId = positionToIdMap[rowIndex][columnIndex];
             const { rowIdentifier: newRowIdentifier } = getRowAndColumnIdentifiers(newId);
             if (deactivateCell) {
