@@ -134,9 +134,9 @@ class DataTableTextEditor extends Component {
     };
 
     handleKeyDown = e => {
-        console.log('DataTableTextEditor key down');
+        console.log('DataTableTextEditor handleKeyDown');
         const { editing } = this.state;
-        const { column, row, value, onCellChange, onActivateEditor, onDeactivateEditor } = this.props;
+        const { column, row, value, onCellChange, dataId, onActivateEditor, onDeactivateEditor } = this.props;
         const {
             rich: { editable = false },
             clearable = false
@@ -153,6 +153,7 @@ class DataTableTextEditor extends Component {
         if (e.keyCode === ESC) {
             this.cancelChange();
             onDeactivateEditor();
+            return;
         }
         if (!editing && clearable && value && e.keyCode === DELETE) {
             onCellChange('', row, column.field, true);
@@ -160,12 +161,12 @@ class DataTableTextEditor extends Component {
         if (!editing && e.keyCode !== DELETE && isValidChar(translateKeyCodeToChar(e.keyCode), this.getType())) {
             this.setCaretPositionToEnd();
             this.enterEditMode();
-            onActivateEditor();
         }
+        onActivateEditor(dataId);
     };
 
     handleFocus = () => {
-        console.log('DataTableTextEditor focus');
+        console.log('DataTableTextEditor handleFocus');
         const { value } = this.props;
         if (value) {
             removeTextSelection();
@@ -213,7 +214,8 @@ class DataTableTextEditor extends Component {
     };
 
     render() {
-        const { value, column, error, warning, id, inputRef } = this.props;
+        console.log('this.props =', this.props);
+        const { value, column, error, warning, id, dataId, inputRef } = this.props;
         const { editing } = this.state;
         const {
             rich: { numeric = false, editable = false, currency, blink = false }
@@ -249,6 +251,7 @@ class DataTableTextEditor extends Component {
         return (
             <StyledOutlinedInput
                 id={id}
+                data-id={dataId}
                 error={!!error}
                 className={blinkColour ? `${BLINK_CSS_PREFIX}-${blinkColour}` : undefined}
                 value={formattedValue}

@@ -8,6 +8,7 @@ import { COMBO_TYPE, DATE_TYPE } from '../constants';
 
 const DataTableEditor = ({
     id,
+    dataId,
     value,
     row,
     column,
@@ -22,7 +23,6 @@ const DataTableEditor = ({
     onBlur
 }) => {
     const type = column && getColumnType(column);
-    console.log('type = ', type);
     if (!type) {
         return null;
     }
@@ -31,6 +31,7 @@ const DataTableEditor = ({
             return (
                 <DataTableAutoCompleteEditor
                     id={id}
+                    dataId={dataId}
                     value={value}
                     row={row}
                     column={column}
@@ -48,6 +49,7 @@ const DataTableEditor = ({
             return (
                 <DataTableAutoDateEditor
                     id={id}
+                    dataId={dataId}
                     value={value}
                     row={row}
                     column={column}
@@ -65,6 +67,7 @@ const DataTableEditor = ({
             return (
                 <DataTableTextEditor
                     id={id}
+                    dataId={dataId}
                     value={value}
                     row={row}
                     column={column}

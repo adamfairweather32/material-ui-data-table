@@ -27,7 +27,6 @@ class DataTableField extends Component {
     };
 
     render = () => {
-        console.log('re-render');
         const { classes, id, value, rowHeight, onMouseDown, onBlur, column } = this.props;
         const { rich: { numeric = false } = {} } = column || { rich: {} };
         return (
