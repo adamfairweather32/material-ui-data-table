@@ -91,7 +91,6 @@ export class DataTable extends Component {
         const orderBy = null;
         const searchText = null;
         const preparedColumns = getPreparedColumns(columns, visibilities, { editable: !!onEdit });
-        const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);
         this.state = {
             draftValue: null,
             menuPosition: MENU_POSITION_INITIAL_STATE,
@@ -107,7 +106,6 @@ export class DataTable extends Component {
             },
             editor: EDITOR_INITIAL_STATE,
             visibilities,
-            filteredRows,
             preparedColumns
         };
         this.tableId.current = uuidv4()
@@ -342,8 +340,12 @@ export class DataTable extends Component {
     handleResize = () => {
         const {
             scroll: { top },
-            filteredRows
+            preparedColumns,
+            searchText,
+            order,
+            orderBy
         } = this.state;
+        const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);
         this.handleScroll(filteredRows)({ target: { scrollTop: top } });
     };
 
@@ -470,6 +472,9 @@ export class DataTable extends Component {
             }
         }
         this.activateCell(event.target.id);
+        if (this.editorRef) {
+            this.editorRef.current.blur();
+        }
         this.positionEditor(event.target.id);
         event.preventDefault();
     };
@@ -477,10 +482,8 @@ export class DataTable extends Component {
     handleCellBlur = event => this.deactivateCell(event.target.id);
 
     handleSearchTextChanged = searchText => {
-        const { preparedColumns, order, orderBy } = this.state;
         this.setState({
-            searchText,
-            filteredRows: this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy)
+            searchText
         });
     };
 
@@ -514,14 +517,11 @@ export class DataTable extends Component {
 
     handleRequestSort = (event, property) => {
         clearBlinkers();
-        const { order, orderBy, searchText, preparedColumns } = this.state;
+        const { order, orderBy } = this.state;
         const isDesc = orderBy === property && order === 'desc';
-        const newOrder = isDesc ? 'asc' : 'desc';
-        const newOrderBy = property;
         this.setState({
-            order: newOrder,
-            orderBy: newOrderBy,
-            filteredRows: this.getFilteredAndSortedRows(preparedColumns, searchText, newOrder, newOrderBy)
+            order: isDesc ? 'asc' : 'desc',
+            orderBy: property
         });
     };
 
@@ -628,9 +628,9 @@ export class DataTable extends Component {
             visibilities,
             editor,
             selected,
+            searchText,
             menuTarget,
             menuPosition,
-            filteredRows,
             preparedColumns
         } = this.state;
         const { position } = editor;
@@ -646,7 +646,8 @@ export class DataTable extends Component {
         const { field: activeField } = column || {};
         const draftedRow = this.getOriginalOrDraft(row);
         const value = draftedRow && draftedRow[activeField];
-
+        // TODO: encapsulate this function so we don't have to pass params in
+        const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);
         const edtiorContainerStyle = {
             zIndex: editor.active ? 1 : -1,
             opacity: editor.active ? 1 : 0,
