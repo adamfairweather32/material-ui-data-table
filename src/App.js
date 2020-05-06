@@ -203,7 +203,6 @@ const App = ({ classes }) => {
 
     // TODO: move editing control into main data table class
     // TODO: put back in navigation handlers
-    // TODO: make everything a pure component
 
     // TODO: need more unit tests around grid navigation once it's put back in
     // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)
