@@ -21,8 +21,9 @@ class DataTableField extends Component {
     shouldComponentUpdate(nextProps) {
         const { id, value, tracking } = this.props;
         const isTracking = tracking === id;
-        const changedTracking = isTracking !== (nextProps.tracking === nextProps.id);
-        return nextProps.id !== id || nextProps.value !== value || changedTracking;
+        const willBeTracking = nextProps.tracking === nextProps.id;
+        const isChangingTrackingState = isTracking !== willBeTracking;
+        return nextProps.id !== id || nextProps.value !== value || isChangingTrackingState;
     }
 
     handleDoubleClick = id => () => {

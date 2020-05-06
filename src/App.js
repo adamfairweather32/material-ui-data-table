@@ -201,6 +201,7 @@ const App = ({ classes }) => {
 
     // HIGH
 
+    // TODO: move editing control into main data table class
     // TODO: scrolling needs to re-enable previous focused cell
     // TODO: cannot click away from grid to search box - focus always stolen
     // TODO: grid blows up if you search, click in the grid then click back to search and type
