@@ -306,35 +306,6 @@ export class DataTable extends Component {
         this.activateEditor(id);
     };
 
-    handleCellKeyDown = (event, id) => {
-        console.log('handleCellKeyDown ', id);
-        //
-        //     this.activateEditor(id);
-        //     // if (event.ctrlKey || event.shiftKey) {
-        //     //     return;
-        //     // }
-        //     // switch (event.keyCode) {
-        //     //     case UP:
-        //     //         this.moveUp();
-        //     //         break;
-        //     //     case RIGHT:
-        //     //         this.moveRight();
-        //     //         break;
-        //     //     case DOWN:
-        //     //         this.moveDown();
-        //     //         event.preventDefault();
-        //     //         break;
-        //     //     case LEFT:
-        //     //         this.moveLeft();
-        //     //         break;
-        //     //     default: {
-        //     //         // TODO: just focus editor and bring it to the front
-        //     //         // this.showEditor(id, true);
-        //     //     }
-        //     // }
-        //     // event.preventDefault();
-    };
-
     handleEditorBlur = () => {
         console.log('handleEditorBlur');
         this.setState(prevState => ({
@@ -499,7 +470,6 @@ export class DataTable extends Component {
                     tableWidth={tableWidth}
                     onMouseDown={this.handleCellMouseDown}
                     onCellDoubleClick={this.handleCellDoubleClick}
-                    onCellKeyDown={this.handleCellKeyDown}
                     onSelectedChanged={this.handleSelectedChanged}
                 />
             );

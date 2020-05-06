@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 
+const MAIN_DIV_PADDING_PX = 5;
+const OFFSET_PX = 1;
+
 const styles = () => ({
     activeDiv: {
         outline: '#3f51b5 !important',
@@ -13,7 +16,7 @@ const styles = () => ({
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        padding: '5px'
+        padding: `${MAIN_DIV_PADDING_PX}px`
     }
 });
 
@@ -38,11 +41,6 @@ class DataTableField extends Component {
         onDoubleClick(id);
     };
 
-    handleKeyDown = id => event => {
-        const { onKeyDown } = this.props;
-        onKeyDown(event, id);
-    };
-
     render = () => {
         console.log('DataTableField render');
         const { classes, id, tracking, editing, value, rowHeight, onMouseDown, column } = this.props;
@@ -55,11 +53,11 @@ class DataTableField extends Component {
                 title={value}
                 onMouseDown={onMouseDown}
                 onDoubleClick={this.handleDoubleClick(id)}
-                onKeyDown={this.handleKeyDown(id)}
                 className={tracking === id ? clsx(classes.mainDiv, classes.activeDiv) : classes.mainDiv}
                 style={{
                     textAlign: numeric ? 'right' : undefined,
                     maxHeight: rowHeight,
+                    height: rowHeight - (MAIN_DIV_PADDING_PX * 2 + OFFSET_PX), // 1 = outline offset width
                     userSelect: 'none',
                     opacity: editing === id ? 0 : 1
                 }}>

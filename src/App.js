@@ -201,7 +201,7 @@ const App = ({ classes }) => {
 
     // HIGH
 
-    // TODO: move editing control into main data table class
+    // TODO: move editing control into main data table class - why do we need to do this?
     // TODO: put back in navigation handlers
 
     // TODO: need more unit tests around grid navigation once it's put back in

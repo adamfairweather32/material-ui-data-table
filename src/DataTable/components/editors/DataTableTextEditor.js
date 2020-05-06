@@ -20,7 +20,10 @@ import {
     WARNING_COLOUR,
     ERROR_COLOUR,
     ENTER,
-    DOWN
+    DOWN,
+    UP,
+    LEFT,
+    RIGHT
 } from '../../constants';
 
 class DataTableTextEditor extends Component {
@@ -136,7 +139,7 @@ class DataTableTextEditor extends Component {
     handleKeyDown = e => {
         console.log('DataTableTextEditor handleKeyDown');
         const { editing } = this.state;
-        const { column, row, value, onCellChange, dataId, onActivateEditor, onDeactivateEditor } = this.props;
+        const { column, row, value, dataId, onCellChange, onActivateEditor, onDeactivateEditor, onMove } = this.props;
         const {
             rich: { editable = false },
             clearable = false
@@ -145,10 +148,20 @@ class DataTableTextEditor extends Component {
         if (!editable) {
             return;
         }
+        if (e.keyCode === UP) {
+            onMove(RIGHT);
+        }
         if (e.keyCode === ENTER || e.keyCode === DOWN) {
             this.commitChange();
             e.preventDefault();
             onDeactivateEditor();
+            onMove(DOWN);
+        }
+        if (e.keyCode === LEFT) {
+            onMove(LEFT);
+        }
+        if (e.keyCode === RIGHT) {
+            onMove(RIGHT);
         }
         if (e.keyCode === ESC) {
             this.cancelChange();

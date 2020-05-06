@@ -46,7 +46,6 @@ const DataTableRow = ({
     rowIndex,
     tableWidth,
     onCellDoubleClick,
-    onCellKeyDown,
     onMouseDown,
     onSelectedChanged
 }) => {
@@ -84,7 +83,6 @@ const DataTableRow = ({
                         rowHeight={rowHeight}
                         onMouseDown={onMouseDown}
                         onDoubleClick={onCellDoubleClick}
-                        onKeyDown={onCellKeyDown}
                     />
                 ) : (
                     <Checkbox
