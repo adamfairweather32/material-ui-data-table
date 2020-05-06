@@ -202,8 +202,11 @@ const App = ({ classes }) => {
     // HIGH
 
     // TODO: move editing control into main data table class
-    // TODO: scrolling needs to re-enable previous focused cell
-    // TODO: cannot click away from grid to search box - focus always stolen
+    // TODO: put back in navigation handlers
+    // TODO: make everything a pure component
+
+    // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)
+    // TODO: if you click a cell then scroll, you get an uncontrolled input console error
     // TODO: grid blows up if you search, click in the grid then click back to search and type
     // TODO: get an uncontrolled input console error when switching between search and grid after typing
 

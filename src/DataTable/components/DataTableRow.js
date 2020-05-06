@@ -37,6 +37,7 @@ const DataTableRow = ({
     classes,
     tableId,
     tracking,
+    editing,
     columns,
     columnElements,
     selected,
@@ -44,7 +45,6 @@ const DataTableRow = ({
     rowHeight,
     rowIndex,
     tableWidth,
-    onBlur,
     onCellDoubleClick,
     onCellKeyDown,
     onMouseDown,
@@ -78,6 +78,7 @@ const DataTableRow = ({
                     <DataTableField
                         id={key}
                         tracking={tracking}
+                        editing={editing}
                         column={column}
                         value={value}
                         rowHeight={rowHeight}

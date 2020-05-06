@@ -19,11 +19,17 @@ const styles = () => ({
 
 class DataTableField extends Component {
     shouldComponentUpdate(nextProps) {
-        const { id, value, tracking } = this.props;
+        const { id, value, tracking, editing } = this.props;
+
         const isTracking = tracking === id;
         const willBeTracking = nextProps.tracking === nextProps.id;
         const isChangingTrackingState = isTracking !== willBeTracking;
-        return nextProps.id !== id || nextProps.value !== value || isChangingTrackingState;
+
+        const isEditing = editing === id;
+        const willBeEditing = nextProps.editing === nextProps.id;
+        const isChangingEditingState = isEditing !== willBeEditing;
+
+        return nextProps.id !== id || nextProps.value !== value || isChangingTrackingState || isChangingEditingState;
     }
 
     handleDoubleClick = id => () => {
@@ -37,7 +43,7 @@ class DataTableField extends Component {
     };
 
     render = () => {
-        const { classes, id, tracking, value, rowHeight, onMouseDown, column } = this.props;
+        const { classes, id, tracking, editing, value, rowHeight, onMouseDown, column } = this.props;
         const { rich: { numeric = false } = {} } = column || { rich: {} };
         return (
             <div
@@ -52,7 +58,8 @@ class DataTableField extends Component {
                 style={{
                     textAlign: numeric ? 'right' : undefined,
                     maxHeight: rowHeight,
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    opacity: editing === id ? 0 : 1
                 }}>
                 {value}
             </div>

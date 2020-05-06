@@ -105,13 +105,10 @@ export class DataTable extends Component {
         this.handleScroll(rows)({ target: { scrollTop: 0 } });
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate() {
         console.log('componentDidUpdate');
         const {
-            editor: { editing }
-        } = prevState;
-        const {
-            editor: { active, position }
+            editor: { position }
         } = this.state;
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
@@ -119,14 +116,6 @@ export class DataTable extends Component {
 
         if (position) {
             this.focusEditor();
-        }
-
-        // TODO: can we just move these into the normal render?
-        // this.activatePreviousCell();
-        if (active) {
-            this.overlayEditorAndHideOverlayedElement();
-        } else {
-            this.restoreOverlayedElementByEditor(editing);
         }
     }
 
@@ -173,7 +162,7 @@ export class DataTable extends Component {
         }
     };
 
-    restoreOverlayedElementByEditor = previouslyEditing => {
+    unhideEditedCell = previouslyEditing => {
         console.log('restoreOverlayedElementByEditor', previouslyEditing);
         if (previouslyEditing) {
             const activeCell = document.getElementById(previouslyEditing);
@@ -183,7 +172,7 @@ export class DataTable extends Component {
         }
     };
 
-    overlayEditorAndHideOverlayedElement = () => {
+    hideEditingCell = () => {
         const {
             editor: { editing }
         } = this.state;
@@ -504,7 +493,7 @@ export class DataTable extends Component {
         const {
             scroll: { end },
             selected,
-            editor: { tracking }
+            editor: { tracking, active }
         } = this.state;
         const { rowHeight } = this.props;
         const items = [];
@@ -530,6 +519,7 @@ export class DataTable extends Component {
                 <DataTableRow
                     tableId={this.tableId.current}
                     tracking={tracking}
+                    editing={active ? tracking : null}
                     key={row.id}
                     columns={preparedColumns}
                     columnElements={columnElements}
