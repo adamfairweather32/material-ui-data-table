@@ -21,16 +21,17 @@ class DataTableField extends Component {
     shouldComponentUpdate(nextProps) {
         const { id, value, tracking, editing } = this.props;
 
-        const isTracking = tracking === id;
-        const willBeTracking = nextProps.tracking === nextProps.id;
-        const isChangingTrackingState = isTracking !== willBeTracking;
-
-        const isEditing = editing === id;
-        const willBeEditing = nextProps.editing === nextProps.id;
-        const isChangingEditingState = isEditing !== willBeEditing;
+        const isChangingTrackingState = this.isChangingState({ id, tracking }, nextProps, 'tracking', 'id');
+        const isChangingEditingState = this.isChangingState({ id, editing }, nextProps, 'editing', 'id');
 
         return nextProps.id !== id || nextProps.value !== value || isChangingTrackingState || isChangingEditingState;
     }
+
+    isChangingState = (state, newState, field, comparatorField) => {
+        const currentState = state[field] === state[comparatorField];
+        const nextState = newState[field] === state[comparatorField];
+        return currentState !== nextState;
+    };
 
     handleDoubleClick = id => () => {
         const { onDoubleClick } = this.props;
@@ -43,6 +44,7 @@ class DataTableField extends Component {
     };
 
     render = () => {
+        console.log('DataTableField render');
         const { classes, id, tracking, editing, value, rowHeight, onMouseDown, column } = this.props;
         const { rich: { numeric = false } = {} } = column || { rich: {} };
         return (

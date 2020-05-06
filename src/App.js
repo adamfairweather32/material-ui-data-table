@@ -205,6 +205,7 @@ const App = ({ classes }) => {
     // TODO: put back in navigation handlers
     // TODO: make everything a pure component
 
+    // TODO: need more unit tests around grid navigation once it's put back in
     // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)
     // TODO: if you click a cell then scroll, you get an uncontrolled input console error
     // TODO: grid blows up if you search, click in the grid then click back to search and type

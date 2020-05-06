@@ -53,7 +53,6 @@ const styles = () => ({
 
 const EDITOR_ID = 'editor';
 const EDITOR_INPUT_ID = 'editor-input';
-const EDITOR_INITIAL_STATE = { active: false, editing: null, tracking: null, position: null };
 const MENU_POSITION_INITIAL_STATE = {
     mouseX: null,
     mouseY: null
@@ -63,7 +62,6 @@ export class DataTable extends Component {
     constructor(props) {
         super(props);
         const { rowHeight, tableHeight, columns, onEdit } = this.props;
-        // this.preparedColumns = [];
         this.editorRef = createRef();
         this.activeId = createRef();
         this.tableId = createRef();
@@ -91,7 +89,7 @@ export class DataTable extends Component {
                 index: 0,
                 end: Math.ceil((tableHeight * 2) / rowHeight)
             },
-            editor: EDITOR_INITIAL_STATE,
+            editor: { active: false, editing: null, tracking: null, position: null },
             visibilities,
             preparedColumns
         };
@@ -153,36 +151,6 @@ export class DataTable extends Component {
         }
 
         return null;
-    };
-
-    restoreOverlayedElement = id => {
-        const activeCell = document.getElementById(id);
-        if (activeCell) {
-            activeCell.parentElement.style.setProperty('opacity', 1);
-        }
-    };
-
-    unhideEditedCell = previouslyEditing => {
-        console.log('restoreOverlayedElementByEditor', previouslyEditing);
-        if (previouslyEditing) {
-            const activeCell = document.getElementById(previouslyEditing);
-            if (activeCell) {
-                activeCell.parentElement.style.setProperty('opacity', 1);
-            }
-        }
-    };
-
-    hideEditingCell = () => {
-        const {
-            editor: { editing }
-        } = this.state;
-        console.log('overlayEditorAndHideOverlayedElement', editing);
-        if (editing) {
-            const activeCell = document.getElementById(editing);
-            if (activeCell) {
-                activeCell.parentElement.style.setProperty('opacity', 0);
-            }
-        }
     };
 
     positionEditor = id => {
@@ -368,11 +336,12 @@ export class DataTable extends Component {
     };
 
     handleEditorBlur = () => {
-        console.log('blur editor');
+        console.log('handleEditorBlur');
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
-                ...EDITOR_INITIAL_STATE
+                position: null,
+                active: false
             }
         }));
     };
@@ -660,6 +629,7 @@ export class DataTable extends Component {
                         onVisibilitiesChanged={this.handleColumnVisibilityChanged}
                         onClose={this.handleMenuClose}
                     />
+                    {`*****EDITOR STATE***** = ${JSON.stringify({ ...this.state.editor })}`}
                 </div>
                 <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
                     <DataTableEditor
