@@ -24,7 +24,18 @@ import {
     moveHorizontal,
     getRow
 } from './helpers/gridNavigation';
-import { LEFT, RIGHT, UP, DOWN, UP_DIR, RIGHT_DIR, DOWN_DIR, LEFT_DIR, COLUMN_HEADER_MENU_TARGET } from './constants';
+import {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    UP_DIR,
+    RIGHT_DIR,
+    DOWN_DIR,
+    LEFT_DIR,
+    COLUMN_HEADER_MENU_TARGET,
+    ENTER
+} from './constants';
 
 const styles = () => ({
     tableHeadComponent: {
@@ -315,6 +326,50 @@ export class DataTable extends Component {
                 active: false
             }
         }));
+    };
+
+    handleMove = direction => {
+        console.log('handle move', direction);
+        const { rowHeight } = this.props;
+        const {
+            scroll: { top },
+            editor: { tracking }
+        } = this.state;
+        if (!tracking) {
+            throw Error('tracking is null so move operation cannot be completed');
+        }
+        const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
+        switch (direction) {
+            case UP: {
+                moveVertical(UP_DIR, tracking, this.gridNavigationMap, {
+                    activateCell: this.positionEditor,
+                    scroll: () => tableContainer.scroll({ top: top - rowHeight })
+                });
+                break;
+            }
+            case ENTER:
+            case DOWN: {
+                moveVertical(DOWN_DIR, tracking, this.gridNavigationMap, {
+                    activateCell: this.positionEditor,
+                    scroll: () => tableContainer.scroll({ top: top + rowHeight })
+                });
+                break;
+            }
+            case LEFT: {
+                moveHorizontal(LEFT_DIR, tracking, this.gridNavigationMap, {
+                    activateCell: this.positionEditor
+                });
+                break;
+            }
+            case RIGHT: {
+                moveHorizontal(RIGHT_DIR, tracking, this.gridNavigationMap, {
+                    activateCell: this.positionEditor
+                });
+                break;
+            }
+            default:
+                throw Error(`Unexpected move direction: ${direction}`);
+        }
     };
 
     handleActivateEditor = id => {
@@ -610,6 +665,7 @@ export class DataTable extends Component {
                         error={null} // TODO:
                         warning={null} // TODO:
                         column={column}
+                        onMove={this.handleMove}
                         onBlur={this.handleEditorBlur}
                         onCommit={this.handleCommit}
                         onCancel={this.handleCancel}

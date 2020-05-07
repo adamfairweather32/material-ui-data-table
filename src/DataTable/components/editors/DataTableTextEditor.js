@@ -148,20 +148,11 @@ class DataTableTextEditor extends Component {
         if (!editable) {
             return;
         }
-        if (e.keyCode === UP) {
-            onMove(RIGHT);
-        }
-        if (e.keyCode === ENTER || e.keyCode === DOWN) {
+        if ([UP, DOWN, LEFT, RIGHT, ENTER].includes(e.keyCode)) {
             this.commitChange();
-            e.preventDefault();
             onDeactivateEditor();
-            onMove(DOWN);
-        }
-        if (e.keyCode === LEFT) {
-            onMove(LEFT);
-        }
-        if (e.keyCode === RIGHT) {
-            onMove(RIGHT);
+            onMove(e.keyCode);
+            return;
         }
         if (e.keyCode === ESC) {
             this.cancelChange();

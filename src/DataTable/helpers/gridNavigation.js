@@ -149,13 +149,7 @@ const willHitBoundary = (newRowIdentifier, gridNavigationMap) => {
     return !idToPositionMap[newRowIdentifier].visible;
 };
 
-const move = (
-    direction,
-    directions,
-    currentId,
-    gridNavigationMap,
-    { activateCell = focus, scroll = null, deactivateCell = null } = {}
-) => {
+const move = (direction, directions, currentId, gridNavigationMap, { activateCell = focus, scroll = null } = {}) => {
     if (!directions.includes(direction)) {
         throw Error(`direction was not one of the expected values: ${directions}`);
     }
@@ -179,9 +173,6 @@ const move = (
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
             const newId = positionToIdMap[rowIndex][columnIndex];
             const { rowIdentifier: newRowIdentifier } = getRowAndColumnIdentifiers(newId);
-            if (deactivateCell) {
-                deactivateCell(currentId);
-            }
             activateCell(newId, true);
             if (willHitBoundary(newRowIdentifier, gridNavigationMap) && scroll) {
                 scroll();
