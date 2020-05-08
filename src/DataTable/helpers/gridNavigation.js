@@ -6,7 +6,8 @@ import {
     LEFT_DIR,
     RIGHT_DIR,
     UP_DIR,
-    DOWN_DIR
+    DOWN_DIR,
+    SELECTOR
 } from '../constants';
 import { getColumnType, createCellId, getDuplicates, cellIsEditing, focus } from './helpers';
 
@@ -51,11 +52,13 @@ export const isEditable = (id, columns) => {
     return !!rich && !!rich.editable;
 };
 
-const getIncludedKeys = columns => {
-    const included = columns.map(c => ({
-        field: c.field,
-        type: getColumnType(c)
-    }));
+const getIncludedKeys = (columns, excludedFields = []) => {
+    const included = columns
+        .map(c => ({
+            field: c.field,
+            type: getColumnType(c)
+        }))
+        .filter(c => !excludedFields.includes(c.field));
     const includedKeys = included.map((item, columnIndex) => ({
         key: item.field,
         type: item.type,
@@ -111,14 +114,14 @@ const getIdsForPosition = (tableId, row, keys) =>
         };
     }, {});
 
-export const getGridNavigationMap = (tableId, rows = [], columns) => {
+export const getGridNavigationMap = (tableId, rows = [], columns, excludedFields = [SELECTOR]) => {
     if (!tableId) {
         throw Error('No tableId provided');
     }
     if (!columns || !columns.length) {
         throw Error('No columns provided');
     }
-    const includedKeys = getIncludedKeys(columns);
+    const includedKeys = getIncludedKeys(columns, excludedFields);
     const hasId = _.every(
         rows.map(r => r.id),
         r => !!r || r === 0

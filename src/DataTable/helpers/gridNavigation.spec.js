@@ -195,6 +195,65 @@ describe('getGridNavigationMap', () => {
         const columns = [{ field: 'firstName' }, { field: 'lastName' }];
         expect(getGridNavigationMap('footableid', rows, columns)).to.deep.equal({});
     });
+    it('should not include columns which are excluded', () => {
+        const columns = [{ field: 'excludedField' }, { field: 'firstName' }, { field: 'lastName' }];
+        const rows = [
+            {
+                id: '1',
+                excludedField: 'foo',
+                firstName: 'Bob',
+                lastName: 'Jones'
+            },
+            {
+                id: '2',
+                excludedField: 'bar',
+                firstName: 'Fred',
+                lastName: 'Grimble'
+            }
+        ];
+        expect(getGridNavigationMap('footableid', rows, columns, ['excludedField'])).to.deep.equal({
+            idToPositionMap: {
+                '1': {
+                    firstName: {
+                        columnIndex: 0,
+                        rowIndex: 0,
+                        type: 'text'
+                    },
+                    lastName: {
+                        columnIndex: 1,
+                        rowIndex: 0,
+                        type: 'text'
+                    },
+                    rowIndex: 0,
+                    visible: false
+                },
+                '2': {
+                    firstName: {
+                        columnIndex: 0,
+                        rowIndex: 1,
+                        type: 'text'
+                    },
+                    lastName: {
+                        columnIndex: 1,
+                        rowIndex: 1,
+                        type: 'text'
+                    },
+                    rowIndex: 1,
+                    visible: false
+                }
+            },
+            positionToIdMap: {
+                '0': {
+                    '0': 'footableid-field-1-firstName',
+                    '1': 'footableid-field-1-lastName'
+                },
+                '1': {
+                    '0': 'footableid-field-2-firstName',
+                    '1': 'footableid-field-2-lastName'
+                }
+            }
+        });
+    });
 });
 
 describe('moveHorizontal and moveVertical', () => {

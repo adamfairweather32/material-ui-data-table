@@ -203,7 +203,6 @@ const App = ({ classes }) => {
 
     // TODO: use classes to identify table sub elements
     // TODO: don't seem to have currency formatting on currency cells
-    // TODO: moving to very left of table with navigation causes it to blow up
     // TODO: need more unit tests around grid navigation
     // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)
     // TODO: if you click a cell then scroll, you get an uncontrolled input console error
