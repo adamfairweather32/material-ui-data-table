@@ -203,7 +203,6 @@ const App = ({ classes }) => {
 
     // TODO: use classes to identify table sub elements
     // TODO: moving to very left of table with navigation causes it to blow up
-    // TODO: add fade in for focused cell (take from old DataTable)
     // TODO: navigation stops working when you are next to a readonly field
     // TODO: need more unit tests around grid navigation once it's put back in
     // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)

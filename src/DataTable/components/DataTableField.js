@@ -11,6 +11,8 @@ const styles = () => ({
         outlineStyle: 'solid !important',
         outlineOffset: '-2px',
         outlineWidth: '2px !important'
+        // transition:
+        //     'outline 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms, outline-width 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms'
     },
     mainDiv: {
         whiteSpace: 'nowrap',
