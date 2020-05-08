@@ -16,14 +16,7 @@ import DataTableBottomPanel from './components/DataTableBottomPanel';
 import DataTableContextMenu from './components/DataTableContextMenu';
 import { getPreparedColumns, filterRow, clearBlinkers } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
-import {
-    isEditable,
-    getColumn,
-    getGridNavigationMap,
-    moveVertical,
-    moveHorizontal,
-    getRow
-} from './helpers/gridNavigation';
+import { getColumn, getGridNavigationMap, moveVertical, moveHorizontal, getRow } from './helpers/gridNavigation';
 import {
     LEFT,
     RIGHT,

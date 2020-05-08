@@ -145,28 +145,36 @@ class DataTableTextEditor extends Component {
             clearable = false
         } = column;
 
-        if (!editable) {
-            return;
-        }
         if ([UP, DOWN, LEFT, RIGHT, ENTER].includes(e.keyCode)) {
-            this.commitChange();
+            if (editable) {
+                this.commitChange();
+            }
             onDeactivateEditor();
             onMove(e.keyCode);
             return;
         }
         if (e.keyCode === ESC) {
-            this.cancelChange();
+            if (editable) {
+                this.cancelChange();
+            }
             onDeactivateEditor();
             return;
         }
-        if (!editing && clearable && value && e.keyCode === DELETE) {
+        if (editable && !editing && clearable && value && e.keyCode === DELETE) {
             onCellChange('', row, column.field, true);
         }
-        if (!editing && e.keyCode !== DELETE && isValidChar(translateKeyCodeToChar(e.keyCode), this.getType())) {
+        if (
+            editable &&
+            !editing &&
+            e.keyCode !== DELETE &&
+            isValidChar(translateKeyCodeToChar(e.keyCode), this.getType())
+        ) {
             this.setCaretPositionToEnd();
             this.enterEditMode();
         }
-        onActivateEditor(dataId);
+        if (editable) {
+            onActivateEditor(dataId);
+        }
     };
 
     handleFocus = () => {
@@ -263,7 +271,7 @@ class DataTableTextEditor extends Component {
                 autoComplete="off"
                 title={error || warning || formattedValue}
                 onDoubleClick={this.handleDoubleClick}
-                onKeyDown={editable ? this.handleKeyDown : undefined}
+                onKeyDown={this.handleKeyDown}
                 onKeyPress={editable ? this.handleKeyPress : undefined}
                 onChange={editable ? this.handleChange : undefined}
                 onFocus={this.handleFocus}
