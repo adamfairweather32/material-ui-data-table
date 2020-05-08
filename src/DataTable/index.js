@@ -121,7 +121,8 @@ export class DataTable extends Component {
         }
     }
 
-    getFilteredAndSortedRows = (preparedColumns, searchText, order, orderBy) => {
+    getFilteredAndSortedRows = () => {
+        const { preparedColumns, searchText, order, orderBy } = this.state;
         const { rows, rules, showFilter } = this.props;
 
         const filteredItems = fastFilter(
@@ -189,46 +190,6 @@ export class DataTable extends Component {
         this.activateOrDeactivateEditor(false);
     };
 
-    // moveDown = () => {
-    //     const { rowHeight } = this.props;
-    //     const {
-    //         scroll: { top }
-    //     } = this.state;
-    //     const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
-    //     moveVertical(DOWN_DIR, this.activeId.current, this.gridNavigationMap, {
-    //         activateCell: this.activateCell,
-    //         deactivateCell: this.deactivateCell,
-    //         scroll: () => tableContainer.scroll({ top: top + rowHeight })
-    //     });
-    // };
-
-    // moveUp = () => {
-    //     const { rowHeight } = this.props;
-    //     const {
-    //         scroll: { top }
-    //     } = this.state;
-    //     const tableContainer = document.getElementById(`${this.tableId.current}-tcontainer`);
-    //     moveVertical(UP_DIR, this.activeId.current, this.gridNavigationMap, {
-    //         deactivateCell: this.deactivateCell,
-    //         activateCell: this.activateCell,
-    //         scroll: () => tableContainer.scroll({ top: top - rowHeight })
-    //     });
-    // };
-
-    // moveLeft = () => {
-    //     moveHorizontal(LEFT_DIR, this.activeId.current, this.gridNavigationMap, {
-    //         deactivateCell: this.deactivateCell,
-    //         activateCell: this.activateCell
-    //     });
-    // };
-
-    // moveRight = () => {
-    //     moveHorizontal(RIGHT_DIR, this.activeId.current, this.gridNavigationMap, {
-    //         deactivateCell: this.deactivateCell,
-    //         activateCell: this.activateCell
-    //     });
-    // };
-
     isIndeterminate = () => {
         const { selected } = this.state;
         const { rows } = this.props;
@@ -258,13 +219,9 @@ export class DataTable extends Component {
 
     handleResize = () => {
         const {
-            scroll: { top },
-            preparedColumns,
-            searchText,
-            order,
-            orderBy
+            scroll: { top }
         } = this.state;
-        const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);
+        const filteredRows = this.getFilteredAndSortedRows();
         this.handleScroll(filteredRows)({ target: { scrollTop: top } });
     };
 
@@ -555,7 +512,6 @@ export class DataTable extends Component {
             visibilities,
             editor,
             selected,
-            searchText,
             menuTarget,
             menuPosition,
             preparedColumns
@@ -572,10 +528,8 @@ export class DataTable extends Component {
         const column = tracking && getColumn(tracking, preparedColumns);
         const { field: activeField } = column || {};
         const draftedRow = this.getOriginalOrDraft(row);
-        console.log('activeField, draftedRow = ', activeField, draftedRow);
         const value = draftedRow && draftedRow[activeField];
-        // TODO: encapsulate this function so we don't have to pass params in
-        const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);
+        const filteredRows = this.getFilteredAndSortedRows();
         const edtiorContainerStyle = {
             backgroundColor: 'red',
             zIndex: editor.active ? 1 : -1,

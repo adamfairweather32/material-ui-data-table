@@ -201,6 +201,7 @@ const App = ({ classes }) => {
 
     // HIGH
 
+    // TODO: be good if we could remove the cell selection css when the editor/grid loses focus
     // TODO: use classes to identify table sub elements
     // TODO: don't seem to have currency formatting on currency cells
     // TODO: need more unit tests around grid navigation
