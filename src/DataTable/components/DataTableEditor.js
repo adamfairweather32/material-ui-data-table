@@ -10,7 +10,8 @@ class DataTableEditor extends Component {
     render() {
         const { column, inputRef, ...rest } = this.props;
         const type = column && getColumnType(column);
-        if (!type) {
+        const { value } = rest;
+        if (!type || !value) {
             return null;
         }
         switch (type) {

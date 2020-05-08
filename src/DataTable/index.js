@@ -572,6 +572,7 @@ export class DataTable extends Component {
         const column = tracking && getColumn(tracking, preparedColumns);
         const { field: activeField } = column || {};
         const draftedRow = this.getOriginalOrDraft(row);
+        console.log('activeField, draftedRow = ', activeField, draftedRow);
         const value = draftedRow && draftedRow[activeField];
         // TODO: encapsulate this function so we don't have to pass params in
         const filteredRows = this.getFilteredAndSortedRows(preparedColumns, searchText, order, orderBy);

@@ -221,7 +221,6 @@ class DataTableTextEditor extends Component {
     };
 
     handleBlur = () => {
-        console.log('Commit the change');
         const { onBlur } = this.props;
         this.commitChange();
         onBlur();

@@ -205,7 +205,6 @@ const App = ({ classes }) => {
     // TODO: don't seem to have currency formatting on currency cells
     // TODO: need more unit tests around grid navigation
     // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)
-    // TODO: if you click a cell then scroll, you get an uncontrolled input console error
     // TODO: grid blows up if you search, click in the grid then click back to search and type
     // TODO: get an uncontrolled input console error when switching between search and grid after typing
     // TODO: implement other editors
