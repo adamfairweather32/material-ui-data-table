@@ -128,7 +128,7 @@ const App = ({ classes }) => {
             field: 'cost',
             headerName: 'Cost (£)',
             parentHeaderName: 'Detail',
-            total: { type: 'sum', predicate: r => !!r },
+            total: { type: 'sum', desc: 'Summing only non-null values', predicate: r => !!r },
             rich: {
                 numeric: true,
                 currency: { warnNegative: true, showCurrencySymbol: true },
@@ -202,13 +202,14 @@ const App = ({ classes }) => {
     // HIGH
 
     // TODO: use classes to identify table sub elements
+    // TODO: don't seem to have currency formatting on currency cells
     // TODO: moving to very left of table with navigation causes it to blow up
-    // TODO: navigation stops working when you are next to a readonly field
-    // TODO: need more unit tests around grid navigation once it's put back in
+    // TODO: need more unit tests around grid navigation
     // TODO: editor needs to be repositioned if in editing mode while scrolling (and also the grid blows up)
     // TODO: if you click a cell then scroll, you get an uncontrolled input console error
     // TODO: grid blows up if you search, click in the grid then click back to search and type
     // TODO: get an uncontrolled input console error when switching between search and grid after typing
+    // TODO: implement other editors
 
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table

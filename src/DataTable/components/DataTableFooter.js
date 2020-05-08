@@ -40,15 +40,6 @@ const styles = () => ({
 });
 
 export class DataTableFooter extends Component {
-    shouldComponentUpdate(nextProps) {
-        const { columns = [] } = this.props;
-        const { columns: nextColumns = [] } = nextProps;
-        return !_.isEqual(
-            columns.map(c => c.field),
-            nextColumns.map(c => c.field)
-        );
-    }
-
     formatTotal = (total, options) => {
         if (_.isEmpty(options)) {
             return total;
@@ -105,7 +96,10 @@ export class DataTableFooter extends Component {
                 />
             );
         }
-        const { warnNegative } = column;
+        const {
+            warnNegative,
+            total: { desc = 'Filter applied' }
+        } = column;
 
         const { total, filtered } = this.getTotal(column);
 
@@ -113,7 +107,7 @@ export class DataTableFooter extends Component {
             color: total && total.includes('(') && warnNegative ? 'red' : 'inherit'
         };
 
-        const title = filtered ? `Filter applied` : undefined;
+        const title = filtered ? `${desc}` : undefined;
 
         const displayTotal = `Total = ${total}`;
 
