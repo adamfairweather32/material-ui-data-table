@@ -16,7 +16,7 @@ import DataTableBottomPanel from './components/DataTableBottomPanel';
 import DataTableContextMenu from './components/DataTableContextMenu';
 import { getPreparedColumns, filterRow, clearBlinkers } from './helpers/helpers';
 import getValidatedRows from './helpers/getValidatedRows';
-import { getColumn, getGridNavigationMap, moveVertical, moveHorizontal, getRow } from './helpers/gridNavigation';
+import { getColumn, getGridNavigationMap, moveVertical, moveHorizontal, getRowId } from './helpers/gridNavigation';
 import {
     LEFT,
     RIGHT,
@@ -205,6 +205,7 @@ export class DataTable extends Component {
     getOriginalOrDraft = row => {
         const { draftValue } = this.state;
         if (draftValue && !_.isEmpty(draftValue) && row.id === draftValue.row.id) {
+            console.log('returning draftValue', draftValue.value);
             return {
                 ...row,
                 [draftValue.column]: draftValue.value
@@ -258,6 +259,9 @@ export class DataTable extends Component {
                 index: topRowIndex,
                 end: Math.ceil(endRowIndex),
                 top: topRowIndex * rowHeight
+            },
+            editor: {
+                ...prevState.editor
             }
         }));
     };
@@ -524,12 +528,16 @@ export class DataTable extends Component {
         const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
         const checked = this.isChecked();
         const indeterminate = this.isIndeterminate();
-        const row = getRow(tracking, this.gridNavigationMap, rows);
+
+        const rowId = getRowId(tracking);
+        const row = rowId && rows.find(r => r.id.toString() === rowId.toString());
         const column = tracking && getColumn(tracking, preparedColumns);
         const { field: activeField } = column || {};
         const draftedRow = this.getOriginalOrDraft(row);
         const value = draftedRow && draftedRow[activeField];
+
         const filteredRows = this.getFilteredAndSortedRows();
+
         const edtiorContainerStyle = {
             backgroundColor: 'red',
             zIndex: editor.active ? 1 : -1,

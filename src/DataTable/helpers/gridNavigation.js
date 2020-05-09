@@ -40,11 +40,10 @@ export const getColumn = (id, columns) => {
     return column;
 };
 
-export const getRow = (id, gridNavigationMap, rows) => {
-    const { idToPositionMap } = gridNavigationMap || {};
+// TODO: need a test for this
+export const getRowId = id => {
     const { rowIdentifier } = (id && getRowAndColumnIdentifiers(id)) || {};
-    const { rowIndex } = (id && idToPositionMap[rowIdentifier]) || {};
-    return rows[rowIndex];
+    return rowIdentifier;
 };
 
 export const isEditable = (id, columns) => {
