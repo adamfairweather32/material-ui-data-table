@@ -119,7 +119,29 @@ export class DataTable extends Component {
         if (available) {
             this.focusEditor();
         }
+        this.applyEditorStyling();
     }
+
+    applyEditorStyling = () => {
+        const {
+            editor: { active, tracking }
+        } = this.state;
+        const editorElement = document.getElementById(EDITOR_ID);
+        if (!editorElement) {
+            return;
+        }
+        const editorPosition = this.getEditorPosition(tracking);
+        const showEditor = !!active && !!editorPosition;
+        editorElement.style.backgroundColor = 'red';
+        editorElement.style.zIndex = showEditor ? 1 : -1;
+        editorElement.style.opacity = showEditor ? 1 : 0;
+        if (editorPosition) {
+            editorElement.style.top = `${editorPosition.top}px`;
+            editorElement.style.left = `${editorPosition.left}px`;
+            editorElement.style.height = `${editorPosition.height}px`;
+            editorElement.style.width = `${editorPosition.width}px`;
+        }
+    };
 
     getFilteredAndSortedRows = () => {
         const { preparedColumns, searchText, order, orderBy } = this.state;
@@ -150,6 +172,7 @@ export class DataTable extends Component {
 
     getEditorPosition = id => {
         const editingElement = document.getElementById(id);
+        console.log('id, editingElement = ', id, editingElement);
         if (editingElement) {
             const { width, height, top, left } = editingElement.getBoundingClientRect();
             return { width, height, top, left };
@@ -165,8 +188,7 @@ export class DataTable extends Component {
                 ...prevState.editor,
                 active: false,
                 tracking: id,
-                available: true,
-                position: this.getEditorPosition(id)
+                available: true
             }
         }));
     };
@@ -495,21 +517,6 @@ export class DataTable extends Component {
     };
 
     render() {
-        // TODO:
-
-        // editor should be moved when the user clicks on a cell to that position and also given the value
-        // in that cell and be focused but simply just left invisible -> this should only re-render the editor
-        // and not the grid
-
-        // then as soon as user starts typing (with exception of navigation keys), the editor can be brought to the foreground automatically
-        // pressing esc will move the editor back to the background
-
-        // the editor itself will need to handle key board navigation events and then forward these events to handleCellMouseDown
-        // in parent so that it correctly repositions the editor
-
-        // this however now presents the issue that the editor will always steal focus from other components -> but this should be ok as long as we
-        // blur the grid when we click away (e.g. to the search box)
-
         const { classes, tableHeight, rowHeight, rows, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
         const {
@@ -522,7 +529,7 @@ export class DataTable extends Component {
             menuPosition,
             preparedColumns
         } = this.state;
-        const { position, tracking, available } = editor;
+        const { tracking } = editor;
         const { showErrors = false, showFilter = false } = this.props;
         const canAdd = !!onAdd && !!onEdit;
         const canEdit = canAdd;
@@ -539,13 +546,6 @@ export class DataTable extends Component {
         const value = draftedRow && draftedRow[activeField];
 
         const filteredRows = this.getFilteredAndSortedRows();
-
-        const edtiorContainerStyle = {
-            backgroundColor: 'red',
-            zIndex: editor.active ? 1 : -1,
-            opacity: editor.active ? 1 : 0,
-            ...this.getEditorPosition(tracking)
-        };
 
         const errorCount = _.sum(_.flatMap(filteredRows, row => (!_.isEmpty(row.validations.errors) ? 1 : 0)));
 
@@ -596,24 +596,7 @@ export class DataTable extends Component {
                             </div>
                         </div>
                     </TableContainer>
-                    {canEdit && (
-                        <DataTableBottomPanel
-                            canAdd={canAdd}
-                            onAddRequested={this.handleAdd}
-                            onDeleteRequested={this.handleDelete}
-                            canDelete={canDelete}
-                        />
-                    )}
-                    <DataTableContextMenu
-                        open={!!menuTarget}
-                        type={menuTarget}
-                        menuPosition={menuPosition}
-                        visibilities={visibilities}
-                        onVisibilitiesChanged={this.handleColumnVisibilityChanged}
-                        onClose={this.handleMenuClose}
-                    />
-                    {`*****EDITOR STATE***** = ${JSON.stringify({ ...this.state.editor })}`}
-                    <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
+                    <div id={EDITOR_ID} className={classes.editor}>
                         <DataTableEditor
                             id={EDITOR_INPUT_ID}
                             dataId={tracking}
@@ -632,6 +615,23 @@ export class DataTable extends Component {
                             ref={this.onSetEditorRef}
                         />
                     </div>
+                    {canEdit && (
+                        <DataTableBottomPanel
+                            canAdd={canAdd}
+                            onAddRequested={this.handleAdd}
+                            onDeleteRequested={this.handleDelete}
+                            canDelete={canDelete}
+                        />
+                    )}
+                    <DataTableContextMenu
+                        open={!!menuTarget}
+                        type={menuTarget}
+                        menuPosition={menuPosition}
+                        visibilities={visibilities}
+                        onVisibilitiesChanged={this.handleColumnVisibilityChanged}
+                        onClose={this.handleMenuClose}
+                    />
+                    {`*****EDITOR STATE***** = ${JSON.stringify({ ...this.state.editor })}`}
                 </div>
             </>
         );
