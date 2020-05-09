@@ -93,7 +93,7 @@ export class DataTable extends Component {
                 index: 0,
                 end: Math.ceil((tableHeight * 2) / rowHeight)
             },
-            editor: { active: false, editing: null, tracking: null, position: null },
+            editor: { active: false, editing: null, tracking: null, position: null, available: false },
             visibilities,
             preparedColumns
         };
@@ -110,13 +110,13 @@ export class DataTable extends Component {
     componentDidUpdate() {
         console.log('componentDidUpdate');
         const {
-            editor: { position }
+            editor: { available }
         } = this.state;
         window.removeEventListener('resize', this.handleResize);
         window.addEventListener('resize', this.handleResize);
         this.assignEditorMouseWheelHandler();
 
-        if (position) {
+        if (available) {
             this.focusEditor();
         }
     }
@@ -165,6 +165,7 @@ export class DataTable extends Component {
                 ...prevState.editor,
                 active: false,
                 tracking: id,
+                available: true,
                 position: this.getEditorPosition(id)
             }
         }));
@@ -277,6 +278,7 @@ export class DataTable extends Component {
             editor: {
                 ...prevState.editor,
                 position: null,
+                available: false,
                 active: false
             }
         }));
@@ -520,7 +522,7 @@ export class DataTable extends Component {
             menuPosition,
             preparedColumns
         } = this.state;
-        const { position, tracking } = editor;
+        const { position, tracking, available } = editor;
         const { showErrors = false, showFilter = false } = this.props;
         const canAdd = !!onAdd && !!onEdit;
         const canEdit = canAdd;
@@ -542,7 +544,7 @@ export class DataTable extends Component {
             backgroundColor: 'red',
             zIndex: editor.active ? 1 : -1,
             opacity: editor.active ? 1 : 0,
-            ...position
+            ...this.getEditorPosition(tracking)
         };
 
         const errorCount = _.sum(_.flatMap(filteredRows, row => (!_.isEmpty(row.validations.errors) ? 1 : 0)));
@@ -611,25 +613,25 @@ export class DataTable extends Component {
                         onClose={this.handleMenuClose}
                     />
                     {`*****EDITOR STATE***** = ${JSON.stringify({ ...this.state.editor })}`}
-                </div>
-                <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
-                    <DataTableEditor
-                        id={EDITOR_INPUT_ID}
-                        dataId={tracking}
-                        value={value}
-                        row={row}
-                        error={null} // TODO:
-                        warning={null} // TODO:
-                        column={column}
-                        onMove={this.handleMove}
-                        onBlur={this.handleEditorBlur}
-                        onCommit={this.handleCommit}
-                        onCancel={this.handleCancel}
-                        onCellChange={this.handleCellChange}
-                        onActivateEditor={this.handleActivateEditor}
-                        onDeactivateEditor={this.handleDeActivateEditor}
-                        ref={this.onSetEditorRef}
-                    />
+                    <div id={EDITOR_ID} className={classes.editor} style={edtiorContainerStyle}>
+                        <DataTableEditor
+                            id={EDITOR_INPUT_ID}
+                            dataId={tracking}
+                            value={value}
+                            row={row}
+                            error={null} // TODO:
+                            warning={null} // TODO:
+                            column={column}
+                            onMove={this.handleMove}
+                            onBlur={this.handleEditorBlur}
+                            onCommit={this.handleCommit}
+                            onCancel={this.handleCancel}
+                            onCellChange={this.handleCellChange}
+                            onActivateEditor={this.handleActivateEditor}
+                            onDeactivateEditor={this.handleDeActivateEditor}
+                            ref={this.onSetEditorRef}
+                        />
+                    </div>
                 </div>
             </>
         );
