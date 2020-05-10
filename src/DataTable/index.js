@@ -108,7 +108,7 @@ export class DataTable extends Component {
     }
 
     componentDidUpdate() {
-        console.log('componentDidUpdate');
+        // console.log('componentDidUpdate');
         const {
             editor: { available }
         } = this.state;
@@ -163,7 +163,7 @@ export class DataTable extends Component {
     };
 
     focusEditor = () => {
-        console.log('focusEditor');
+        // console.log('focusEditor');
         const editorElement = document.getElementById(EDITOR_INPUT_ID);
         if (editorElement) {
             editorElement.focus();
@@ -172,7 +172,6 @@ export class DataTable extends Component {
 
     getEditorPosition = id => {
         const editingElement = document.getElementById(id);
-        console.log('id, editingElement = ', id, editingElement);
         if (editingElement) {
             const { width, height, top, left } = editingElement.getBoundingClientRect();
             return { width, height, top, left };
@@ -204,12 +203,12 @@ export class DataTable extends Component {
     };
 
     activateEditor = id => {
-        console.log('activateEditor', id);
+        // console.log('activateEditor', id);
         this.activateOrDeactivateEditor(true, id);
     };
 
     deactivateEditor = () => {
-        console.log('deactivateEditor');
+        // console.log('deactivateEditor');
         this.activateOrDeactivateEditor(false);
     };
 
@@ -228,7 +227,6 @@ export class DataTable extends Component {
     getOriginalOrDraft = row => {
         const { draftValue } = this.state;
         if (draftValue && !_.isEmpty(draftValue) && row.id === draftValue.row.id) {
-            console.log('returning draftValue', draftValue.value);
             return {
                 ...row,
                 [draftValue.column]: draftValue.value
@@ -290,12 +288,12 @@ export class DataTable extends Component {
     };
 
     handleCellDoubleClick = id => {
-        console.log('handleCellDoubleClick');
+        // console.log('handleCellDoubleClick');
         this.activateEditor(id);
     };
 
     handleEditorBlur = () => {
-        console.log('handleEditorBlur');
+        // console.log('handleEditorBlur');
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
@@ -307,7 +305,6 @@ export class DataTable extends Component {
     };
 
     handleMove = direction => {
-        console.log('handle move', direction);
         const { rowHeight } = this.props;
         const {
             scroll: { top },
@@ -384,7 +381,7 @@ export class DataTable extends Component {
     };
 
     handleCellMouseDown = event => {
-        console.log('handleCellMouseDown');
+        // console.log('handleCellMouseDown');
         if (this.editorRef.current) {
             this.editorRef.current.blur();
         }
