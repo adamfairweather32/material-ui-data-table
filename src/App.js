@@ -204,8 +204,6 @@ const App = ({ classes }) => {
     // TODO: use classes to identify table sub elements
     // TODO: don't seem to have currency formatting on currency cells
     // TODO: need more unit tests around grid navigation
-    // TODO: grid blows up if you search, click in the grid then click back to search and type
-    // TODO: get an uncontrolled input console error when switching between search and grid after typing
     // TODO: implement other editors
     // TODO: implement cell warnings/errors/blinkers
 
