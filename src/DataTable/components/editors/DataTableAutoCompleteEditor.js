@@ -84,21 +84,8 @@ class DataTableAutoCompleteEditor extends Component {
     handleChange = e => {
         const { column, row, onCellChange } = this.props;
         const { field } = column;
+        console.log('e.target.value = ', e.target.value);
         onCellChange(e.target.value, row, field);
-    };
-
-    handleAutocompleteChange = (e, item) => {
-        if (item && item.value) {
-            const { value } = item;
-            const { id, column, row, onCellChange } = this.props;
-            const { field } = column;
-            this.setState({
-                editing: false,
-                enterEditing: false
-            });
-            removeCellIsEditing(id);
-            onCellChange(value, row, field, true);
-        }
     };
 
     handleKeyPress = e => {
@@ -163,7 +150,8 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleAutocompleteChange = (e, item) => {
-        const { id, onCellChange, row, field } = this.props;
+        const { id, onCellChange, row, column } = this.props;
+        const { field } = column;
         if (item && item.value) {
             const { value } = item;
             this.setState({
