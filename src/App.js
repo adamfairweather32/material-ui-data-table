@@ -201,13 +201,13 @@ const App = ({ classes }) => {
 
     // HIGH
 
-    // TODO: be good if we could remove the cell selection css when the editor/grid loses focus
     // TODO: use classes to identify table sub elements
     // TODO: don't seem to have currency formatting on currency cells
     // TODO: need more unit tests around grid navigation
     // TODO: grid blows up if you search, click in the grid then click back to search and type
     // TODO: get an uncontrolled input console error when switching between search and grid after typing
     // TODO: implement other editors
+    // TODO: implement cell warnings/errors/blinkers
 
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table

@@ -24,12 +24,19 @@ const styles = () => ({
 
 class DataTableField extends Component {
     shouldComponentUpdate(nextProps) {
-        const { id, value, tracking, editing } = this.props;
+        const { id, value, tracking, editing, editorFocused } = this.props;
 
         const isChangingTrackingState = this.isChangingState({ id, tracking }, nextProps, 'tracking', 'id');
         const isChangingEditingState = this.isChangingState({ id, editing }, nextProps, 'editing', 'id');
+        const isEditorFocusedChange = editorFocused !== nextProps.editorFocused;
 
-        return nextProps.id !== id || nextProps.value !== value || isChangingTrackingState || isChangingEditingState;
+        return (
+            nextProps.id !== id ||
+            nextProps.value !== value ||
+            isChangingTrackingState ||
+            isChangingEditingState ||
+            isEditorFocusedChange
+        );
     }
 
     isChangingState = (state, newState, field, comparatorField) => {
@@ -44,7 +51,7 @@ class DataTableField extends Component {
     };
 
     render = () => {
-        const { classes, id, tracking, editing, value, rowHeight, onMouseDown, column } = this.props;
+        const { classes, id, tracking, editing, editorFocused, value, rowHeight, onMouseDown, column } = this.props;
         const { rich: { numeric = false } = {} } = column || { rich: {} };
         return (
             <div
@@ -54,7 +61,9 @@ class DataTableField extends Component {
                 title={value}
                 onMouseDown={onMouseDown}
                 onDoubleClick={this.handleDoubleClick(id)}
-                className={tracking === id ? clsx(classes.mainDiv, classes.activeDiv) : classes.mainDiv}
+                className={
+                    editorFocused && tracking === id ? clsx(classes.mainDiv, classes.activeDiv) : classes.mainDiv
+                }
                 style={{
                     textAlign: numeric ? 'right' : undefined,
                     maxHeight: rowHeight,

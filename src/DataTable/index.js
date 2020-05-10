@@ -463,7 +463,7 @@ export class DataTable extends Component {
         const {
             scroll: { end },
             selected,
-            editor: { tracking, active }
+            editor: { tracking, active, available }
         } = this.state;
         const { rowHeight } = this.props;
         const items = [];
@@ -490,6 +490,7 @@ export class DataTable extends Component {
                     tableId={this.tableId.current}
                     tracking={tracking}
                     editing={active ? tracking : null}
+                    editorFocused={available}
                     key={row.id}
                     columns={preparedColumns}
                     columnElements={columnElements}

@@ -37,6 +37,7 @@ const DataTableRow = ({
     classes,
     tableId,
     tracking,
+    editorFocused,
     editing,
     columns,
     columnElements,
@@ -78,6 +79,9 @@ const DataTableRow = ({
                         id={key}
                         tracking={tracking}
                         editing={editing}
+                        // editor focus changing state only matters if the current tracked id is this id
+                        // as we don't want to needlessly re-render every cell
+                        editorFocused={tracking === key && editorFocused}
                         column={column}
                         value={value}
                         rowHeight={rowHeight}
