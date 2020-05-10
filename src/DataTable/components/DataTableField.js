@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
+import { getDescriptorOrValue } from '../helpers/helpers';
 
 const MAIN_DIV_PADDING_PX = 5;
 const OFFSET_PX = 1;
@@ -71,7 +72,7 @@ class DataTableField extends Component {
                     userSelect: 'none',
                     opacity: editing === id ? 0 : 1
                 }}>
-                {value}
+                {getDescriptorOrValue(value, column)}
             </div>
         );
     };

@@ -1,5 +1,6 @@
 import {
     getDuplicates,
+    getDescriptorOrValue,
     validateColumns,
     isValidChar,
     getBlinkDirectionColour,
@@ -539,5 +540,41 @@ describe('getDuplicates', () => {
     });
     it('should return duplicates with default key selector if none provided', () => {
         expect(getDuplicates(['foo', 'bar', 'foo'])).to.deep.equal(['foo']);
+    });
+});
+
+describe('getDescriptorOrValue', () => {
+    it('should just return value if column definition is empty', () => {
+        expect(getDescriptorOrValue('foo', {})).to.equal('foo');
+    });
+
+    it('should just return value if no autocomplete object', () => {
+        expect(getDescriptorOrValue('foo', { field: 'whatever' })).to.equal('foo');
+    });
+
+    it('should just return value if autocomplete object is empty', () => {
+        expect(getDescriptorOrValue('foo', { rich: { autoComplete: {} } })).to.equal('foo');
+    });
+
+    it('should just return value if autocomplete does not have any options', () => {
+        expect(getDescriptorOrValue('foo', { rich: { autoComplete: { options: {} } } })).to.equal('foo');
+    });
+
+    it('should just return value if no label property found', () => {
+        expect(
+            getDescriptorOrValue('foo', { rich: { autoComplete: { options: { foo: { bar: 'foo-label' } } } } })
+        ).to.equal('foo');
+    });
+
+    it('should just return value if no matching entry found', () => {
+        expect(
+            getDescriptorOrValue('foo', { rich: { autoComplete: { options: { bar: { label: 'bar-label' } } } } })
+        ).to.equal('foo');
+    });
+
+    it('should return label', () => {
+        expect(
+            getDescriptorOrValue('foo', { rich: { autoComplete: { options: { foo: { label: 'foo-label' } } } } })
+        ).to.equal('foo-label');
     });
 });

@@ -21,10 +21,18 @@ const enrich = column => {
     if (column.rich && column.rich.autoComplete && column.rich.autoComplete.options) {
         column.rich.autoComplete.options.forEach(op => {
             // eslint-disable-next-line
-      column.rich.autoComplete.options[op.value] = op;
+            column.rich.autoComplete.options[op.value] = op;
         });
     }
     return column;
+};
+
+export const getDescriptorOrValue = (value, column) => {
+    const { rich: { autoComplete = {} } = {} } = column;
+    const { options } = autoComplete;
+    const option = (options && options[value]) || { label: value };
+    const { label } = option;
+    return label || value;
 };
 
 export const getDuplicates = (items, keySelector) => {

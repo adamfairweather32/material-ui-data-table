@@ -206,6 +206,9 @@ const App = ({ classes }) => {
     // TODO: need more unit tests around grid navigation
     // TODO: implement other editors
     // TODO: implement cell warnings/errors/blinkers
+    // TODO: mark is editing needs to be re-implemented for auto complete
+    // TODO: inputRef.current.focus(); needs to be re-implemented in auto complete
+    // TODO: errors banner needs to operate on all rows not just the filtered ones
 
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table

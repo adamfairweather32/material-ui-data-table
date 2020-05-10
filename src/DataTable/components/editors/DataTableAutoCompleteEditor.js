@@ -140,8 +140,11 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleFocus = () => {
+        console.log('DataTableAutoCompleteEditor handleFocus');
+        const { onActivateEditor } = this.props;
         removeTextSelection();
         this.setState({ focused: true });
+        onActivateEditor();
     };
 
     handleDropdownClick = e => {
@@ -173,7 +176,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     render() {
-        const { classes, id, column, value, warning, error, inputRef } = this.props;
+        const { classes, id, dataId, column, value, warning, error, inputRef } = this.props;
         const { focused, editing } = this.state;
         const {
             rich: {
@@ -203,6 +206,7 @@ class DataTableAutoCompleteEditor extends Component {
             <div className={classes.autocompleteWrapper}>
                 <StyledAutocomplete
                     id={id}
+                    data-id={dataId}
                     freeSolo={free}
                     value={option || value}
                     className={classes.autocompleteRoot}

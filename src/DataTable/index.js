@@ -535,7 +535,14 @@ export class DataTable extends Component {
         const shouldCalculateTotals = _.some(preparedColumns, c => c.total);
         const checked = this.isChecked();
         const indeterminate = this.isIndeterminate();
-
+        if (!canEdit) {
+            preparedColumns
+                .filter(c => c.rich)
+                .forEach(c => {
+                    // eslint-disable-next-line
+                    c.rich.editable = false;
+                });
+        }
         const rowId = getRowId(tracking);
         const row = rowId && rows.find(r => r.id.toString() === rowId.toString());
         const column = tracking && getColumn(tracking, preparedColumns);
