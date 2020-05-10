@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import Pluralize from 'react-pluralize';
 import ErrorIcon from '@material-ui/icons/Error';
@@ -31,10 +30,6 @@ const styles = theme => ({
 });
 
 export class DataTableTopPanel extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     shouldComponentUpdate(nextProps) {
         const { errorCount } = this.props;
         return errorCount !== nextProps.errorCount;
@@ -53,7 +48,9 @@ export class DataTableTopPanel extends Component {
                 {showAlert && (
                     <Paper className={classes.alertContainer}>
                         <ErrorIcon className={classes.alertIcon} />
-                        <Typography className={classes.alertLabel}>
+                        <Typography
+                            className={classes.alertLabel}
+                            title={`${errorCount} error${errorCount > 1 ? 's' : ''} detected`}>
                             <Pluralize singular="error" count={errorCount} />
                         </Typography>
                     </Paper>

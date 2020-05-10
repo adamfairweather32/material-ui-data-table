@@ -145,12 +145,10 @@ export class DataTable extends Component {
 
     getFilteredAndSortedRows = () => {
         const { preparedColumns, searchText, order, orderBy } = this.state;
-        const { rows, rules, showFilter } = this.props;
+        const { rows } = this.props;
+        const { showFilter } = this.props;
 
-        const filteredItems = fastFilter(
-            getValidatedRows(rows, rules),
-            r => !showFilter || filterRow(r, preparedColumns, searchText)
-        );
+        const filteredItems = fastFilter(rows, r => !showFilter || filterRow(r, preparedColumns, searchText));
         return order === 'asc'
             ? sort(filteredItems).asc(it => it[orderBy])
             : sort(filteredItems).desc(it => it[orderBy]);
@@ -515,7 +513,7 @@ export class DataTable extends Component {
     };
 
     render() {
-        const { classes, tableHeight, rowHeight, rows, onAdd, onEdit, onDelete } = this.props;
+        const { classes, tableHeight, rowHeight, rows, rules, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
         const {
             order,
@@ -551,8 +549,11 @@ export class DataTable extends Component {
         const value = draftedRow && draftedRow[activeField];
 
         const filteredRows = this.getFilteredAndSortedRows();
-
-        const errorCount = _.sum(_.flatMap(filteredRows, row => (!_.isEmpty(row.validations.errors) ? 1 : 0)));
+        const errorCount = _.sum(
+            _.flatMap(getValidatedRows(rows, rules), row =>
+                row.validations && !_.isEmpty(row.validations.errors) ? 1 : 0
+            )
+        );
 
         return (
             <>
