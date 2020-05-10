@@ -212,7 +212,6 @@ const App = ({ classes }) => {
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: remove checkboxes and add row headers
     // TODO: should render 1 extra row bigger than visible table area
-    // TODO: stop focus moving out of bounds on left when we get to checkbox
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
