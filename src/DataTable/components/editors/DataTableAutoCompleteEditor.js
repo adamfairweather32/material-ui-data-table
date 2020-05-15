@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { StyledTextFieldNoBorder } from '../../styled/StyledTextField';
 import StyledAutocomplete from '../../styled/StyledAutocomplete';
 import { markCellIsEditing, removeCellIsEditing, removeTextSelection, isValidChar } from '../../helpers/helpers';
-import { WARNING_COLOUR, ESC, DELETE, ENTER, ALPHA_NUMERIC_TYPE } from '../../constants';
+import { WARNING_COLOUR, ESC, DELETE, ENTER, ALPHA_NUMERIC_TYPE, UP, DOWN, LEFT, RIGHT } from '../../constants';
 
 const styles = () => ({
     option: {
@@ -102,22 +102,33 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleKeyDown = e => {
-        if (e.keyCode === ESC) {
-            this.cancelChange();
-        }
         const { editing } = this.state;
-        const { column, value, onCellChange, row } = this.props;
+        const { column, value, onCellChange, onActivateEditor, onDeactivateEditor, dataId, onMove, row } = this.props;
         const { clearable = false, field } = column;
 
+        if (e.keyCode === ESC) {
+            this.cancelChange();
+            onDeactivateEditor();
+            onMove(e.keyCode);
+        }
+        if (e.keyCode === ENTER) {
+            this.commitChange();
+            onDeactivateEditor();
+            onMove(DOWN);
+            return;
+        }
+        if (!editing && [UP, DOWN, LEFT, RIGHT].includes(e.keyCode)) {
+            onDeactivateEditor();
+            onMove(e.keyCode);
+            return;
+        }
         if (!editing && clearable && value && e.keyCode === DELETE) {
             onCellChange('', row, field, true);
         }
         if (!editing && e.keyCode !== DELETE && isValidChar(String.fromCharCode(e.keyCode), ALPHA_NUMERIC_TYPE)) {
             this.enterEditMode();
         }
-        if (editing && e.keyCode === ENTER) {
-            this.commitChange();
-        }
+        onActivateEditor(dataId);
     };
 
     handleBlur = () => {
@@ -141,7 +152,6 @@ class DataTableAutoCompleteEditor extends Component {
 
         if (isDropdownClick) {
             const { editing } = this.state;
-
             if (!editing) {
                 this.enterEditMode();
             } else {
