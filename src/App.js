@@ -208,6 +208,8 @@ const App = ({ classes }) => {
     // TODO: implement cell warnings/errors/blinkers
     // TODO: mark is editing needs to be re-implemented for auto complete
     // TODO: inputRef.current.focus(); needs to be re-implemented in auto complete
+    // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment
+    // TODO: make editing stuff internal to components and then just publish change when it's committed
 
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table

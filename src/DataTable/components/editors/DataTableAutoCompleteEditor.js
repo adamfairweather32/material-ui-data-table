@@ -121,6 +121,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleBlur = () => {
+        console.log('DataTableAutoCompleteEditor handleBlur');
         const { onBlur } = this.props;
         this.setState({ focused: false, editing: false });
         onBlur();
@@ -140,7 +141,7 @@ class DataTableAutoCompleteEditor extends Component {
 
         if (isDropdownClick) {
             const { editing } = this.state;
-            inputRef.current.focus();
+
             if (!editing) {
                 this.enterEditMode();
             } else {
@@ -202,7 +203,6 @@ class DataTableAutoCompleteEditor extends Component {
                     readOnly
                     options={options}
                     open={openMenu}
-                    onClick={this.handleDropdownClick}
                     classes={{
                         option: classes.option
                     }}
@@ -224,6 +224,7 @@ class DataTableAutoCompleteEditor extends Component {
                             inputRef={inputRef}
                             fullWidth
                             onChange={free ? this.handleChange : undefined}
+                            onClick={this.handleDropdownClick}
                             onKeyDown={this.handleKeyDown}
                             onKeyPress={this.handleKeyPress}
                             onBlur={this.handleBlur}
