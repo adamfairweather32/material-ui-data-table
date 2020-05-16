@@ -98,6 +98,7 @@ class DataTableAutoCompleteEditor extends Component {
         const { enterEditing } = this.state;
         if (enterEditing) {
             const char = String.fromCharCode(e.which);
+            console.log('char = ', char);
             onCellChange(char, row, field);
             this.setState({
                 enterEditing: false
@@ -127,6 +128,7 @@ class DataTableAutoCompleteEditor extends Component {
             return;
         }
         if (!editing && e.keyCode !== DELETE && isValidChar(String.fromCharCode(e.keyCode), ALPHA_NUMERIC_TYPE)) {
+            console.log('enterEditMode');
             this.enterEditMode();
         }
         if (e.keyCode === ESC) {
@@ -193,7 +195,7 @@ class DataTableAutoCompleteEditor extends Component {
         } = column;
         const { free, options } = autoComplete;
         const openMenu = focused && editing;
-        const option = options[value];
+        const option = isNaN(value) && options[value]; // do not allow numbers to index into the array
         const stylingProps = {
             style: {}
         };
@@ -207,6 +209,7 @@ class DataTableAutoCompleteEditor extends Component {
         const inputProps = {
             readOnly: !editing || !editable
         };
+        console.log('DataTableAutoCompleteEditor render. option, value', option, value);
         return (
             <div className={classes.autocompleteWrapper}>
                 <StyledAutocomplete
