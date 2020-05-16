@@ -4,6 +4,7 @@ import { StyledTextFieldNoBorder } from '../../styled/StyledTextField';
 import StyledAutocomplete from '../../styled/StyledAutocomplete';
 import { markCellIsEditing, removeCellIsEditing, removeTextSelection, isValidChar } from '../../helpers/helpers';
 import { WARNING_COLOUR, ESC, DELETE, ENTER, ALPHA_NUMERIC_TYPE, UP, DOWN, LEFT, RIGHT } from '../../constants';
+// import { logMe } from '../../helpers/logEverything';
 
 const styles = () => ({
     option: {
@@ -29,6 +30,7 @@ class DataTableAutoCompleteEditor extends Component {
             editing: false,
             enterEditing: false
         };
+        // logMe(this);
     }
 
     canAcceptValue = () => {
@@ -82,6 +84,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleChange = e => {
+        console.log('DataTableAutoCompleteEditor handleChange');
         const { column, row, onCellChange } = this.props;
         const { field } = column;
         console.log('e.target.value = ', e.target.value);
@@ -89,6 +92,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleKeyPress = e => {
+        console.log('DataTableAutoCompleteEditor handleKeyPress');
         const { onCellChange, row, column } = this.props;
         const { field } = column;
         const { enterEditing } = this.state;
@@ -102,15 +106,11 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleKeyDown = e => {
+        console.log('DataTableAutoCompleteEditor handleKeyDown');
         const { editing } = this.state;
         const { column, value, onCellChange, onActivateEditor, onDeactivateEditor, dataId, onMove, row } = this.props;
         const { clearable = false, field } = column;
 
-        if (e.keyCode === ESC) {
-            this.cancelChange();
-            onDeactivateEditor();
-            onMove(e.keyCode);
-        }
         if (e.keyCode === ENTER) {
             this.commitChange();
             onDeactivateEditor();
@@ -124,9 +124,13 @@ class DataTableAutoCompleteEditor extends Component {
         }
         if (!editing && clearable && value && e.keyCode === DELETE) {
             onCellChange('', row, field, true);
+            return;
         }
         if (!editing && e.keyCode !== DELETE && isValidChar(String.fromCharCode(e.keyCode), ALPHA_NUMERIC_TYPE)) {
             this.enterEditMode();
+        }
+        if (e.keyCode === ESC) {
+            this.cancelChange();
         }
         onActivateEditor(dataId);
     };
@@ -146,7 +150,8 @@ class DataTableAutoCompleteEditor extends Component {
         onActivateEditor();
     };
 
-    handleDropdownClick = e => {
+    handleInputClick = e => {
+        console.log('DataTableAutoCompleteEditor handleInputClick');
         const isDropdownClick =
             e.target.tagName && (e.target.tagName.toUpperCase() === 'PATH' || e.target.tagName.toUpperCase() === 'SVG');
 
@@ -161,6 +166,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleAutocompleteChange = (e, item) => {
+        console.log('DataTableAutoCompleteEditor handleAutocompleteChange');
         const { id, onCellChange, row, column } = this.props;
         const { field } = column;
         if (item && item.value) {
@@ -234,7 +240,7 @@ class DataTableAutoCompleteEditor extends Component {
                             inputRef={inputRef}
                             fullWidth
                             onChange={free ? this.handleChange : undefined}
-                            onClick={this.handleDropdownClick}
+                            onClick={this.handleInputClick}
                             onKeyDown={this.handleKeyDown}
                             onKeyPress={this.handleKeyPress}
                             onBlur={this.handleBlur}

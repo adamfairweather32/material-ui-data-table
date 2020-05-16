@@ -212,9 +212,9 @@ const App = ({ classes }) => {
     // TODO: make editing stuff internal to components and then just publish change when it's committed
 
     // TODO: auto complete editor
-    // need to refocus the editor on keydown
     // should always clear the text in the combo when typing
-    // be good if we could have a
+    // allow ctrl-back to highlight the whole block of text then delete
+    // navigating up and down in combos does not bring editor to front
 
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
