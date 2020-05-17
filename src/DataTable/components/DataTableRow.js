@@ -65,6 +65,8 @@ const DataTableRow = ({
         const value = row[field];
         const currentColWidth = columnElements[index] ? columnElements[index].getBoundingClientRect().width : 0;
         const labelId = `enhanced-table-checkbox-${rowIndex}`;
+        const { message: warning } = warnings[field] || {};
+        const { message: error } = errors[field] || {};
         return (
             <TableCell
                 component="div"
@@ -84,6 +86,8 @@ const DataTableRow = ({
                         // editor focus changing state only matters if the current tracked id is this id
                         // as we don't want to needlessly re-render every cell
                         editorFocused={tracking === key && editorFocused}
+                        error={error}
+                        warning={warning}
                         column={column}
                         value={value}
                         rowHeight={rowHeight}

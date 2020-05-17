@@ -132,7 +132,7 @@ export class DataTable extends Component {
         }
         const editorPosition = this.getEditorPosition(tracking);
         const showEditor = !!active && !!editorPosition;
-        editorElement.style.backgroundColor = 'red';
+        // editorElement.style.backgroundColor = 'red';
         editorElement.style.zIndex = showEditor ? 1 : -1;
         editorElement.style.opacity = showEditor ? 1 : 0;
         if (editorPosition) {

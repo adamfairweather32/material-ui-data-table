@@ -4,6 +4,7 @@ import Pluralize from 'react-pluralize';
 import ErrorIcon from '@material-ui/icons/Error';
 import { Typography, Paper } from '@material-ui/core';
 import DataTableSearchBox from './DataTableSearchBox';
+import { ERROR_COLOUR } from '../constants';
 
 const styles = theme => ({
     root: {
@@ -19,7 +20,7 @@ const styles = theme => ({
         padding: '0px 2px 0px 2px',
         color: '#fff',
         fontWeight: theme.typography.fontWeightMedium,
-        backgroundColor: theme.palette.error.main
+        backgroundColor: ERROR_COLOUR
     },
     alertIcon: {
         margin: '2px'
