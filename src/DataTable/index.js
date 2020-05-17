@@ -108,7 +108,7 @@ export class DataTable extends Component {
     }
 
     componentDidUpdate() {
-        // console.log('componentDidUpdate');
+        logger.debug('DataTable componentDidUpdate');
         const {
             editor: { available }
         } = this.state;
@@ -156,12 +156,12 @@ export class DataTable extends Component {
 
     assignEditorMouseWheelHandler = () => {
         if (this.editorRef && this.editorRef.current) {
-            this.editorRef.current.onwheel = this.handleEditorWheel;
+            this.editorRef.current.addEventListener('wheel', this.handleEditorWheel, { passive: false });
         }
     };
 
     focusEditor = () => {
-        // console.log('focusEditor');
+        logger.debug('DataTable focusEditor');
         const editorElement = document.getElementById(EDITOR_INPUT_ID);
         if (editorElement) {
             editorElement.focus();
@@ -179,7 +179,6 @@ export class DataTable extends Component {
     };
 
     positionEditor = id => {
-        // move the editor to the current active cell position
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
@@ -201,12 +200,12 @@ export class DataTable extends Component {
     };
 
     activateEditor = id => {
-        // console.log('activateEditor', id);
+        logger.debug('DataTable activateEditor', id);
         this.activateOrDeactivateEditor(true, id);
     };
 
     deactivateEditor = () => {
-        // console.log('deactivateEditor');
+        logger.debug('DataTable deactivateEditor');
         this.activateOrDeactivateEditor(false);
     };
 
@@ -286,12 +285,12 @@ export class DataTable extends Component {
     };
 
     handleCellDoubleClick = id => {
-        // console.log('handleCellDoubleClick');
+        logger.debug('DataTable handleCellDoubleClick');
         this.activateEditor(id);
     };
 
     handleEditorBlur = () => {
-        // console.log('handleEditorBlur');
+        logger.debug('DataTable handleEditorBlur');
         this.setState(prevState => ({
             editor: {
                 ...prevState.editor,
@@ -379,7 +378,7 @@ export class DataTable extends Component {
     };
 
     handleCellMouseDown = event => {
-        // console.log('handleCellMouseDown');
+        logger.debug('DataTable handleCellMouseDown');
         if (this.editorRef.current) {
             this.editorRef.current.blur();
         }

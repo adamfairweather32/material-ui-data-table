@@ -225,18 +225,18 @@ const App = ({ classes }) => {
 
     const handleEdit = (value, row, field) => {
         // eslint-disable-next-line
-        console.log('Handle edit = ', value, row, field);
+        logger.debug('Handle edit = ', value, row, field);
         setRows(prevRows => getUpdatedRows(value, row, field, prevRows));
     };
 
     const handleDelete = rowsToDelete => {
         // eslint-disable-next-line
-        console.log('Handle delete = ', rowsToDelete);
+        logger.debug('Handle delete = ', rowsToDelete);
     };
 
     const handleAdd = rowToAdd => {
         // eslint-disable-next-line
-        console.log('Handle add = ', rowToAdd);
+        logger.debug('Handle add = ', rowToAdd);
     };
 
     const handleClick = () => {

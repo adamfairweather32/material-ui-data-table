@@ -137,7 +137,7 @@ class DataTableTextEditor extends Component {
     };
 
     handleKeyDown = e => {
-        // console.log('DataTableTextEditor handleKeyDown');
+        logger.debug('DataTableTextEditor handleKeyDown');
         const { editing } = this.state;
         const { column, row, value, dataId, onCellChange, onActivateEditor, onDeactivateEditor, onMove } = this.props;
         const {
@@ -178,7 +178,7 @@ class DataTableTextEditor extends Component {
     };
 
     handleFocus = () => {
-        // console.log('DataTableTextEditor handleFocus');
+        logger.debug('DataTableTextEditor handleFocus');
         const { value } = this.props;
         if (value) {
             removeTextSelection();
@@ -186,7 +186,7 @@ class DataTableTextEditor extends Component {
     };
 
     handleDoubleClick = () => {
-        // console.log('DataTableTextEditor handleDoubleClick');
+        logger.debug('DataTableTextEditor handleDoubleClick');
         const { editing } = this.state;
         if (!editing) {
             this.setState({ clearOnType: false });

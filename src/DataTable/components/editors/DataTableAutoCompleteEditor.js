@@ -30,7 +30,6 @@ class DataTableAutoCompleteEditor extends Component {
             editing: false,
             enterEditing: false
         };
-        // logMe(this);
     }
 
     canAcceptValue = () => {
@@ -84,14 +83,14 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleChange = e => {
-        console.log('DataTableAutoCompleteEditor handleChange');
+        logger.debug('DataTableAutoCompleteEditor handleChange');
         const { column, row, onCellChange } = this.props;
         const { field } = column;
         onCellChange(e.target.value, row, field);
     };
 
     handleKeyPress = e => {
-        console.log('DataTableAutoCompleteEditor handleKeyPress');
+        logger.debug('DataTableAutoCompleteEditor handleKeyPress');
         const { onCellChange, row, column } = this.props;
         const { field } = column;
         const { enterEditing } = this.state;
@@ -105,7 +104,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleKeyDown = e => {
-        console.log('DataTableAutoCompleteEditor handleKeyDown');
+        logger.debug('DataTableAutoCompleteEditor handleKeyDown');
         const { editing } = this.state;
         const { column, value, onCellChange, onActivateEditor, onDeactivateEditor, dataId, onMove, row } = this.props;
         const { clearable = false, field } = column;
@@ -136,7 +135,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleBlur = () => {
-        console.log('DataTableAutoCompleteEditor handleBlur');
+        logger.debug('DataTableAutoCompleteEditor handleBlur');
         const { onBlur, onDeactivateEditor } = this.props;
         this.setState({ focused: false, editing: false });
         this.commitChange();
@@ -145,7 +144,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleFocus = () => {
-        console.log('DataTableAutoCompleteEditor handleFocus');
+        logger.debug('DataTableAutoCompleteEditor handleFocus');
         const { onActivateEditor } = this.props;
         removeTextSelection();
         this.setState({ focused: true });
@@ -153,7 +152,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleInputClick = e => {
-        console.log('DataTableAutoCompleteEditor handleInputClick');
+        logger.debug('DataTableAutoCompleteEditor handleInputClick');
         const isDropdownClick =
             e.target.tagName && (e.target.tagName.toUpperCase() === 'PATH' || e.target.tagName.toUpperCase() === 'SVG');
 
@@ -168,7 +167,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     handleAutocompleteChange = (e, item) => {
-        console.log('DataTableAutoCompleteEditor handleAutocompleteChange');
+        logger.debug('DataTableAutoCompleteEditor handleAutocompleteChange');
         const { id, onCellChange, row, column } = this.props;
         const { field } = column;
         if (item && item.value) {
