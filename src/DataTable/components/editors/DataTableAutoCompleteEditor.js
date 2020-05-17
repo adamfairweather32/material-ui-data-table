@@ -44,7 +44,7 @@ class DataTableAutoCompleteEditor extends Component {
         } = column;
         const { free } = autoComplete;
 
-        return free || (value !== '' && autoComplete.options[value]);
+        return free || (value !== '' && isNaN(value) && autoComplete.options[value]);
     };
 
     enterEditMode = () => {
@@ -87,7 +87,6 @@ class DataTableAutoCompleteEditor extends Component {
         console.log('DataTableAutoCompleteEditor handleChange');
         const { column, row, onCellChange } = this.props;
         const { field } = column;
-        console.log('e.target.value = ', e.target.value);
         onCellChange(e.target.value, row, field);
     };
 
@@ -98,7 +97,6 @@ class DataTableAutoCompleteEditor extends Component {
         const { enterEditing } = this.state;
         if (enterEditing) {
             const char = String.fromCharCode(e.which);
-            console.log('char = ', char);
             onCellChange(char, row, field);
             this.setState({
                 enterEditing: false
@@ -121,6 +119,7 @@ class DataTableAutoCompleteEditor extends Component {
         if (!editing && [UP, DOWN, LEFT, RIGHT].includes(e.keyCode)) {
             onDeactivateEditor();
             onMove(e.keyCode);
+            onActivateEditor(dataId);
             return;
         }
         if (!editing && clearable && value && e.keyCode === DELETE) {
@@ -128,7 +127,6 @@ class DataTableAutoCompleteEditor extends Component {
             return;
         }
         if (!editing && e.keyCode !== DELETE && isValidChar(String.fromCharCode(e.keyCode), ALPHA_NUMERIC_TYPE)) {
-            console.log('enterEditMode');
             this.enterEditMode();
         }
         if (e.keyCode === ESC) {
@@ -139,9 +137,11 @@ class DataTableAutoCompleteEditor extends Component {
 
     handleBlur = () => {
         console.log('DataTableAutoCompleteEditor handleBlur');
-        const { onBlur } = this.props;
+        const { onBlur, onDeactivateEditor } = this.props;
         this.setState({ focused: false, editing: false });
+        this.commitChange();
         onBlur();
+        onDeactivateEditor();
     };
 
     handleFocus = () => {
@@ -209,7 +209,6 @@ class DataTableAutoCompleteEditor extends Component {
         const inputProps = {
             readOnly: !editing || !editable
         };
-        console.log('DataTableAutoCompleteEditor render. option, value', option, value);
         return (
             <div className={classes.autocompleteWrapper}>
                 <StyledAutocomplete

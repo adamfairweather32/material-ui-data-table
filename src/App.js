@@ -211,12 +211,6 @@ const App = ({ classes }) => {
     // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment
     // TODO: make editing stuff internal to components and then just publish change when it's committed
 
-    // TODO: auto complete editor
-    // should always clear the text in the combo when typing
-    // allow ctrl-back to highlight the whole block of text then delete
-    // navigating up and down in combos does not bring editor to front
-    // the old selected value when pressed with a number "sticks" in the combo when you move away from it
-
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
