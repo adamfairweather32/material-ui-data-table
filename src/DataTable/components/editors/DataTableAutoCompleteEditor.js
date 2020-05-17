@@ -47,6 +47,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     enterEditMode = () => {
+        logger.debug('DataTableAutoCompleteEditor enterEditMode');
         const { id } = this.props;
         this.setState({
             enterEditing: true,
@@ -56,6 +57,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     exitEditMode = (cancel = false) => {
+        logger.debug('DataTableAutoCompleteEditor exitEditMode');
         const { id, onCancel, onCommit } = this.props;
         this.setState({
             enterEditing: false,
@@ -70,6 +72,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     commitChange = () => {
+        logger.debug('DataTableAutoCompleteEditor commitChange');
         const { editing } = this.state;
         if (editing) {
             const cancel = !this.canAcceptValue();
@@ -78,6 +81,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     cancelChange = () => {
+        logger.debug('DataTableAutoCompleteEditor cancelChange');
         removeTextSelection();
         this.exitEditMode(true);
     };
