@@ -143,9 +143,8 @@ export class DataTable extends Component {
         }
     };
 
-    getFilteredAndSortedRows = () => {
+    getFilteredAndSortedRows = rows => {
         const { preparedColumns, searchText, order, orderBy } = this.state;
-        const { rows } = this.props;
         const { showFilter } = this.props;
 
         const filteredItems = fastFilter(rows, r => !showFilter || filterRow(r, preparedColumns, searchText));
@@ -240,7 +239,8 @@ export class DataTable extends Component {
         const {
             scroll: { top }
         } = this.state;
-        const filteredRows = this.getFilteredAndSortedRows();
+        const { rows } = this.props;
+        const filteredRows = this.getFilteredAndSortedRows(getValidatedRows(rows));
         this.handleScroll(filteredRows)({ target: { scrollTop: top } });
     };
 
@@ -482,6 +482,8 @@ export class DataTable extends Component {
                 windowedRows.push({ ...filteredRows[index], visible: true });
             }
             const row = filteredRows[index];
+            const { validations: { errors } = {} } = row || {};
+            const { validations: { warnings } = {} } = row || {};
             items.push(
                 <DataTableRow
                     tableId={this.tableId.current}
@@ -489,6 +491,8 @@ export class DataTable extends Component {
                     editing={active ? tracking : null}
                     editorFocused={available}
                     key={row.id}
+                    errors={errors}
+                    warnings={warnings}
                     columns={preparedColumns}
                     columnElements={columnElements}
                     row={row}
@@ -542,17 +546,17 @@ export class DataTable extends Component {
                 });
         }
         const rowId = getRowId(tracking);
-        const row = rowId && rows.find(r => r.id.toString() === rowId.toString());
+        const validatedRows = getValidatedRows(rows, rules);
+        const row = rowId && validatedRows.find(r => r.id.toString() === rowId.toString());
         const column = tracking && getColumn(tracking, preparedColumns);
         const { field: activeField } = column || {};
         const draftedRow = this.getOriginalOrDraft(row);
         const value = draftedRow && draftedRow[activeField];
 
-        const filteredRows = this.getFilteredAndSortedRows();
+        const filteredRows = this.getFilteredAndSortedRows(validatedRows);
+
         const errorCount = _.sum(
-            _.flatMap(getValidatedRows(rows, rules), row =>
-                row.validations && !_.isEmpty(row.validations.errors) ? 1 : 0
-            )
+            _.flatMap(validatedRows, row => (row.validations && !_.isEmpty(row.validations.errors) ? 1 : 0))
         );
 
         return (
@@ -608,8 +612,6 @@ export class DataTable extends Component {
                             dataId={tracking}
                             value={value}
                             row={row}
-                            error={null} // TODO:
-                            warning={null} // TODO:
                             column={column}
                             onMove={this.handleMove}
                             onBlur={this.handleEditorBlur}

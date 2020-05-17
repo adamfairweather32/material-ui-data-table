@@ -186,7 +186,7 @@ class DataTableAutoCompleteEditor extends Component {
     };
 
     render() {
-        const { classes, id, dataId, column, value, warning, error, inputRef } = this.props;
+        const { classes, id, dataId, column, value, inputRef } = this.props;
         const { focused, editing } = this.state;
         const {
             rich: {
@@ -199,16 +199,7 @@ class DataTableAutoCompleteEditor extends Component {
         const { free, options } = autoComplete;
         const openMenu = focused && editing;
         const option = isNaN(value) && options[value]; // do not allow numbers to index into the array
-        const stylingProps = {
-            style: {}
-        };
 
-        if (warning && !error) {
-            stylingProps.style = {
-                ...stylingProps.style,
-                backgroundColor: WARNING_COLOUR
-            };
-        }
         const inputProps = {
             readOnly: !editing || !editable
         };
@@ -239,8 +230,6 @@ class DataTableAutoCompleteEditor extends Component {
                     renderInput={params => (
                         <StyledTextFieldNoBorder
                             {...params}
-                            error={!!error}
-                            title={error || warning || (option && option.label)}
                             variant="outlined"
                             inputRef={inputRef}
                             fullWidth
@@ -256,8 +245,7 @@ class DataTableAutoCompleteEditor extends Component {
                                 autoComplete: 'disabled',
                                 style: {
                                     textOverflow: 'ellipsis'
-                                },
-                                ...stylingProps
+                                }
                             }}
                         />
                     )}

@@ -227,10 +227,9 @@ class DataTableTextEditor extends Component {
     };
 
     render() {
-        const { value, column, error, warning, id, dataId, inputRef } = this.props;
-        const { editing } = this.state;
+        const { value, column, id, dataId, inputRef } = this.props;
         const {
-            rich: { numeric = false, editable = false, currency, blink = false }
+            rich: { numeric = false, editable = false, currency }
         } = column;
 
         const formattedValue = this.formatValue(value, currency);
@@ -242,33 +241,13 @@ class DataTableTextEditor extends Component {
             }
         };
 
-        const { warnNegative = true } = currency || {};
-
-        const showNegativeCurrencyWarning = warnNegative && formattedValue && formattedValue.toString().includes('(');
-
-        if (!warning && showNegativeCurrencyWarning) {
-            stylingProps.style = {
-                ...stylingProps.style,
-                color: ERROR_COLOUR
-            };
-        }
-        if (warning && !error) {
-            stylingProps.style = {
-                ...stylingProps.style,
-                backgroundColor: WARNING_COLOUR
-            };
-        }
-        const previousValue = null; // TODO:
-        const blinkColour = !editing && blink ? getBlinkDirectionColour(value, previousValue) : null;
         return (
             <StyledOutlinedInput
                 id={id}
                 data-id={dataId}
-                error={!!error}
-                className={blinkColour ? `${BLINK_CSS_PREFIX}-${blinkColour}` : undefined}
                 value={formattedValue}
                 autoComplete="off"
-                title={error || warning || formattedValue}
+                title={formattedValue}
                 onDoubleClick={this.handleDoubleClick}
                 onKeyDown={this.handleKeyDown}
                 onKeyPress={editable ? this.handleKeyPress : undefined}

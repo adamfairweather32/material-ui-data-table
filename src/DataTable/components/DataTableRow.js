@@ -39,6 +39,8 @@ const DataTableRow = ({
     tracking,
     editorFocused,
     editing,
+    errors,
+    warnings,
     columns,
     columnElements,
     selected,
@@ -109,7 +111,6 @@ const DataTableRow = ({
         position: 'absolute'
     };
     logger.debug('DataTableRow render');
-
     return (
         <TableRow
             hover
