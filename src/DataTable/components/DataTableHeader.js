@@ -208,6 +208,7 @@ export class DataTableHeader extends Component {
     };
 
     render() {
+        logger.debug('DataTableHeader render');
         const { classes, columns, rowHeight } = this.props;
         const hasParentHeader = columns.filter(c => c.parentHeaderName).length > 0;
         return (

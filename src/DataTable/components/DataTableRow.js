@@ -108,6 +108,8 @@ const DataTableRow = ({
         width: tableWidth,
         position: 'absolute'
     };
+    logger.debug('DataTableRow render');
+
     return (
         <TableRow
             hover

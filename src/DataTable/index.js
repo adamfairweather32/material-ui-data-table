@@ -512,6 +512,7 @@ export class DataTable extends Component {
     };
 
     render() {
+        logger.debug('DataTable render');
         const { classes, tableHeight, rowHeight, rows, rules, onAdd, onEdit, onDelete } = this.props;
         const style = { maxHeight: tableHeight, minHeight: '200px', borderRadius: 0 };
         const {

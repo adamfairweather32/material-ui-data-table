@@ -79,6 +79,7 @@ export class DataTableContextMenu extends Component {
     };
 
     render() {
+        logger.debug('DataTableContextMenu render');
         const { type } = this.props;
         switch (type) {
             case COLUMN_HEADER_MENU_TARGET: {

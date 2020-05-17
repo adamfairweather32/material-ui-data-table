@@ -52,6 +52,7 @@ class DataTableField extends Component {
     };
 
     render = () => {
+        logger.debug('DataTableField render');
         const { classes, id, tracking, editing, editorFocused, value, rowHeight, onMouseDown, column } = this.props;
         const { rich: { numeric = false } = {} } = column || { rich: {} };
         return (

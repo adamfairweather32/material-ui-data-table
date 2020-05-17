@@ -36,6 +36,7 @@ export class DataTableTopPanel extends Component {
     }
 
     render() {
+        logger.debug('DataTableTopPanel render');
         const { classes, showFilter, showErrors, errorCount, onSearchTextChanged } = this.props;
 
         if (!showFilter && !showErrors) {

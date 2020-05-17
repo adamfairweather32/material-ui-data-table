@@ -8,6 +8,7 @@ import { COMBO_TYPE, DATE_TYPE } from '../constants';
 
 class DataTableEditor extends Component {
     render() {
+        logger.debug('DataTableEditor render');
         const { column, inputRef, ...rest } = this.props;
         const type = column && getColumnType(column);
         if (!type) {

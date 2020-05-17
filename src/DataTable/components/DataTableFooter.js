@@ -131,6 +131,7 @@ export class DataTableFooter extends Component {
     };
 
     render() {
+        logger.debug('DataTableFooter render');
         const { columns, classes, rowHeight } = this.props;
 
         if (!columns.filter(c => c.total).length) {
