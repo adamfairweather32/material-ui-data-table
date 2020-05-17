@@ -639,7 +639,7 @@ export class DataTable extends Component {
                         onVisibilitiesChanged={this.handleColumnVisibilityChanged}
                         onClose={this.handleMenuClose}
                     />
-                    {`*****EDITOR STATE***** = ${JSON.stringify({ ...this.state.editor })}`}
+                    {/* {`*****EDITOR STATE***** = ${JSON.stringify({ ...this.state.editor })}`} */}
                 </div>
             </>
         );

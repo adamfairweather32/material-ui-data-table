@@ -4,7 +4,15 @@ import StyledOutlinedInput from '../../styled/StyledOutlinedInput';
 class DataTableDateEditor extends Component {
     render() {
         const { id, inputRef, onBlur } = this.props;
-        return <StyledOutlinedInput id={id} onBlur={onBlur} variant="outlined" inputRef={inputRef} />;
+        return (
+            <StyledOutlinedInput
+                id={id}
+                onBlur={onBlur}
+                variant="outlined"
+                inputRef={inputRef}
+                inputProps={{ autoComplete: 'disabled' }}
+            />
+        );
     }
 }
 
