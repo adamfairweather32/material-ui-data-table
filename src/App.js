@@ -204,7 +204,6 @@ const App = ({ classes }) => {
     // TODO: use classes to identify table sub elements
     // TODO: need more unit tests around grid navigation
     // TODO: implement other editors
-    // TODO: implement cell blinkers
     // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment
     // TODO: make editing stuff internal to components and then just publish change when it's committed
 

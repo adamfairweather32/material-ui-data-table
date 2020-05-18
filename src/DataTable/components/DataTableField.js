@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import { getDescriptorOrValue, getBlinkDirectionColour, getFormattedCurrencyValue } from '../helpers/helpers';
+import './DataTableField.css';
 
-import { ERROR_COLOUR, WARNING_COLOUR } from '../constants';
+import { ERROR_COLOUR, WARNING_COLOUR, BLINK_CSS_PREFIX } from '../constants';
 
 const MAIN_DIV_PADDING_PX = 5;
 const OFFSET_PX = 1;
@@ -26,9 +27,14 @@ const styles = () => ({
 });
 
 class DataTableField extends Component {
+    constructor(props) {
+        super(props);
+        this.previousValue = createRef();
+    }
+
     shouldComponentUpdate(nextProps) {
         const { id, value, tracking, editing, editorFocused, error, warning } = this.props;
-
+        this.previousValue.current = value;
         // should only update this cell if it was previous tracking/editing and is no longer tracking/editing
         const isChangingTrackingState = this.isChangingState({ id, tracking }, nextProps, 'tracking', 'id');
         const isChangingEditingState = this.isChangingState({ id, editing }, nextProps, 'editing', 'id');
@@ -59,26 +65,24 @@ class DataTableField extends Component {
         onDoubleClick(id);
     };
 
+    getCss = () => {
+        const { editorFocused, tracking, id, value, column, classes } = this.props;
+        const { rich: { blink = false } = {} } = column || { rich: {} };
+        const blinkColour = blink ? getBlinkDirectionColour(value, this.previousValue.current) : null;
+        return clsx(
+            classes.mainDiv,
+            editorFocused && tracking === id && classes.activeDiv,
+            blinkColour && `${BLINK_CSS_PREFIX}-${blinkColour}`
+        );
+    };
+
     render = () => {
         logger.debug('DataTableField render');
-        const {
-            classes,
-            id,
-            tracking,
-            editing,
-            editorFocused,
-            warning,
-            error,
-            value,
-            rowHeight,
-            onMouseDown,
-            column
-        } = this.props;
-        const { rich: { numeric = false, currency, blink = false } = {} } = column || { rich: {} };
+        const { id, editing, warning, error, value, rowHeight, onMouseDown, column } = this.props;
+        const { rich: { numeric = false, currency } = {} } = column || { rich: {} };
         const { warnNegative = true, showCurrencySymbol = true } = currency || {};
-        const previousValue = value; // TODO:
         const formattedValue = this.formatValue(value, currency, showCurrencySymbol);
-        const blinkColour = !editing && blink ? getBlinkDirectionColour(value, previousValue) : null;
+
         const showNegativeCurrencyWarning = warnNegative && currency && value < 0;
         let fooStyle = {
             textAlign: numeric ? 'right' : undefined,
@@ -101,6 +105,7 @@ class DataTableField extends Component {
                 backgroundColor: WARNING_COLOUR
             };
         }
+
         return (
             <div
                 tabIndex={-1}
@@ -109,9 +114,7 @@ class DataTableField extends Component {
                 title={error || warning || formattedValue}
                 onMouseDown={onMouseDown}
                 onDoubleClick={this.handleDoubleClick(id)}
-                className={
-                    editorFocused && tracking === id ? clsx(classes.mainDiv, classes.activeDiv) : classes.mainDiv
-                }
+                className={this.getCss()}
                 style={fooStyle}>
                 {getDescriptorOrValue(formattedValue, column)}
             </div>
