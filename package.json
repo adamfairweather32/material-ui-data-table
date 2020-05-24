@@ -23,6 +23,7 @@
     "pino-pretty": "^4.0.0",
     "react": "16.12.0",
     "react-dom": "16.12.0",
+    "react-input-mask": "^2.0.4",
     "react-pluralize": "^1.6.3",
     "recursive-diff": "^1.0.6",
     "strip-ansi": "^6.0.0",
