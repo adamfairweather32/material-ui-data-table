@@ -72,14 +72,14 @@ class DataTableDateEditor extends Component {
 
     exitEditMode = cancel => {
         logger.debug('DataTableDateEditor exitEditMode');
-        const { id } = this.props;
+        const { id, onCancel, onCommit } = this.props;
         this.setState({
             editing: false
         });
         if (cancel) {
-            this.onCancel();
+            onCancel();
         } else {
-            this.onCommit();
+            onCommit();
         }
 
         removeCellIsEditing(id);
@@ -87,7 +87,8 @@ class DataTableDateEditor extends Component {
 
     commitChange = () => {
         logger.debug('DataTableDateEditor commitChange');
-        const { editing, value } = this.props;
+        const { editing } = this.state;
+        const { value } = this.props;
         if (editing) {
             const cancel = !this.canAcceptValue(value);
             this.exitEditMode(cancel);
@@ -99,7 +100,7 @@ class DataTableDateEditor extends Component {
         this.exitEditMode(true);
     };
 
-    handleCalendarChange = (date, _) => {
+    handleCalendarChange = date => {
         logger.debug('DataTableDateEditor handleCalendarChange');
         const { row, field, onCellChange } = this.props;
         this.setState({
@@ -154,7 +155,9 @@ class DataTableDateEditor extends Component {
     };
 
     handleShowCalendar = () => {
-        logger.debug('DataTableDateEditor handleCalendar');
+        logger.debug('DataTableDateEditor handleShowCalendar');
+        const { onActivateEditor } = this.props;
+        onActivateEditor();
         this.setState({
             showCalendar: true
         });
@@ -177,12 +180,13 @@ class DataTableDateEditor extends Component {
 
     handleBlur = () => {
         logger.debug('DataTableDateEditor handleBlur');
-        const { onBlur, value } = this.props;
+        const { value } = this.props;
         const cancel = !this.canAcceptValue(value);
         if (cancel) {
             this.cancelChange();
+        } else {
+            this.commitChange();
         }
-        onBlur();
     };
 
     handleFocus = () => {
@@ -191,9 +195,15 @@ class DataTableDateEditor extends Component {
         onActivateEditor();
     };
 
+    handleClick = () => {
+        logger.debug('DataTableDateEditor handleClick');
+    };
+
     render() {
+        logger.debug('DataTableDateEditor render');
         const { editing, showCalendar } = this.state;
         const { id, inputRef, warning, error, column, value } = this.props;
+        logger.debug('DataTableDateEditor value = ', value);
         const {
             rich: {
                 editable = false,
@@ -221,6 +231,7 @@ class DataTableDateEditor extends Component {
                         error={!!error}
                         title={error || warning || value}
                         value={!editing && isValidDate(value) ? format(new Date(value), formatString) : value}
+                        onClick={this.handleClick}
                         onChange={this.handleChange}
                         onKeyDown={this.handleKeyDown}
                         onKeyPress={this.handleKeyPress}
