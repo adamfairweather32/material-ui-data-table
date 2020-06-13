@@ -102,7 +102,11 @@ class DataTableDateEditor extends Component {
 
     handleCalendarChange = date => {
         logger.debug('DataTableDateEditor handleCalendarChange');
-        const { row, field, onCellChange } = this.props;
+        const {
+            row,
+            column: { field },
+            onCellChange
+        } = this.props;
         this.setState({
             editing: false,
             showCalendar: false
@@ -124,8 +128,12 @@ class DataTableDateEditor extends Component {
 
     handleChange = event => {
         logger.debug('DataTableDateEditor handleChange');
-        const { row, column, onCellChange } = this.props;
-        onCellChange(event.target.value, row, column.field);
+        const {
+            row,
+            column: { field },
+            onCellChange
+        } = this.props;
+        onCellChange(event.target.value, row, field);
     };
 
     handleKeyDown = e => {
@@ -203,7 +211,6 @@ class DataTableDateEditor extends Component {
         logger.debug('DataTableDateEditor render');
         const { editing, showCalendar } = this.state;
         const { id, inputRef, warning, error, column, value } = this.props;
-        logger.debug('DataTableDateEditor value = ', value);
         const {
             rich: {
                 editable = false,
