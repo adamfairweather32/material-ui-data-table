@@ -16,7 +16,11 @@ import {
     NUMERIC_TYPE,
     ENTER,
     DELETE,
-    WARNING_COLOUR
+    WARNING_COLOUR,
+    DOWN,
+    UP,
+    LEFT,
+    RIGHT
 } from '../../constants';
 import {
     isValidChar,
@@ -141,7 +145,7 @@ class DataTableDateEditor extends Component {
 
     handleKeyDown = e => {
         logger.debug('DataTableDateEditor handleKeyDown');
-        const { column, onCellChange, row, value } = this.props;
+        const { column, onCellChange, onActivateEditor, onDeactivateEditor, onMove, dataId, row, value } = this.props;
         const {
             rich: { editable = false },
             clearable = false
@@ -162,6 +166,12 @@ class DataTableDateEditor extends Component {
         }
         if (editing && e.keyCode === ENTER) {
             this.commitChange();
+            onMove(DOWN);
+        }
+        if (!editing && [UP, DOWN, LEFT, RIGHT].includes(e.keyCode)) {
+            onDeactivateEditor();
+            onMove(e.keyCode);
+            onActivateEditor(dataId);
         }
     };
 
