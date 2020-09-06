@@ -127,7 +127,10 @@ class DataTableDateEditor extends Component {
     };
 
     handleChange = event => {
-        logger.debug('DataTableDateEditor handleChange');
+        logger.debug('DataTableDateEditor handleChange value = ', event.target.value);
+        if (event.target.value === '2___-__-__' || event.target.value === '') {
+            return;
+        }
         const {
             row,
             column: { field },
@@ -164,8 +167,6 @@ class DataTableDateEditor extends Component {
 
     handleShowCalendar = () => {
         logger.debug('DataTableDateEditor handleShowCalendar');
-        const { onActivateEditor } = this.props;
-        onActivateEditor();
         this.setState({
             showCalendar: true
         });
@@ -203,14 +204,10 @@ class DataTableDateEditor extends Component {
         onActivateEditor();
     };
 
-    handleClick = () => {
-        logger.debug('DataTableDateEditor handleClick');
-    };
-
     render() {
-        logger.debug('DataTableDateEditor render');
         const { editing, showCalendar } = this.state;
         const { id, inputRef, warning, error, column, value } = this.props;
+        logger.debug('DataTableDateEditor render value = ', value);
         const {
             rich: {
                 editable = false,
@@ -238,7 +235,6 @@ class DataTableDateEditor extends Component {
                         error={!!error}
                         title={error || warning || value}
                         value={!editing && isValidDate(value) ? format(new Date(value), formatString) : value}
-                        onClick={this.handleClick}
                         onChange={this.handleChange}
                         onKeyDown={this.handleKeyDown}
                         onKeyPress={this.handleKeyPress}

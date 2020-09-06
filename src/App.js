@@ -203,9 +203,10 @@ const App = ({ classes }) => {
 
     // TODO: use classes to identify table sub elements
     // TODO: need more unit tests around grid navigation
-    // TODO: implement other editors
     // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment
     // TODO: make editing stuff internal to components and then just publish change when it's committed
+    // TODO: navigation on date editors doesn't work
+    // TODO: clearing date editor doesn't work
 
     // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
