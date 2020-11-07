@@ -203,14 +203,12 @@ const App = ({ classes }) => {
 
     // TODO: use classes to identify table sub elements
     // TODO: need more unit tests around grid navigation
-    // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment
+    // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment (use ellipsis)
     // TODO: make editing stuff internal to components and then just publish change when it's committed
-
-    // TODO: make table body so that it fits exactly the number of rows given
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: remove checkboxes and add row headers
-    // TODO: should render 1 extra row bigger than visible table area
+    // TODO: removing columns pushes out alignment
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
