@@ -36,6 +36,7 @@ export class DataTableBottomPanel extends Component {
     };
 
     render() {
+        logger.debug('DataTableBottomPanel render');
         const { classes, canAdd, canDelete } = this.props;
         return (
             <div className={classes.root}>

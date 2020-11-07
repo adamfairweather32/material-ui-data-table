@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import { withStyles } from '@material-ui/core/styles';
 import Pluralize from 'react-pluralize';
 import ErrorIcon from '@material-ui/icons/Error';
 import { Typography, Paper } from '@material-ui/core';
 import DataTableSearchBox from './DataTableSearchBox';
+import { ERROR_COLOUR } from '../constants';
 
 const styles = theme => ({
     root: {
@@ -20,7 +20,7 @@ const styles = theme => ({
         padding: '0px 2px 0px 2px',
         color: '#fff',
         fontWeight: theme.typography.fontWeightMedium,
-        backgroundColor: theme.palette.error.main
+        backgroundColor: ERROR_COLOUR
     },
     alertIcon: {
         margin: '2px'
@@ -31,16 +31,13 @@ const styles = theme => ({
 });
 
 export class DataTableTopPanel extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     shouldComponentUpdate(nextProps) {
         const { errorCount } = this.props;
         return errorCount !== nextProps.errorCount;
     }
 
     render() {
+        logger.debug('DataTableTopPanel render');
         const { classes, showFilter, showErrors, errorCount, onSearchTextChanged } = this.props;
 
         if (!showFilter && !showErrors) {
@@ -53,7 +50,9 @@ export class DataTableTopPanel extends Component {
                 {showAlert && (
                     <Paper className={classes.alertContainer}>
                         <ErrorIcon className={classes.alertIcon} />
-                        <Typography className={classes.alertLabel}>
+                        <Typography
+                            className={classes.alertLabel}
+                            title={`${errorCount} error${errorCount > 1 ? 's' : ''} detected`}>
                             <Pluralize singular="error" count={errorCount} />
                         </Typography>
                     </Paper>

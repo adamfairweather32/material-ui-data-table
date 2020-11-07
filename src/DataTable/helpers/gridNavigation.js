@@ -6,11 +6,12 @@ import {
     LEFT_DIR,
     RIGHT_DIR,
     UP_DIR,
-    DOWN_DIR
+    DOWN_DIR,
+    SELECTOR
 } from '../constants';
 import { getColumnType, createCellId, getDuplicates, cellIsEditing, focus } from './helpers';
 
-const getRowAndColumnIdentifiers = id => {
+export const getRowAndColumnIdentifiers = id => {
     if (!id) {
         throw Error('id is empty!');
     }
@@ -39,16 +40,24 @@ export const getColumn = (id, columns) => {
     return column;
 };
 
+// TODO: need a test for this
+export const getRowId = id => {
+    const { rowIdentifier } = (id && getRowAndColumnIdentifiers(id)) || {};
+    return rowIdentifier;
+};
+
 export const isEditable = (id, columns) => {
     const { rich } = getColumn(id, columns);
     return !!rich && !!rich.editable;
 };
 
-const getIncludedKeys = columns => {
-    const included = columns.map(c => ({
-        field: c.field,
-        type: getColumnType(c)
-    }));
+const getIncludedKeys = (columns, excludedFields = []) => {
+    const included = columns
+        .map(c => ({
+            field: c.field,
+            type: getColumnType(c)
+        }))
+        .filter(c => !excludedFields.includes(c.field));
     const includedKeys = included.map((item, columnIndex) => ({
         key: item.field,
         type: item.type,
@@ -86,6 +95,7 @@ const getPositionsForId = (rowIndex, keys) =>
         const { key, columnIndex, type } = cur;
         return {
             ...acc,
+            rowIndex,
             [key]: {
                 columnIndex,
                 rowIndex,
@@ -103,14 +113,14 @@ const getIdsForPosition = (tableId, row, keys) =>
         };
     }, {});
 
-export const getGridNavigationMap = (tableId, rows = [], columns) => {
+export const getGridNavigationMap = (tableId, rows = [], columns, excludedFields = [SELECTOR]) => {
     if (!tableId) {
         throw Error('No tableId provided');
     }
     if (!columns || !columns.length) {
         throw Error('No columns provided');
     }
-    const includedKeys = getIncludedKeys(columns);
+    const includedKeys = getIncludedKeys(columns, excludedFields);
     const hasId = _.every(
         rows.map(r => r.id),
         r => !!r || r === 0
@@ -141,13 +151,7 @@ const willHitBoundary = (newRowIdentifier, gridNavigationMap) => {
     return !idToPositionMap[newRowIdentifier].visible;
 };
 
-const move = (
-    direction,
-    directions,
-    currentId,
-    gridNavigationMap,
-    { activateCell = focus, scroll = null, deactivateCell = null } = {}
-) => {
+const move = (direction, directions, currentId, gridNavigationMap, { activateCell = focus, scroll = null } = {}) => {
     if (!directions.includes(direction)) {
         throw Error(`direction was not one of the expected values: ${directions}`);
     }
@@ -160,21 +164,17 @@ const move = (
     const currentCell = idToPositionMap[rowIdentifier][columnIdentifier];
     if (currentCell) {
         if (comboIsBeingEdited(currentId, currentCell.type)) {
-            console.log('combo edited');
             return;
         }
-        console.log('In here');
         const { rowIndex, columnIndex } = getNewPosition(currentCell, direction);
 
         const rowCount = Object.keys(idToPositionMap).length;
-        const columnCount = Object.keys(Object.values(idToPositionMap)[0]).filter(it => it !== 'visible').length;
-
+        const columnCount = Object.keys(Object.values(idToPositionMap)[0]).filter(
+            it => it !== 'visible' && it !== 'rowIndex'
+        ).length;
         if (isInRange(columnIndex, columnCount) && isInRange(rowIndex, rowCount)) {
             const newId = positionToIdMap[rowIndex][columnIndex];
             const { rowIdentifier: newRowIdentifier } = getRowAndColumnIdentifiers(newId);
-            if (deactivateCell) {
-                deactivateCell(currentId);
-            }
             activateCell(newId, true);
             if (willHitBoundary(newRowIdentifier, gridNavigationMap) && scroll) {
                 scroll();

@@ -25,6 +25,9 @@
     "react/static-property-placement": "off",
     "react/jsx-props-no-spreading": "off"
   },
+  "globals": {
+    "logger": "readonly"
+  },
   "env": {
     "es6": true,
     "jest": true,

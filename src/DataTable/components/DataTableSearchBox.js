@@ -42,6 +42,7 @@ export class DataTableSearchBox extends Component {
     };
 
     render() {
+        logger.debug('DataTableSearchBox render');
         const { searchText } = this.state;
         return (
             <>

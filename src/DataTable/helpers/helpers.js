@@ -13,17 +13,26 @@ import {
     BLINK_DIRECTION_POSITIVE,
     BLINK_DIRECTION_NEGATIVE,
     NUMERIC_TYPE,
-    RESERVED_COLUMNS
+    RESERVED_COLUMNS,
+    SELECTOR
 } from '../constants';
 
 const enrich = column => {
     if (column.rich && column.rich.autoComplete && column.rich.autoComplete.options) {
         column.rich.autoComplete.options.forEach(op => {
             // eslint-disable-next-line
-      column.rich.autoComplete.options[op.value] = op;
+            column.rich.autoComplete.options[op.value] = op;
         });
     }
     return column;
+};
+
+export const getDescriptorOrValue = (value, column) => {
+    const { rich: { autoComplete = {} } = {} } = column;
+    const { options } = autoComplete;
+    const option = (options && options[value]) || { label: value };
+    const { label } = option;
+    return label || value;
 };
 
 export const getDuplicates = (items, keySelector) => {
@@ -64,13 +73,15 @@ export const validateColumns = (columns, reservedColumns = []) => {
     }
 };
 
-export const getPreparedColumns = (columns, visibilities = [], validate = true) => {
+export const getPreparedColumns = (columns, visibilities = [], { editable = false, validate = true }) => {
     if (validate) {
         validateColumns(columns, RESERVED_COLUMNS);
     }
     const hiddenColumns = (visibilities || []).filter(c => !c.visible).map(c => c.field);
-    return columns
-        .filter(c => !c.hidden && !hiddenColumns.includes(c.field))
+    const addSelector = editable && !columns.map(c => c.field).includes(SELECTOR);
+
+    return [addSelector ? { field: SELECTOR } : null, ...columns]
+        .filter(c => c && !c.hidden && !hiddenColumns.includes(c.field))
         .map((column, index) => {
             return { ...enrich(column), index };
         });

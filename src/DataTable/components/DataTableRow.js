@@ -36,6 +36,11 @@ const DataTableRow = ({
     alternate = false,
     classes,
     tableId,
+    tracking,
+    editorFocused,
+    editing,
+    errors,
+    warnings,
     columns,
     columnElements,
     selected,
@@ -43,9 +48,7 @@ const DataTableRow = ({
     rowHeight,
     rowIndex,
     tableWidth,
-    onBlur,
     onCellDoubleClick,
-    onCellKeyDown,
     onMouseDown,
     onSelectedChanged
 }) => {
@@ -62,6 +65,8 @@ const DataTableRow = ({
         const value = row[field];
         const currentColWidth = columnElements[index] ? columnElements[index].getBoundingClientRect().width : 0;
         const labelId = `enhanced-table-checkbox-${rowIndex}`;
+        const { message: warning } = warnings[field] || {};
+        const { message: error } = errors[field] || {};
         return (
             <TableCell
                 component="div"
@@ -76,13 +81,18 @@ const DataTableRow = ({
                 {field !== SELECTOR ? (
                     <DataTableField
                         id={key}
+                        tracking={tracking}
+                        editing={editing}
+                        // editor focus changing state only matters if the current tracked id is this id
+                        // as we don't want to needlessly re-render every cell
+                        editorFocused={tracking === key && editorFocused}
+                        error={error}
+                        warning={warning}
                         column={column}
                         value={value}
                         rowHeight={rowHeight}
                         onMouseDown={onMouseDown}
-                        onBlur={onBlur}
                         onDoubleClick={onCellDoubleClick}
-                        onKeyDown={onCellKeyDown}
                     />
                 ) : (
                     <Checkbox
@@ -104,6 +114,7 @@ const DataTableRow = ({
         width: tableWidth,
         position: 'absolute'
     };
+    logger.debug('DataTableRow render');
     return (
         <TableRow
             hover

@@ -128,7 +128,7 @@ const App = ({ classes }) => {
             field: 'cost',
             headerName: 'Cost (£)',
             parentHeaderName: 'Detail',
-            total: { type: 'sum', predicate: r => !!r },
+            total: { type: 'sum', desc: 'Summing only non-null values', predicate: r => !!r },
             rich: {
                 numeric: true,
                 currency: { warnNegative: true, showCurrencySymbol: true },
@@ -200,13 +200,15 @@ const App = ({ classes }) => {
     ];
 
     // HIGH
-    // TODO: make table body so that it fits exactly the number of rows given
+
+    // TODO: use classes to identify table sub elements
+    // TODO: need more unit tests around grid navigation
+    // TODO: if you shrink the table horizontally, text like ice cream sandwich pushes out the alignment (use ellipsis)
+    // TODO: make editing stuff internal to components and then just publish change when it's committed
     // TODO: enable Ctrl Home/End to go to top left/bottom right of table
     // TODO: when we reach the end of the table then cycle to top of adjacent column to right
     // TODO: remove checkboxes and add row headers
-    // TODO: should render 1 extra row bigger than visible table area
-    // TODO: implement editors
-    // TODO: stop focus moving out of bounds on left when we get to checkbox
+    // TODO: removing columns pushes out alignment
 
     // NICE-TO-HAVE
     // TODO: re-focus cell once date picker calendar is closed
@@ -216,18 +218,18 @@ const App = ({ classes }) => {
 
     const handleEdit = (value, row, field) => {
         // eslint-disable-next-line
-        console.log('Handle edit = ', value, row, field);
+        logger.debug('Handle edit = ', value, row, field);
         setRows(prevRows => getUpdatedRows(value, row, field, prevRows));
     };
 
     const handleDelete = rowsToDelete => {
         // eslint-disable-next-line
-        console.log('Handle delete = ', rowsToDelete);
+        logger.debug('Handle delete = ', rowsToDelete);
     };
 
     const handleAdd = rowToAdd => {
         // eslint-disable-next-line
-        console.log('Handle add = ', rowToAdd);
+        logger.debug('Handle add = ', rowToAdd);
     };
 
     const handleClick = () => {

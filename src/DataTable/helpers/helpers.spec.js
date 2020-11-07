@@ -1,5 +1,6 @@
 import {
     getDuplicates,
+    getDescriptorOrValue,
     validateColumns,
     isValidChar,
     getBlinkDirectionColour,
@@ -16,6 +17,7 @@ import {
 } from './helpers';
 import { NUMERIC_TYPE, CURRENCY_TYPE } from '../constants';
 
+// TODO: add test for selector
 describe('getPreparedColumns', () => {
     it('should filter out columns that are hidden', () => {
         const columns = [
@@ -27,7 +29,7 @@ describe('getPreparedColumns', () => {
                 field: 'bar'
             }
         ];
-        expect(getPreparedColumns(columns, null, false)).to.deep.equal([{ field: 'bar', index: 0 }]);
+        expect(getPreparedColumns(columns, null, { validate: false })).to.deep.equal([{ field: 'bar', index: 0 }]);
     });
     it('should filter out columns that are included in visibility list and set to not visible', () => {
         const columns = [
@@ -39,7 +41,9 @@ describe('getPreparedColumns', () => {
             }
         ];
         const visibilities = [{ field: 'foo', headerName: 'Foo Name', visible: false }];
-        expect(getPreparedColumns(columns, visibilities, false)).to.deep.equal([{ field: 'bar', index: 0 }]);
+        expect(getPreparedColumns(columns, visibilities, { validate: false })).to.deep.equal([
+            { field: 'bar', index: 0 }
+        ]);
     });
     it('should prepare basic column collection', () => {
         const columns = [
@@ -50,7 +54,7 @@ describe('getPreparedColumns', () => {
                 field: 'bar'
             }
         ];
-        expect(getPreparedColumns(columns, null, false)).to.deep.equal([
+        expect(getPreparedColumns(columns, null, { validate: false })).to.deep.equal([
             { field: 'foo', index: 0 },
             { field: 'bar', index: 1 }
         ]);
@@ -69,7 +73,7 @@ describe('getPreparedColumns', () => {
                 }
             }
         ];
-        const prepared = getPreparedColumns(columns, null, false)[0];
+        const prepared = getPreparedColumns(columns, null, { validate: false })[0];
         expect(prepared.rich.autoComplete.options.bar).to.deep.equal({
             label: 'Bar Label',
             value: 'bar'
@@ -116,7 +120,7 @@ describe('getReadonlyDisplayValue', () => {
                 }
             }
         };
-        const preparedColumns = getPreparedColumns([column], null, false);
+        const preparedColumns = getPreparedColumns([column], null, { validate: false });
         expect(getReadonlyDisplayValue('foo', preparedColumns[0])).to.equal('foo display value');
     });
     it('should return original value if no matching autocomplete option', () => {
@@ -536,5 +540,41 @@ describe('getDuplicates', () => {
     });
     it('should return duplicates with default key selector if none provided', () => {
         expect(getDuplicates(['foo', 'bar', 'foo'])).to.deep.equal(['foo']);
+    });
+});
+
+describe('getDescriptorOrValue', () => {
+    it('should just return value if column definition is empty', () => {
+        expect(getDescriptorOrValue('foo', {})).to.equal('foo');
+    });
+
+    it('should just return value if no autocomplete object', () => {
+        expect(getDescriptorOrValue('foo', { field: 'whatever' })).to.equal('foo');
+    });
+
+    it('should just return value if autocomplete object is empty', () => {
+        expect(getDescriptorOrValue('foo', { rich: { autoComplete: {} } })).to.equal('foo');
+    });
+
+    it('should just return value if autocomplete does not have any options', () => {
+        expect(getDescriptorOrValue('foo', { rich: { autoComplete: { options: {} } } })).to.equal('foo');
+    });
+
+    it('should just return value if no label property found', () => {
+        expect(
+            getDescriptorOrValue('foo', { rich: { autoComplete: { options: { foo: { bar: 'foo-label' } } } } })
+        ).to.equal('foo');
+    });
+
+    it('should just return value if no matching entry found', () => {
+        expect(
+            getDescriptorOrValue('foo', { rich: { autoComplete: { options: { bar: { label: 'bar-label' } } } } })
+        ).to.equal('foo');
+    });
+
+    it('should return label', () => {
+        expect(
+            getDescriptorOrValue('foo', { rich: { autoComplete: { options: { foo: { label: 'foo-label' } } } } })
+        ).to.equal('foo-label');
     });
 });
